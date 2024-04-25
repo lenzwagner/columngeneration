@@ -55,7 +55,7 @@ problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
 problem_start.buildLinModel()
 problem_start.model.Params.MIPFocus = 1
 problem_start.model.Params.Heuristics = 1
-problem_start.model.Params.NoRelHeurTime = 100
+problem_start.model.Params.NoRelHeurTime = 5
 problem_start.model.Params.RINS = 10
 problem_start.model.Params.MIPGap = 0.4
 problem_start.model.update()

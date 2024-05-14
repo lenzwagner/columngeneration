@@ -26,7 +26,7 @@ def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagr
         print("*{:^{nr}}*".format("LP-Optimality GAP: " + str(gap_str), nr=nr))
     else:
         print("*{:^{nr}}*".format("LP-Optimality GAP: " + str(gap_str), nr=nr))
-        print("*{:^{nr}}*".format("Column Generation does not prove or provide the global optimal solution!", nr=nr))
+        print("*{:^{nr}}*".format("Column Generation does not prove the global optimal solution!", nr=nr))
     print("*{:^{nr}}*".format("", nr=nr))
     print("*{:^{nr}}*".format("Solving Times:", nr=nr))
     print("*{:^{nr}}*".format(f"Time Column Generation: {round(total_time, 4)} seconds", nr=nr))
@@ -36,12 +36,12 @@ def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagr
         print("*{:^{nr}}*".format(
             "Column Generation is faster by " + str(round((time_problem - round((total_time), 4)), 4)) + " seconds,", nr=nr))
         print("*{:^{nr}}*".format(
-            "which is " + str(round((time_problem/ round(total_time, 4)), 3)) + "x times faster.", nr=nr))
+            "which is " + str(round(((time_problem/ round(total_time, 4))-1)*100, 3)) + "% faster.", nr=nr))
     elif round((total_time), 4) > time_problem:
         print("*{:^{nr}}*".format(
             "Compact solver is faster by " + str(round((round((total_time), 4) - time_problem), 4)) + " seconds,", nr=nr))
         print("*{:^{nr}}*".format(
-            "which is " + str(round((round(total_time, 4)/ time_problem), 4)) + "x times faster.", nr=nr))
+            "which is " + str(round((((round(total_time, 4)/ time_problem))-1)*100, 4)) + "% faster.", nr=nr))
     else:
         print("*{:^{nr}}*".format("Column Generation and compact solver are equally fast: " + str(time_problem) + " seconds", nr=nr))
     print("*" * (nr + 2))

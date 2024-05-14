@@ -55,9 +55,8 @@ problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
 problem_start.buildLinModel()
 problem_start.model.Params.MIPFocus = 1
 problem_start.model.Params.Heuristics = 1
-problem_start.model.Params.NoRelHeurTime = 5
 problem_start.model.Params.RINS = 10
-problem_start.model.Params.MIPGap = 0.4
+problem_start.model.Params.MIPGap = 0.8
 problem_start.model.update()
 problem_start.model.optimize()
 start_values_perf = {}
@@ -253,10 +252,13 @@ gap = ((objValHistRMP[-1]-objValHistRMP[-2])/objValHistRMP[-2])*100
 # Only yields feasible results if the SPs are solved to optimality
 lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
 
+print(f"Lagrangian Bound {sum_rc_hist}")
+
 # Print Results
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)
 
 # Plots
+lagrangeprimal(sum_rc_hist, objValHistRMP, 'primal_dual_plot')
 plot_obj_val(objValHistRMP, 'obj_val_plot')
 plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
 performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')

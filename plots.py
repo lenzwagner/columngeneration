@@ -245,3 +245,29 @@ def optimalityplot(df, df2, last_itr, name):
         plt.savefig(file_name, format='png')
 
         plt.show()
+
+def lagrangeprimal(sum_rc_hist, objValHistRMP, name):
+    file = str(name)
+    file_name = f'.{os.sep}images{os.sep}{file}.png'
+
+    objValHistRMP_without_last = objValHistRMP[:-1]
+
+    iterations = range(len(sum_rc_hist))
+
+    iterations_objValHistRMP = range(len(objValHistRMP_without_last))
+
+    plt.figure(figsize=(12, 6))
+
+    plt.plot(iterations, sum_rc_hist, label='Dual Bound', marker='o', linestyle='-', color='b')
+
+    plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='Primal Bound', marker='s', linestyle='--',
+             color='r')
+
+    plt.xlabel('Iteration')
+    plt.title('Primal vs. Dual Solution')
+    plt.legend()
+    plt.grid(True)
+
+    plt.savefig(file_name, format='png')
+
+    plt.show()

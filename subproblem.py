@@ -16,7 +16,7 @@ class Subproblem:
         self.epsilon = eps
         self.mue = 0.1
         self.chi = 5
-        self.omega = math.floor(1 / 1e-6)
+        self.omega = math.floor(1 / self.epsilon)
         self.M = len(self.days) + self.omega
         self.xi = 1 - self.epsilon * self.omega
         self.Days_Off = 2
@@ -63,6 +63,7 @@ class Subproblem:
         self.phi = self.model.addVars([self.index], self.days, vtype=gu.GRB.BINARY, name="phi")
         self.r = self.model.addVars([self.index], self.days, vtype=gu.GRB.BINARY, name="r")
         self.f = self.model.addVars([self.index], self.days, vtype=gu.GRB.BINARY, name="f")
+        self.ff = self.model.addVars([self.index], self.days, vtype=gu.GRB.BINARY, name="ff")
 
     def generateConstraints(self):
         for i in [self.index]:
@@ -73,9 +74,9 @@ class Subproblem:
             for t in self.days:
                 for k in self.shifts:
                     self.model.addLConstr(
-                        self.performance[i, t, k, self.itr] >= self.p[i, t] - self.M * (1 - self.x[i, t, k]))
+                        self.performance[i, t, k, self.itr] >= self.p[i, t] + self.x[i, t, k] - 1)
                     self.model.addLConstr(
-                        self.performance[i, t, k, self.itr] <= self.p[i, t] + self.M * (1 - self.x[i, t, k]))
+                        self.performance[i, t, k, self.itr] <= self.p[i, t])
                     self.model.addLConstr(self.performance[i, t, k, self.itr] <= self.x[i, t, k])
         for i in [self.index]:
             for k in self.shifts:
@@ -101,39 +102,36 @@ class Subproblem:
                     self.model.addLConstr(self.x[i, t, k1] + self.x[i, t + 1, k2] <= 1)
         for i in [self.index]:
             for t in range(1 + self.chi, len(self.days) + 1):
-                self.model.addLConstr(self.f[i, t - 1] <= gu.quicksum(
+                self.model.addLConstr(1 <= gu.quicksum(
                         self.sc[i, j] for j in range(t - self.chi, t)) + self.r[i, t])
-                self.model.addLConstr(self.r[i, t] <= self.f[i, t-1])
                 for k in range(t-self.chi, t):
                     self.model.addLConstr(self.sc[i, k] + self.r[i, t] <= 1)
             for t in range(1, 1 + self.chi):
                 self.model.addLConstr(0 == self.r[i, t])
-            for t in self.days:
-                for tau in range(1, t + 1):
-                    self.model.addLConstr(self.f[i, t] >= self.sc[i, tau])
-                self.model.addLConstr(self.f[i, t] <= gu.quicksum(self.sc[i, tau] for tau in range(1, t + 1)))
         for i in [self.index]:
             self.model.addLConstr(0 == self.n[i, 1])
             self.model.addLConstr(0 == self.sc[i, 1])
             self.model.addLConstr(1 == self.p[i, 1])
             self.model.addLConstr(0 == self.h[i, 1])
             for t in self.days:
-                self.model.addLConstr(self.omega * self.kappa[i, t] <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)))
-                self.model.addLConstr(gu.quicksum(self.sc[i, j] for j in range(1, t + 1)) <= len(self.days) + (self.omega - 1 - len(self.days))*(1 - self.kappa[i, t]))
+                self.model.addLConstr(
+                    self.omega * self.kappa[i, t] <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)))
+                self.model.addLConstr(gu.quicksum(self.sc[i, j] for j in range(1, t + 1)) <= len(self.days) + (
+                            self.omega - 1 - len(self.days)) * (1 - self.kappa[i, t]))
             for t in range(2, len(self.days) + 1):
-                self.model.addLConstr(self.n[i, t] == self.n_h[i, t] - self.e[i, t] + self.b[i, t])
-                self.model.addLConstr(self.n_h[i, t] <= self.n[i, t - 1] + self.sc[i, t])
-                self.model.addLConstr(self.n_h[i, t] >= (self.n[i, t - 1] + self.sc[i, t]) - self.M * self.r[i, t])
-                self.model.addLConstr(self.n_h[i, t] <= self.M * (1 - self.r[i, t]))
+                self.model.addLConstr(self.ff[i, t] <= self.n[i, t])
+                self.model.addLConstr(self.n[i, t] <= len(self.days) * self.ff[i, t])
+                self.model.addLConstr(self.b[i, t] <= 1 - self.ff[i, t-1])
+                self.model.addLConstr(self.b[i, t] <= 1 - self.sc[i, t])
+                self.model.addLConstr(self.b[i, t] <= self.r[i, t])
+                self.model.addLConstr(self.b[i, t] >= self.r[i, t] + (1 - self.ff[i, t-1]) + (1 - self.sc[i, t]) - 2)
                 self.model.addLConstr(self.p[i, t] == 1 - self.epsilon * self.n[i, t] - self.xi * self.kappa[i, t])
+                self.model.addLConstr(self.n[i, t] == (self.n[i, t - 1] + self.sc[i, t])-self.r[i, t]-self.e[i, t]+self.b[i, t])
                 self.model.addLConstr(self.omega * self.h[i, t] <= self.n[i, t])
                 self.model.addLConstr(self.n[i, t] <= ((self.omega - 1) + self.h[i, t]))
                 self.model.addLConstr(self.e[i, t] <= self.sc[i, t])
                 self.model.addLConstr(self.e[i, t] <= self.h[i, t - 1])
                 self.model.addLConstr(self.e[i, t] >= self.sc[i, t] + self.h[i, t - 1] - 1)
-                self.model.addLConstr(self.b[i, t] <= self.e[i, t])
-                self.model.addLConstr(self.b[i, t] <= self.r[i, t])
-                self.model.addLConstr(self.b[i, t] >= self.e[i, t] + self.r[i, t] - 1)
         self.model.update()
 
     def generateRegConstraints(self):

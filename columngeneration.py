@@ -87,6 +87,7 @@ while True:
     timeHist = []
     objValHistRMP = []
     avg_rc_hist = []
+    lagrange_hist = []
     sum_rc_hist = []
     avg_sp_time = []
     gap_rc_hist = []
@@ -146,6 +147,7 @@ while True:
         master.current_iteration = itr + 1
         master.solveRelaxModel()
         objValHistRMP.append(master.model.objval)
+        current_obj = master.model.objval
 
         # Get and Print Duals
         duals_i = master.getDuals_i()
@@ -207,9 +209,11 @@ while True:
 
         # Calculate Metrics
         avg_rc = sum(objValHistSP) / len(objValHistSP)
+        lagrange = avg_rc + current_obj
         sum_rc = sum(objValHistSP)
         avg_rc_hist.append(avg_rc)
         sum_rc_hist.append(sum_rc)
+        lagrange_hist.append(lagrange)
         objValHistSP.clear()
 
         avg_time = sum(timeHist)/len(timeHist)

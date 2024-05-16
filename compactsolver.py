@@ -64,6 +64,7 @@ class Problem:
         self.phi = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="phi")
         self.r = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="r")
         self.f = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="f")
+        self.ff = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="ff")
         self.g = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="g")
         self.w = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="w")
         self.gg = self.model.addVars(self.I, self.T, vtype=gu.GRB.CONTINUOUS, lb=-gu.GRB.INFINITY, ub=gu.GRB.INFINITY,
@@ -141,19 +142,16 @@ class Problem:
                     self.model.addLConstr(self.x[i, t, k1] + self.x[i, t + 1, k2] <= 1)
         self.model.update()
 
+
     def Recovery(self):
         for i in self.I:
             for t in range(1 + self.chi, len(self.T) + 1):
-                self.model.addLConstr(
-                    (1 - self.r[i, t]) <= (1 - self.f[i, t - 1]) + gu.quicksum(self.sc[i, j] for j in range(t - self.chi, t)))
-                self.model.addLConstr(self.M * (1 - self.r[i, t]) >= (1 - self.f[i, t - 1]) + gu.quicksum(
-                    self.sc[i, j] for j in range(t - self.chi, t)))
+                self.model.addLConstr(1 <= gu.quicksum(
+                    self.sc[i, j] for j in range(t - self.chi, t)) + self.r[i, t])
+                for k in range(t - self.chi, t):
+                    self.model.addLConstr(self.sc[i, k] + self.r[i, t] <= 1)
             for t in range(1, 1 + self.chi):
                 self.model.addLConstr(0 == self.r[i, t])
-            for t in self.T:
-                for tau in range(1, t + 1):
-                    self.model.addLConstr(self.f[i, t] >= self.sc[i, tau])
-                self.model.addLConstr(self.f[i, t] <= gu.quicksum(self.sc[i, tau] for tau in range(1, t + 1)))
         self.model.update()
 
     def linPerformance(self):
@@ -164,23 +162,24 @@ class Problem:
             self.model.addLConstr(0 == self.h[i, 1])
             for t in self.T:
                 self.model.addLConstr(
-                    gu.quicksum(self.sc[i, j] for j in range(1, t + 1)) <= self.omega + self.M * self.kappa[i, t])
-                self.model.addLConstr(self.omega + self.mu <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)) + (
-                            1 - self.kappa[i, t]) * self.M)
+                    self.omega * self.kappa[i, t] <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)))
+                self.model.addLConstr(gu.quicksum(self.sc[i, j] for j in range(1, t + 1)) <= len(self.T) + (
+                        self.omega - 1 - len(self.T)) * (1 - self.kappa[i, t]))
             for t in range(2, len(self.T) + 1):
-                self.model.addLConstr(self.n[i, t] == self.n_h[i, t] - self.e[i, t] + self.b[i, t])
-                self.model.addLConstr(self.n_h[i, t] <= self.n[i, t - 1] + self.sc[i, t])
-                self.model.addLConstr(self.n_h[i, t] >= (self.n[i, t - 1] + self.sc[i, t]) - self.M * self.r[i, t])
-                self.model.addLConstr(self.n_h[i, t] <= self.M * (1 - self.r[i, t]))
+                self.model.addLConstr(self.ff[i, t] <= self.n[i, t])
+                self.model.addLConstr(self.n[i, t] <= len(self.T) * self.ff[i, t])
+                self.model.addLConstr(self.b[i, t] <= 1 - self.ff[i, t - 1])
+                self.model.addLConstr(self.b[i, t] <= 1 - self.sc[i, t])
+                self.model.addLConstr(self.b[i, t] <= self.r[i, t])
+                self.model.addLConstr(self.b[i, t] >= self.r[i, t] + (1 - self.ff[i, t - 1]) + (1 - self.sc[i, t]) - 2)
                 self.model.addLConstr(self.p[i, t] == 1 - self.epsilon * self.n[i, t] - self.xi * self.kappa[i, t])
+                self.model.addLConstr(
+                    self.n[i, t] == (self.n[i, t - 1] + self.sc[i, t]) - self.r[i, t] - self.e[i, t] + self.b[i, t])
                 self.model.addLConstr(self.omega * self.h[i, t] <= self.n[i, t])
                 self.model.addLConstr(self.n[i, t] <= ((self.omega - 1) + self.h[i, t]))
                 self.model.addLConstr(self.e[i, t] <= self.sc[i, t])
                 self.model.addLConstr(self.e[i, t] <= self.h[i, t - 1])
                 self.model.addLConstr(self.e[i, t] >= self.sc[i, t] + self.h[i, t - 1] - 1)
-                self.model.addLConstr(self.b[i, t] <= self.e[i, t])
-                self.model.addLConstr(self.b[i, t] <= self.r[i, t])
-                self.model.addLConstr(self.b[i, t] >= self.e[i, t] + self.r[i, t] - 1)
         self.model.update()
 
     def generateObjective(self):

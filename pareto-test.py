@@ -1,118 +1,58 @@
-import numpy
-import pareto
-import pandas
-import matplotlib.figure
-import matplotlib.backends.backend_agg as agg
-import matplotlib.backends.backend_svg as svg
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
-data = pandas.read_table("data.txt", header=None, sep=" ")
-sets = {}
-archives = {}
+# Beispielsdaten erstellen
+data = {
+    'undercoverage': [10, 20, 30, 25, 15, 35, 40, 50, 45, 55, 60, 70, 65, 75, 80, 90, 85, 1, 100, 110,
+                      95, 100, 105, 110, 115, 120, 125, 130, 135, 140],
+    'consistency': [40, 35, 30, 32, 37, 25, 20, 15, 18, 12, 10, 7, 9, 6, 5, 3, 4, 2, 1, 0.5,
+                    0.1, 42, 40, 38, 35, 33, 30, 28, 25, 22],
+    'variant': [f'Var{i}' for i in range(1, 31)],
+    'chi': [3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4],
+    'epsilon': [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02,
+                0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1]
+}
 
-fig = matplotlib.figure.Figure(figsize=(15, 15))
-agg.FigureCanvasAgg(fig)
+df = pd.DataFrame(data)
 
-counter = 0
+# Pareto-Frontier berechnen
+def pareto_frontier(df):
+    pareto_front = []
+    for i, row in df.iterrows():
+        dominated = False
+        for j, other in df.iterrows():
+            if (other['undercoverage'] <= row['undercoverage'] and other['consistency'] <= row['consistency']) and (other['undercoverage'] < row['undercoverage'] or other['consistency'] < row['consistency']):
+                dominated = True
+                break
+        if not dominated:
+            pareto_front.append(row)
+    pareto_front_df = pd.DataFrame(pareto_front)
+    pareto_front_df = pareto_front_df.sort_values(by=['undercoverage'])
+    return pareto_front_df
 
-resolutions = [1e-9, 0.03, 0.06, 0.1, 0.15, 0.2, 0.25, 0.4, 1.0]
-for resolution in resolutions:
-    archives[resolution] = pareto.eps_sort([data.itertuples(False)], [0, 1], [resolution] * 2)
-    sets[resolution] = pandas.DataFrame(data=archives[resolution].archive)
+pareto_df = pareto_frontier(df)
 
-for resolution in resolutions:
-    counter += 1
-    ax = fig.add_subplot(3, 3, counter)
-    ax.scatter(data[0], data[1], lw=0, facecolor=(0.7, 0.7, 0.7), zorder=-1)
-    ax.scatter(sets[resolution][0], sets[resolution][1], facecolor=(1.0, 1.0, 0.4), zorder=1, s=50)
+# Plot erstellen
+plt.figure(figsize=(12, 8))
+colors = plt.cm.tab20.colors
 
-    for box in archives[resolution].boxes:
-        ll = [box[0] * resolution, box[1] * resolution]
+for i, row in df.iterrows():
+    plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], label=f"$\chi={row['chi']}, \epsilon={row['epsilon']}$")
 
-        # make a rectangle in the Y direction
-        rect = matplotlib.patches.Rectangle((ll[0], ll[1] + resolution), 1.4 - ll[0], 1.4 - ll[1], lw=0,
-                                            facecolor=(1.0, 0.8, 0.8), zorder=-10)
-        ax.add_patch(rect)
+for i, row in pareto_df.iterrows():
+    plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], edgecolors='black', linewidths=2, alpha=0.6, s=100)
 
-        # make a rectangle in the X direction
-        rect = matplotlib.patches.Rectangle((ll[0] + resolution, ll[1]), 1.4 - ll[0], 1.4 - ll[1], lw=0,
-                                            facecolor=(1.0, 0.8, 0.8), zorder=-10)
-        ax.add_patch(rect)
+# Verbinde die Pareto-optimalen Punkte
+plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='-', marker='x', color='red', alpha=0.7)
 
-    if resolution < 1e-3:
-        spacing = 0.2
-    else:
-        spacing = resolution
-        while spacing < 0.2:
-            spacing *= 2
+# Legende außerhalb des Plots positionieren
+handles, labels = plt.gca().get_legend_handles_labels()
+plt.legend(handles, labels, loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
-    ax.set_xticks(numpy.arange(0, 1.2, spacing))
-    ax.set_yticks(numpy.arange(0, 1.2, spacing))
-
-    if resolution > 0.001:
-        ax.hlines(numpy.arange(0, 1.4, resolution), 0, 1.4, colors=(0.1, 0.1, 0.1, 0.1), zorder=2)
-        ax.vlines(numpy.arange(0, 1.4, resolution), 0, 1.4, colors=(0.1, 0.1, 0.1, 0.1), zorder=2)
-    ax.set_xlim(0, 1.2)
-    ax.set_ylim(0, 1.2)
-    ax.set_title("Epsilon resolution: {0:.2g}".format(resolution))
-    ax.set_xlabel(r'$f_1$')
-    ax.set_ylabel(r'$f_2$')
-
-fig.subplots_adjust(wspace=0.3, hspace=0.3)
-fig.savefig("variety")
-
-fig = matplotlib.figure.Figure(figsize=(5, 5))
-agg.FigureCanvasAgg(fig)
-resolution = 0.06
-sets[resolution] = pandas.DataFrame(data=pareto.eps_sort([data.itertuples(False)], [0, 1], [resolution] * 2).archive)
-
-ax = fig.add_subplot(1, 1, 1)
-ax.scatter(data[0], data[1], lw=0, facecolor=(0.7, 0.7, 0.7), zorder=-1)
-ax.scatter(sets[resolution][0], sets[resolution][1], facecolor=(1.0, 1.0, 0.4), zorder=1, s=50)
-for box in archives[resolution].boxes:
-    ll = [box[0] * resolution, box[1] * resolution]
-
-    # make a rectangle in the Y direction
-    rect = matplotlib.patches.Rectangle((ll[0], ll[1] + resolution), 1.4 - ll[0], 1.4 - ll[1], lw=0,
-                                        facecolor=(1.0, 0.8, 0.8), zorder=-10)
-    ax.add_patch(rect)
-
-    # make a rectangle in the X direction
-    rect = matplotlib.patches.Rectangle((ll[0] + resolution, ll[1]), 1.4 - ll[0], 1.4 - ll[1], lw=0,
-                                        facecolor=(1.0, 0.8, 0.8), zorder=-10)
-    ax.add_patch(rect)
-if resolution < 1e-3:
-    spacing = 0.2
-else:
-    spacing = resolution
-    while spacing < 0.2:
-        spacing *= 2
-
-ax.set_xticks(numpy.arange(0, 1.2, spacing))
-ax.set_yticks(numpy.arange(0, 1.2, spacing))
-
-if resolution > 0.001:
-    ax.hlines(numpy.arange(0, 1.4, resolution), 0, 1.4, colors=(0.1, 0.1, 0.1, 0.1), zorder=2)
-    ax.vlines(numpy.arange(0, 1.4, resolution), 0, 1.4, colors=(0.1, 0.1, 0.1, 0.1), zorder=2)
-ax.set_xlim(0, 1.2)
-ax.set_ylim(0, 1.2)
-ax.set_title("Epsilon resolution: {0:.2g}".format(resolution))
-ax.set_xlabel(r'$f_1$')
-ax.set_ylabel(r'$f_2$')
-
-fig.savefig("example")
-
-fig = matplotlib.figure.Figure(figsize=(5, 5))
-agg.FigureCanvasAgg(fig)
-
-ax = fig.add_subplot(1, 1, 1)
-ax.scatter(data[0], data[1], lw=0, facecolor=(0.7, 0.7, 0.7), zorder=-1)
-spacing = 0.2
-ax.set_xticks(numpy.arange(0, 1.2, spacing))
-ax.set_yticks(numpy.arange(0, 1.2, spacing))
-ax.set_xlim(0, 1.2)
-ax.set_ylim(0, 1.2)
-ax.set_title("Unsorted Data")
-ax.set_xlabel(r'$f_1$')
-ax.set_ylabel(r'$f_2$')
-
-fig.savefig("unsorted")
+plt.xlabel('Undercoverage')
+plt.ylabel('Consistency (ø Shift Changes)')
+plt.title('Pareto Frontier')
+plt.grid(True)
+plt.tight_layout()
+plt.show()

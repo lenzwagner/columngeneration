@@ -6,6 +6,7 @@ import seaborn as sns
 from setup import *
 from subproblem import *
 from compactsolver import *
+from masterproblem import *
 
 
 # Create Dataframes
@@ -46,7 +47,6 @@ problem_start = Problem(data, Demand_Dict, eps, Min_WD_i, Max_WD_i)
 problem_start.buildLinModel()
 problem_start.model.Params.MIPFocus = 1
 problem_start.model.Params.Heuristics = 1
-problem_start.model.Params.NoRelHeurTime = 100
 problem_start.model.Params.RINS = 10
 problem_start.model.Params.MIPGap = 0.5
 problem_start.model.update()
@@ -74,7 +74,7 @@ Iter_schedules = {}
 for index in I:
     Iter_schedules[f'Physician_{index}'] = []
 
-master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, 1, 0.1, 0.9, 0.01, start_values)
+master = MasterProblem(data, Demand_Dict, max_itr, itr, last_itr, output_len, 1, 0.1, 0.9, 0.01, start_values)
 master.buildModel()
 print('*' * (output_len + 2))
 print('*{:^{output_len}}*'.format('Restricted Master Problem successfully built!', output_len=output_len))

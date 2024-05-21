@@ -146,16 +146,12 @@ class Problem:
     def Recovery(self):
         for i in self.I:
             for t in range(1 + self.chi, len(self.T) + 1):
-                self.model.addLConstr(
-                    (1 - self.r[i, t]) <= gu.quicksum(self.sc[i, j] for j in range(t - self.chi, t)))
-                self.model.addLConstr(self.M * (1 - self.r[i, t]) >= gu.quicksum(
-                    self.sc[i, j] for j in range(t - self.chi, t)))
+                self.model.addLConstr(1 <= gu.quicksum(
+                    self.sc[i, j] for j in range(t - self.chi, t)) + self.r[i, t])
+                for k in range(t - self.chi, t):
+                    self.model.addLConstr(self.sc[i, k] + self.r[i, t] <= 1)
             for t in range(1, 1 + self.chi):
                 self.model.addLConstr(0 == self.r[i, t])
-            for t in self.T:
-                for tau in range(1, t + 1):
-                    self.model.addLConstr(self.f[i, t] >= self.sc[i, tau])
-                self.model.addLConstr(self.f[i, t] <= gu.quicksum(self.sc[i, tau] for tau in range(1, t + 1)))
         self.model.update()
 
     def linPerformance(self):

@@ -82,8 +82,8 @@ class Problem:
         for i in self.I:
             for t in self.T:
                 for k in self.K:
-                    self.model.addLConstr(self.perf[i, t, k] >= self.p[i, t] - self.M * (1 - self.x[i, t, k]))
-                    self.model.addLConstr(self.perf[i, t, k] <= self.p[i, t] + self.M * (1 - self.x[i, t, k]))
+                    self.model.addLConstr(self.x[i, t, k] + self.p[i, t] - 1 <= self.perf[i, t, k])
+                    self.model.addLConstr(self.perf[i, t, k] <= self.p[i, t])
                     self.model.addLConstr(self.perf[i, t, k] <= self.x[i, t, k])
         self.model.update()
 

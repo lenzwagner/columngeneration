@@ -1,5 +1,8 @@
 from itertools import chain
 import random
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # **** Print Results Table ****
 def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagranigan_bound, compact_obj, step):
@@ -271,3 +274,17 @@ def total_consistency(lm1, lm2):
         for key, value in l.items():
             total_value += value
     return total_value, selected_lists
+
+def runtime_heatmap(liste1, liste2 , run):
+    run_in_minutes = [round(x / 60) for x in run]
+
+    data = pd.DataFrame({'liste1': liste1, 'liste2': liste2, 'run': run_in_minutes})
+
+    heatmap_data = data.pivot(index='liste1', columns='liste2', values='run')
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(heatmap_data, annot=True, cmap="YlGnBu", cbar=True, fmt="d")
+    plt.title('Model runtimes')
+    plt.xlabel('Instances')
+    plt.ylabel(r'$\varepsilon / \chi$-Combinations')
+    plt.show()

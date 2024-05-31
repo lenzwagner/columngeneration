@@ -299,3 +299,44 @@ def gap_heatmap(liste1, liste2 , gap):
     plt.xlabel('Instances')
     plt.ylabel(r'$\varepsilon / \chi$-Combinations')
     plt.show()
+
+
+def generate_and_plot_boxplots(instances, profiles, overstaffing):
+    # Data must look like this
+    # instances = ['Instance1', 'Instance2', 'Instance3', 'Instance4']
+    # profiles = ['Profile1', 'Profile2', 'Profile3', 'Profile4']
+    # overstaffing = [[[10, 12, 14], [20, 22, 74], [30, 32, 34], [40, 42, 44]],  [[15, 17, 19], [25, 27, 2], [35, 37, 39], [45, 47, 49]], [[20, 22, 24], [30, 32, 34], [40, 42, 44], [50, 52, 54]],  [[25, 27, 29], [35, 37, 39], [45, 47, 49], [55, 57, 59]] ]
+
+    # Ensure overstaffing is a 2D array with appropriate shape
+    assert len(overstaffing) == len(instances), "Length of overstaffing must match length of instances"
+    assert all(
+        len(o) == len(profiles) for o in overstaffing), "Each sublist in overstaffing must match length of profiles"
+
+    # Define the data structure
+    data = {
+        'instance': [],
+        'profile': [],
+        'runtime': []
+    }
+
+    for instance_idx, instance in enumerate(instances):
+        for profile_idx, profile in enumerate(profiles):
+            runtimes = overstaffing[instance_idx][profile_idx]
+            data['instance'].extend([instance] * len(runtimes))
+            data['profile'].extend([profile] * len(runtimes))
+            data['runtime'].extend(runtimes)
+
+    # Create a DataFrame
+    df = pd.DataFrame(data)
+
+    # Define a grayscale palette
+    palette = sns.color_palette("Greys", len(profiles))
+
+    # Create the plot
+    plt.figure(figsize=(14, 7))
+    sns.boxplot(x='instance', y='runtime', hue='profile', data=df, palette=palette)
+    plt.xlabel('Instance')
+    plt.ylabel('Runtime')
+    plt.legend(title='Profile')
+    plt.title('Runtime by Instance and Profile')
+    plt.show()

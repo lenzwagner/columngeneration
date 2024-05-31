@@ -272,3 +272,30 @@ def lagrangeprimal(sum_rc_hist, objValHistRMP, name):
     plt.savefig(file_name, format='png')
 
     plt.show()
+
+
+def runtime_heatmap(liste1, liste2 , run):
+    run_in_minutes = [round(x / 60) for x in run]
+
+    data = pd.DataFrame({'liste1': liste1, 'liste2': liste2, 'run': run_in_minutes})
+
+    heatmap_data = data.pivot(index='liste1', columns='liste2', values='run')
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(heatmap_data, annot=True, cmap="YlGnBu", cbar=True, fmt="d")
+    plt.title('Model runtimes')
+    plt.xlabel('Instances')
+    plt.ylabel(r'$\varepsilon / \chi$-Combinations')
+    plt.show()
+
+def gap_heatmap(liste1, liste2 , gap):
+    data = pd.DataFrame({'liste1': liste1, 'liste2': liste2, 'run': gap})
+
+    heatmap_data = data.pivot(index='liste1', columns='liste2', values='gap')
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(heatmap_data, annot=True, cmap="YlGnBu", cbar=True, fmt="d")
+    plt.title('Optimality gap in Percent')
+    plt.xlabel('Instances')
+    plt.ylabel(r'$\varepsilon / \chi$-Combinations')
+    plt.show()

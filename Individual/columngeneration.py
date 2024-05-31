@@ -291,6 +291,9 @@ print(f"Lagrangian Bound {sum_rc_hist}")
 # Print Results
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)
 
+print(f"SP: {sum_rc_hist}")
+print(f"MP: {objValHistRMP}")
+
 # Plots
 lagrangeprimal(sum_rc_hist, objValHistRMP, 'primal_dual_plot')
 plot_obj_val(objValHistRMP, 'obj_val_plot')

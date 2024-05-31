@@ -247,6 +247,7 @@ def optimalityplot(df, df2, last_itr, name):
         plt.show()
 
 def lagrangeprimal(sum_rc_hist, objValHistRMP, name):
+    result = [x + y for x, y in zip(sum_rc_hist, objValHistRMP[:-1])]
     file = str(name)
     file_name = f'.{os.sep}images{os.sep}{file}.png'
 
@@ -258,7 +259,7 @@ def lagrangeprimal(sum_rc_hist, objValHistRMP, name):
 
     plt.figure(figsize=(12, 6))
 
-    plt.plot(iterations, sum_rc_hist, label='Dual Bound', marker='o', linestyle='-', color='b')
+    plt.plot(iterations, result, label='Dual Bound', marker='o', linestyle='-', color='b')
 
     plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='Primal Bound', marker='s', linestyle='--',
              color='r')

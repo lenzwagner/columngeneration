@@ -76,6 +76,16 @@ for i in I:
         for s in K:
             start_values_x[(i, t, s)] = problem_start.x[i, t, s].x
 
+start_values_c = {}
+for i in I:
+    for t in T:
+        start_values_c[(i, t)] = problem_start.sc[i, t].x
+
+start_values_r = {}
+for i in I:
+    for t in T:
+        start_values_r[(i, t)] = problem_start.r[i, t].x
+
 while True:
     # Initialize iterations
     itr = 0
@@ -103,6 +113,22 @@ while True:
     Perf_schedules = {}
     for index in I:
         Perf_schedules[f"Physician_{index}"] = [start_values_perf_dict[f"Physician_{index}"]]
+
+    start_values_c_dict = {}
+    for i in I:
+        start_values_c_dict[f"Physician_{i}"] = {(i, t): start_values_c[(i, t)] for t in T}
+
+    Cons_schedules = {}
+    for index in I:
+        Cons_schedules[f"Physician_{index}"] = [start_values_c_dict[f"Physician_{index}"]]
+
+    start_values_r_dict = {}
+    for i in I:
+        start_values_r_dict[f"Physician_{i}"] = {(i, t): start_values_r[(i, t)] for t in T}
+
+    Recovery_schedules = {}
+    for index in I:
+        Recovery_schedules[f"Physician_{index}"] = [start_values_r_dict[f"Physician_{index}"]]
 
     start_values_p_dict = {}
     for i in I:
@@ -181,6 +207,10 @@ while True:
             Perf_schedules[f"Physician_{index}"].append(optPerf_values)
             optP_values = subproblem.getOptP()
             P_schedules[f"Physician_{index}"].append(optP_values)
+            optc_values = subproblem.getOptC()
+            Cons_schedules[f"Physician_{index}"].append(optc_values)
+            optr_values = subproblem.getOptR()
+            Recovery_schedules[f"Physician_{index}"].append(optr_values)
             optx1_values = subproblem.getOptX()
             X1_schedules[f"Physician_{index}"].append(optx1_values)
 
@@ -266,3 +296,6 @@ lagrangeprimal(sum_rc_hist, objValHistRMP, 'primal_dual_plot')
 plot_obj_val(objValHistRMP, 'obj_val_plot')
 plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
 performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')
+
+result, _ = total_consistency(master.printLambdas(), Cons_schedules)
+print(result)

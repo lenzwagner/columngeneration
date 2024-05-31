@@ -109,6 +109,21 @@ def get_nurse_schedules(Iter_schedules, lambdas, I_list):
     flat = list(chain(*flat_nurse_schedules))
     return flat
 
+def get_consistency(Schedules, lambdas, I):
+    physician_schedules = []
+    flat_physician_schedules = []
+
+    for i in I:
+        physician_schedule = []
+        for r, schedule in enumerate(Schedules[f"Physician_{i}"]):
+            if (i, r + 1) in lambdas and lambdas[(i, r + 1)] == 1:
+                physician_schedule.append(schedule)
+        physician_schedules.append(physician_schedule)
+        flat_physician_schedules.extend(physician_schedule)
+
+    flat_cons = list(chain(*flat_physician_schedules))
+    return flat_cons
+
 # **** List comparison ****
 def list_diff_sum(list1, list2):
     result = []
@@ -242,3 +257,17 @@ def analytical_lb(optimal_lp, step, optimal_ip):
             return current_value + step
     return optimal_ip
 
+def total_consistency(lm1, lm2):
+    selected_lists = []
+    for physician, lists in lm2.items():
+        for i, l in enumerate(lists):
+            iteration = i + 1
+            for key, value in lm1.items():
+                if key[0] == int(physician[-1]) and key[1] == iteration and value == 1:
+                    selected_lists.append(l)
+                    break
+    total_value = 0
+    for l in selected_lists:
+        for key, value in l.items():
+            total_value += value
+    return total_value, selected_lists

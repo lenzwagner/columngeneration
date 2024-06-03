@@ -19,6 +19,14 @@ for file in os.listdir():
     if file.endswith('.lp') or file.endswith('.sol') or file.endswith('.txt'):
         os.remove(file)
 
+
+## Dataframe
+results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time"])
+
+
+
+# Ergebnisse ausgeben
+print(results)
 # Parameter
 random.seed(13338)
 time_Limit = 3600
@@ -26,7 +34,7 @@ max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.1
+eps = 0.00001
 
 # Demand Dict
 demand_dict = generate_cost(len(T), len(I), len(K))
@@ -311,6 +319,17 @@ objValHistRMP.append(master.model.objval)
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
 
+# Store results
+new_row = pd.DataFrame({
+    "I": [len(master.nurses)],
+    "D": [len(master.days)],
+    "S": [len(master.shifts)],
+    "objective_value": [round(final_obj_cg,2)],
+    "time": [round(total_time_cg,2)]
+})
+results_df = pd.concat([results, new_row], ignore_index=True)
+
+print(results_df)
 # Calculate Gap
 # Relative to the lower bound (best possible achievable solution)
 gap = ((objValHistRMP[-1]-objValHistRMP[-2])/objValHistRMP[-2])*100

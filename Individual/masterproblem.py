@@ -19,6 +19,8 @@ class MasterProblem:
         self.cons_lmbda = {}
         self.output_len = nr
         self.start_values = start
+        self.demand_values = [self.demand[key] for key in self.demand.keys()]
+
 
     def buildModel(self):
         self.generateVariables()
@@ -147,3 +149,35 @@ class MasterProblem:
             self.model.optimize()
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))
+
+    def calc_behavior(self, lst):
+        sublist_length = len(lst) // len(self.nurses)
+        p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
+
+        x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
+        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
+        sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+
+        comparison_result = [
+            max(0, self.demand_values[i] - sum_xWerte[i])
+            for i in range(len(self.demand))
+        ]
+
+        understaffing = round(sum(comparison_result), 3)
+        perf_loss = round(u_results - understaffing, 3)
+
+        # Ausgabe
+        print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\n".format(u_results,
+                                                                                                  understaffing,
+                                                                                                  perf_loss))
+
+        return u_results, understaffing, perf_loss
+
+
+    def calc_pr(self, x_values):
+
+        sum_pWerte = []
+        for i in range(len(x_values[0])):
+            sum_value = sum(row[i] for row in x_values)
+            sum_pWerte.append(sum_value)
+        return sum_pWerte

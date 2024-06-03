@@ -242,3 +242,6 @@ def analytical_lb(optimal_lp, step, optimal_ip):
             return current_value + step
     return optimal_ip
 
+def split_list_into_sublists(lst, num_sublists):
+    sublist_length = len(lst) // num_sublists
+    return [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(num_sublists)]

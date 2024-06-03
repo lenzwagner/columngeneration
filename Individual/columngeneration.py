@@ -300,5 +300,8 @@ plot_obj_val(objValHistRMP, 'obj_val_plot')
 plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
 performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')
 
+print(f"Plot List {list(plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr))}")
 result, _ = total_consistency(master.printLambdas(), Cons_schedules)
-print(result)
+print(f"Degree of Consistency: {result}")
+
+master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr))

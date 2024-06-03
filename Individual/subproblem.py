@@ -179,6 +179,13 @@ class Subproblem:
     def getOptR(self):
         return self.model.getAttr("X", self.r)
 
+    def getOptEUp(self):
+        return self.model.getAttr("X", self.e)
+
+    def getOptElow(self):
+        return self.model.getAttr("X", self.b)
+
+
     def getOptPerf(self):
         return self.model.getAttr("X", self.performance)
     def getStatus(self):

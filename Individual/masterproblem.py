@@ -173,11 +173,77 @@ class MasterProblem:
 
         return u_results, understaffing, perf_loss
 
+    def calc_naive(self, lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue):
+        chunk_size = len(ls_sc) // len(self.nurses)
+        chunk_size2 = len(ls_x) // len(self.nurses)
 
-    def calc_pr(self, x_values):
 
-        sum_pWerte = []
-        for i in range(len(x_values[0])):
-            sum_value = sum(row[i] for row in x_values)
-            sum_pWerte.append(sum_value)
-        return sum_pWerte
+        sublist_length = len(lst) // len(self.nurses)
+        p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
+
+        x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
+        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
+        sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+
+        self.sum_all_doctors = 0
+        self.sum_xWerte = sum_xWerte
+
+        self.sum_values = sum(self.demand_values)
+        self.cumulative_sum = [0]
+        self.doctors_cumulative_multiplied = []
+        self.vals = self.demand_values
+
+        self.comp_result = [0 if val < sum_xWerte[i] else 1 for i, val in enumerate(self.vals)]
+
+        for i in self.nurses:
+            for i in self.nurses:
+                start_index = (i - 1) * chunk_size
+                end_index = i * chunk_size
+
+                start_index2 = (i - 1) * chunk_size2
+                end_index2 = i * chunk_size2
+
+                sublist_sc = ls_sc[start_index:end_index]
+                sublist_r = ls_r[start_index:end_index]
+                sublist_e = ls_e[start_index:end_index]
+                sublist_b = ls_b[start_index:end_index]
+                sublist_x = ls_x[start_index2:end_index2]
+
+            doctor_values = sublist_sc
+            r_values = sublist_r
+            e_values = sublist_e
+            b_values = sublist_b
+            x_i_values = sublist_x
+
+            print(f"Arzt{i}: {x_i_values}")
+
+            self.cumulative_sum = [0]
+            for i in range(1, len(doctor_values)):
+                if r_values[i] == 1:
+                    self.cumulative_sum.append(self.cumulative_sum[-1] - 1)
+                else:
+                    self.cumulative_sum.append(self.cumulative_sum[-1] + doctor_values[i])
+
+            self.cumulative_sum2 = self.cumulative_sum.copy()
+            adjustment = sum([1 for e in e_values if e == 1])
+            self.cumulative_sum2 = [x + adjustment for x in self.cumulative_sum2]
+
+            self.cumulative_sum3 = self.cumulative_sum2.copy()
+            adjustment1 = sum([1 for b in b_values if b == 1])
+            self.cumulative_sum3 = [x - adjustment1 for x in self.cumulative_sum3]
+            self.cumulative_sum1 = [element for element in self.cumulative_sum for _ in self.shifts]
+            self.cumulative_values = [x * mue for x in self.cumulative_sum1]
+            self.multiplied_values = [self.cumulative_values[j] * x_i_values[j] for j in
+                                      range(len(self.cumulative_values))]
+            self.multiplied_values1 = [self.multiplied_values[j] * self.comp_result[j] for j in
+                                       range(len(self.multiplied_values))]
+            self.total_sum = sum(self.multiplied_values1)
+            self.doctors_cumulative_multiplied.append(self.total_sum)
+            self.sum_all_doctors += self.total_sum
+
+        self.understaffing1 = u_results + self.sum_all_doctors
+        print(f"Undercoverage: {self.understaffing1}")
+        print(f"Understaffing: {u_results}")
+        print(f"Performance Loss: {self.sum_all_doctors}")
+
+        return self.understaffing1, u_results, self.sum_all_doctors

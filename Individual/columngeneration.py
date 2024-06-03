@@ -86,6 +86,16 @@ for i in I:
     for t in T:
         start_values_r[(i, t)] = problem_start.r[i, t].x
 
+start_values_eup = {}
+for i in I:
+    for t in T:
+        start_values_eup[(i, t)] = problem_start.e[i, t].x
+
+start_values_elow = {}
+for i in I:
+    for t in T:
+        start_values_elow[(i, t)] = problem_start.b[i, t].x
+
 while True:
     # Initialize iterations
     itr = 0
@@ -129,6 +139,22 @@ while True:
     Recovery_schedules = {}
     for index in I:
         Recovery_schedules[f"Physician_{index}"] = [start_values_r_dict[f"Physician_{index}"]]
+
+    start_values_eup_dict = {}
+    for i in I:
+        start_values_eup_dict[f"Physician_{i}"] = {(i, t): start_values_eup[(i, t)] for t in T}
+
+    EUp_schedules = {}
+    for index in I:
+        EUp_schedules[f"Physician_{index}"] = [start_values_eup_dict[f"Physician_{index}"]]
+
+    start_values_elow_dict = {}
+    for i in I:
+        start_values_elow_dict[f"Physician_{i}"] = {(i, t): start_values_elow[(i, t)] for t in T}
+
+    ELow_schedules = {}
+    for index in I:
+        ELow_schedules[f"Physician_{index}"] = [start_values_elow_dict[f"Physician_{index}"]]
 
     start_values_p_dict = {}
     for i in I:
@@ -211,6 +237,13 @@ while True:
             Cons_schedules[f"Physician_{index}"].append(optc_values)
             optr_values = subproblem.getOptR()
             Recovery_schedules[f"Physician_{index}"].append(optr_values)
+
+            opteup_values = subproblem.getOptEUp()
+            EUp_schedules[f"Physician_{index}"].append(opteup_values)
+
+            optelow_values = subproblem.getOptElow()
+            ELow_schedules[f"Physician_{index}"].append(optelow_values)
+
             optx1_values = subproblem.getOptX()
             X1_schedules[f"Physician_{index}"].append(optx1_values)
 
@@ -305,3 +338,13 @@ result, _ = total_consistency(master.printLambdas(), Cons_schedules)
 print(f"Degree of Consistency: {result}")
 
 master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr))
+
+
+ls_sc = plotPerformanceList(master.printLambdas(), Cons_schedules, I ,max_itr)
+ls_r = plotPerformanceList(master.printLambdas(), Recovery_schedules, I ,max_itr)
+ls_e = plotPerformanceList(master.printLambdas(), EUp_schedules, I ,max_itr)
+ls_b = plotPerformanceList(master.printLambdas(), ELow_schedules, I ,max_itr)
+ls_x = plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr)
+
+master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, subproblem.epsilon)
+

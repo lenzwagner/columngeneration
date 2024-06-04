@@ -21,7 +21,7 @@ for file in os.listdir():
 
 
 ## Dataframe
-results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time"])
+results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap"])
 
 
 
@@ -34,7 +34,7 @@ max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.00001
+eps = 0.1
 
 # Demand Dict
 demand_dict = generate_cost(len(T), len(I), len(K))
@@ -319,26 +319,31 @@ objValHistRMP.append(master.model.objval)
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
 
+#### Calculate Gap
+# Relative to the lower bound (best possible achievable solution)
+gap = ((objValHistRMP[-1]-objValHistRMP[-2])/objValHistRMP[-2])*100
+mip_gap = round((((final_obj_cg-objValHistRMP[-2]) / objValHistRMP[-2]) * 100),3)
+
+# Lagragian Bound
+# Only yields feasible results if the SPs are solved to optimality
+lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
+print(f"Lagrangian Bound {sum_rc_hist}")
+
+
 # Store results
 new_row = pd.DataFrame({
     "I": [len(master.nurses)],
     "D": [len(master.days)],
     "S": [len(master.shifts)],
     "objective_value": [round(final_obj_cg,2)],
-    "time": [round(total_time_cg,2)]
+    "time": [round(total_time_cg,2)],
+    "gap": [gap],
+    "mip_gap": [mip_gap]
 })
 results_df = pd.concat([results, new_row], ignore_index=True)
 
 print(results_df)
-# Calculate Gap
-# Relative to the lower bound (best possible achievable solution)
-gap = ((objValHistRMP[-1]-objValHistRMP[-2])/objValHistRMP[-2])*100
 
-# Lagragian Bound
-# Only yields feasible results if the SPs are solved to optimality
-lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
-
-print(f"Lagrangian Bound {sum_rc_hist}")
 
 # Print Results
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)

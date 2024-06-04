@@ -16,7 +16,7 @@ class Subproblem:
         self.epsilon = eps
         self.mue = 0.1
         self.chi = 5
-        self.omega = math.floor(1 / self.epsilon)
+        self.omega = math.floor(1 / (self.epsilon + 1e-6))
         self.M = len(self.days) + self.omega
         self.xi = 1 - self.epsilon * self.omega
         self.Days_Off = 2
@@ -175,6 +175,12 @@ class Subproblem:
 
     def getOptC(self):
         return self.model.getAttr("X", self.sc)
+
+    def getOptF(self):
+        return self.model.getAttr("X", self.ff)
+
+    def getOptN(self):
+        return self.model.getAttr("X", self.n)
 
     def getOptR(self):
         return self.model.getAttr("X", self.r)

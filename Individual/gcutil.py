@@ -261,6 +261,9 @@ def analytical_lb(optimal_lp, step, optimal_ip):
     return optimal_ip
 
 def total_consistency(lm1, lm2):
+    print(f"lm1: {lm1}")
+    print(f"lm2: {lm2}")
+
     selected_lists = []
     for physician, lists in lm2.items():
         for i, l in enumerate(lists):

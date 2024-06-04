@@ -21,7 +21,7 @@ for file in os.listdir():
 
 
 ## Dataframe
-results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap"])
+results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap", "chi", "epsilon", "consistency"])
 
 
 
@@ -34,7 +34,7 @@ max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.1
+eps = 0
 
 # Demand Dict
 demand_dict = generate_cost(len(T), len(I), len(K))
@@ -250,7 +250,19 @@ while True:
             EUp_schedules[f"Physician_{index}"].append(opteup_values)
 
             optelow_values = subproblem.getOptElow()
+
             ELow_schedules[f"Physician_{index}"].append(optelow_values)
+
+
+            optf_values = subproblem.getOptF()
+            optn_values = subproblem.getOptN()
+
+            print(f"SC-sched {optc_values}")
+            print(f"R-sched {optr_values}")
+            print(f"F-sched {optf_values}")
+            print(f"N-sched {optn_values}")
+            print(f"B-sched {optelow_values}")
+
 
             optx1_values = subproblem.getOptX()
             X1_schedules[f"Physician_{index}"].append(optx1_values)
@@ -330,7 +342,11 @@ lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
 print(f"Lagrangian Bound {sum_rc_hist}")
 
 
-# Store results
+### Store results
+# Calculate Consistency
+result, _ = total_consistency(master.printLambdas(), Cons_schedules)
+
+
 new_row = pd.DataFrame({
     "I": [len(master.nurses)],
     "D": [len(master.days)],
@@ -338,10 +354,13 @@ new_row = pd.DataFrame({
     "objective_value": [round(final_obj_cg,2)],
     "time": [round(total_time_cg,2)],
     "gap": [gap],
-    "mip_gap": [mip_gap]
+    "mip_gap": [mip_gap],
+    "chi": [subproblem.chi],
+    "epsilon": [subproblem.epsilon],
+    "consistency": [result]
 })
 results_df = pd.concat([results, new_row], ignore_index=True)
-
+results_df.to_excel('results.xlsx', index=False)
 print(results_df)
 
 
@@ -357,18 +376,19 @@ plot_obj_val(objValHistRMP, 'obj_val_plot')
 plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
 performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')
 
-print(f"Plot List {list(plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr))}")
-result, _ = total_consistency(master.printLambdas(), Cons_schedules)
-print(f"Degree of Consistency: {result}")
 
-master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr))
-
-
+### Calculate Metrics
+# Before
 ls_sc = plotPerformanceList(master.printLambdas(), Cons_schedules, I ,max_itr)
 ls_r = plotPerformanceList(master.printLambdas(), Recovery_schedules, I ,max_itr)
 ls_e = plotPerformanceList(master.printLambdas(), EUp_schedules, I ,max_itr)
 ls_b = plotPerformanceList(master.printLambdas(), ELow_schedules, I ,max_itr)
 ls_x = plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr)
 
-master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, subproblem.epsilon)
+# Behvaior
+master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc)
 
+# Naive
+master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
+
+print(f"Lambdas {master.printLambdas()}")

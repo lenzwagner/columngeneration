@@ -73,7 +73,6 @@ class Problem:
     def genGenCons(self):
         for i in self.I:
             for t in self.T:
-                self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.K) <= 1)
                 self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.K) == self.y[i, t])
         for t in self.T:
             for k in self.K:
@@ -158,8 +157,6 @@ class Problem:
         for i in self.I:
             self.model.addLConstr(0 == self.n[i, 1])
             self.model.addLConstr(0 == self.sc[i, 1])
-            self.model.addLConstr(1 == self.p[i, 1])
-            self.model.addLConstr(0 == self.h[i, 1])
             for t in self.T:
                 self.model.addLConstr(
                     self.omega * self.kappa[i, t] <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)))

@@ -66,9 +66,9 @@ class Subproblem:
         self.ff = self.model.addVars([self.index], self.days, vtype=gu.GRB.BINARY, name="ff")
 
     def generateConstraints(self):
+        # General Constraints
         for i in [self.index]:
             for t in self.days:
-                self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.shifts) <= 1)
                 self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.shifts) == self.y[i, t])
         for i in [self.index]:
             for t in self.days:
@@ -78,7 +78,10 @@ class Subproblem:
                     self.model.addLConstr(
                         self.performance[i, t, k, self.itr] <= self.p[i, t])
                     self.model.addLConstr(self.performance[i, t, k, self.itr] <= self.x[i, t, k])
+
+        # Shift Changes Constraint
         for i in [self.index]:
+            self.model.addLConstr(0 == self.sc[i, 1])
             for k in self.shifts:
                 for t in self.days:
                     self.model.addLConstr(self.rho[i, t, k] <= 1 - self.q[i, t, k])
@@ -90,16 +93,9 @@ class Subproblem:
                 for t in range(1, len(self.days)):
                     self.model.addLConstr(self.q[i, t + 1, k] == self.x[i, t, k] + self.z[i, t, k])
             for t in self.days:
-                self.model.addLConstr(1 == gu.quicksum(self.x[i, t, k] for k in self.shifts) + (1 - self.y[i, t]))
                 self.model.addLConstr(gu.quicksum(self.rho[i, t, k] for k in self.shifts) == self.sc[i, t])
-        for i in [self.index]:
-            for t in range(2, len(self.days) - self.Days_Off + 2):
-                for s in range(t + 1, t + self.Days_Off):
-                    self.model.addLConstr(1 + self.y[i, t] >= self.y[i, t - 1] + self.y[i, s])
-        for i in [self.index]:
-            for k1, k2 in self.F_S:
-                for t in range(1, len(self.days)):
-                    self.model.addLConstr(self.x[i, t, k1] + self.x[i, t + 1, k2] <= 1)
+
+        # Performance Recovery
         for i in [self.index]:
             for t in range(1 + self.chi, len(self.days) + 1):
                 self.model.addLConstr(1 <= gu.quicksum(
@@ -108,12 +104,16 @@ class Subproblem:
                     self.model.addLConstr(self.sc[i, k] + self.r[i, t] <= 1)
             for t in range(1, 1 + self.chi):
                 self.model.addLConstr(0 == self.r[i, t])
-        self.model.update()
+
+        # Performance Loss
         for i in [self.index]:
             self.model.addLConstr(0 == self.n[i, 1])
-            self.model.addLConstr(0 == self.sc[i, 1])
-            self.model.addLConstr(1 == self.p[i, 1])
-            self.model.addLConstr(0 == self.h[i, 1])
+            for t in range(2, len(self.days) + 1):
+                self.model.addLConstr(self.n[i, t] == (self.n[i, t - 1] + self.sc[i, t])-self.r[i, t]-self.e[i, t]+self.b[i, t])
+                self.model.addLConstr(self.p[i, t] == 1 - self.epsilon * self.n[i, t] - self.xi * self.kappa[i, t])
+
+        # Performance Bounds
+        for i in [self.index]:
             for t in self.days:
                 self.model.addLConstr(
                     self.omega * self.kappa[i, t] <= gu.quicksum(self.sc[i, j] for j in range(1, t + 1)))
@@ -126,8 +126,6 @@ class Subproblem:
                 self.model.addLConstr(self.b[i, t] <= 1 - self.sc[i, t])
                 self.model.addLConstr(self.b[i, t] <= self.r[i, t])
                 self.model.addLConstr(self.b[i, t] >= self.r[i, t] + (1 - self.ff[i, t-1]) + (1 - self.sc[i, t]) - 2)
-                self.model.addLConstr(self.p[i, t] == 1 - self.epsilon * self.n[i, t] - self.xi * self.kappa[i, t])
-                self.model.addLConstr(self.n[i, t] == (self.n[i, t - 1] + self.sc[i, t])-self.r[i, t]-self.e[i, t]+self.b[i, t])
                 self.model.addLConstr(self.omega * self.h[i, t] <= self.n[i, t])
                 self.model.addLConstr(self.n[i, t] <= ((self.omega - 1) + self.h[i, t]))
                 self.model.addLConstr(self.e[i, t] <= self.sc[i, t])
@@ -144,6 +142,12 @@ class Subproblem:
                 self.model.addLConstr(
                     gu.quicksum(self.y[i, u] for u in range(t + 1, t + self.Min_WD_i[i] + 1)) >= self.Min_WD_i[i] * (
                             self.y[i, t + 1] - self.y[i, t]))
+            for t in range(2, len(self.days) - self.Days_Off + 2):
+                for s in range(t + 1, t + self.Days_Off):
+                    self.model.addLConstr(1 + self.y[i, t] >= self.y[i, t - 1] + self.y[i, s])
+            for k1, k2 in self.F_S:
+                for t in range(1, len(self.days)):
+                    self.model.addLConstr(self.x[i, t, k1] + self.x[i, t + 1, k2] <= 1)
         self.model.update()
 
     def generateRegConstraints2(self):

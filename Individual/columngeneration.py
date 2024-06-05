@@ -26,7 +26,7 @@ for file in os.listdir():
 results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap", "chi", "epsilon", "consistency"])
 results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange"])
 
-
+random.seed(123)
 
 # Ergebnisse ausgeben
 print(results)

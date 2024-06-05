@@ -6,7 +6,7 @@ import numpy as np
 from plots import optimality_plot
 from test import *
 
-I, T, K = list(range(1,16)), list(range(1,29)), [1, 2, 3]
+I, T, K = list(range(1,151)), list(range(1,29)), [1, 2, 3]
 
 # **** Solve ****
 data = pd.DataFrame({

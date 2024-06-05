@@ -1,160 +1,170 @@
-import numpy as np
+import random
 import matplotlib.pyplot as plt
+import numpy as np
 
+def demand_dict_fifty(num_days, prob, demand):
+    total_demand = int(prob * demand)
+    demand_dict = {}
 
-def generate_demand(days, shifts, daily_demand):
+    for day in range(1, num_days + 1):
+        middle_shift_ratio = random.random()
+        middle_shift_demand = round(total_demand * middle_shift_ratio)
+        remaining_demand = total_demand - middle_shift_demand
+        early_shift_ratio = random.random()
+        early_shift_demand = round(remaining_demand * early_shift_ratio)
+        late_shift_demand = remaining_demand - early_shift_demand
+
+        demand_dict[(day, 1)] = early_shift_demand
+        demand_dict[(day, 2)] = middle_shift_demand
+        demand_dict[(day, 3)] = late_shift_demand
+
+    return demand_dict
+
+def demand_dict_third(num_days, prob, demand):
+    total_demand = int(prob * demand)
+    demand_dict = {}
+
+    for day in range(1, num_days + 1):
+        z1 = random.random()
+        z2 = random.random()
+        z3 = random.random()
+
+        summe = z1 + z2 + z3
+
+        demand1 = (z1 / summe) * total_demand
+        demand2 = (z2 / summe) * total_demand
+        demand3 = (z3 / summe) * total_demand
+
+        demand1_rounded = round(demand1)
+        demand2_rounded = round(demand2)
+        demand3_rounded = round(demand3)
+
+        rounded_total = demand1_rounded + demand2_rounded + demand3_rounded
+        rounding_difference = total_demand - rounded_total
+
+        if rounding_difference != 0:
+            shift_indices = [1, 2, 3]
+            random.shuffle(shift_indices)
+            for i in range(abs(rounding_difference)):
+                if rounding_difference > 0:
+                    if shift_indices[i] == 1:
+                        demand1_rounded += 1
+                    elif shift_indices[i] == 2:
+                        demand2_rounded += 1
+                    else:
+                        demand3_rounded += 1
+                else:
+                    if shift_indices[i] == 1:
+                        demand1_rounded -= 1
+                    elif shift_indices[i] == 2:
+                        demand2_rounded -= 1
+                    else:
+                        demand3_rounded -= 1
+
+        demand_dict[(day, 1)] = demand1_rounded
+        demand_dict[(day, 2)] = demand2_rounded
+        demand_dict[(day, 3)] = demand3_rounded
+
+    return demand_dict
+
+def plot_demand_pattern(demands, days, shifts):
+    shift_labels = ["Morning", "Noon", "Evening"]
     """
-    Generates demand patterns over a specified number of days and shifts,
-    adjusted to ensure the total daily demand matches the specified value.
+    Plots the demand pattern over shifts for a given number of days and shifts.
 
     Parameters:
-    days (int): Number of days.
-    shifts (int): Number of shifts per day.
-    daily_demand (int): Total demand per day.
-
-    Returns:
-    dict: A dictionary with keys as (day, shift) and values as the demand for each shift of each day.
+    - demands: dict, demand values with keys as (day, shift) tuples.
+    - days: int, number of days.
+    - shifts: int, number of shifts per day.
+    - shift_labels: list of str, labels for each shift.
     """
-    demands = {}
+    plt.figure(figsize=(10, 6))
+
+    colors = plt.cm.viridis(np.linspace(0, 1, days))
+
     for day in range(1, days + 1):
-        # Initialize demands with zeros
-        shift_demands = np.zeros(shifts)
-        total_demand = daily_demand
+        shift_demand = [demands[(day, shift)] for shift in range(1, shifts + 1)]
+        plt.plot(range(1, shifts + 1), shift_demand, marker='o', label=f'Day {day}', color=colors[day - 1])
 
-        # Randomly distribute the total demand across shifts
-        for shift in range(shifts - 1):
-            demand = np.random.randint(0, total_demand + 1)
-            shift_demands[shift] = demand
-            total_demand -= demand
+    plt.xlabel('Shift')
+    plt.ylabel('Demand')
+    plt.title('Demand Pattern Over Shifts')
+    plt.xticks(range(1, shifts + 1), shift_labels)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
-        # Assign the remaining demand to the last shift
-        shift_demands[shifts - 1] = total_demand
+def plot_demand_bar(demands, days, shifts):
+    """
+    Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
 
-        # Randomly shuffle the demand distribution to avoid bias
-        np.random.shuffle(shift_demands)
+    Parameters:
+    - demands: dict, demand values with keys as (day, shift) tuples.
+    - days: int, number of days.
+    - shifts: int, number of shifts per day.
+    """
+    demands_list = []
+    grays = plt.cm.Greys(np.linspace(0.3, 0.7, shifts))
 
-        # Store the adjusted demands in the dictionary
-        for shift in range(1, shifts + 1):
-            demands[(day, shift)] = shift_demands[shift - 1]
-
-    return demands
-
-def poisson_demand(days, shifts, lambda_daily_demand):
-    demands = {}
     for day in range(1, days + 1):
-        # Sample total daily demand from a Poisson distribution
-        total_demand = np.random.poisson(lambda_daily_demand)
-
-        # Initialize an array to store the demand for each shift
-        shift_demands = np.zeros(shifts)
-
-        # Distribute the total daily demand across shifts
-        remaining_demand = total_demand
-        for shift in range(shifts - 1):
-            # Allocate a random portion of the remaining demand to the current shift
-            demand = np.random.randint(0, remaining_demand + 1)
-            shift_demands[shift] = demand
-            remaining_demand -= demand
-
-        # Assign the remaining demand to the last shift
-        shift_demands[shifts - 1] = remaining_demand
-
-        # Randomly shuffle the shift demands to avoid any systematic bias
-        np.random.shuffle(shift_demands)
-
-        # Store the demand values in the dictionary
         for shift in range(1, shifts + 1):
-            demands[(day, shift)] = shift_demands[shift - 1]
+            demands_list.append(demands[(day, shift)])
 
-    return demands
+    plt.figure(figsize=(14, 8))
+    bars = plt.bar(range(len(demands_list)), demands_list)
 
-# Parameters
-days = 19  
-shifts = 3 
-daily_demand = 20 
+    for i, bar in enumerate(bars):
+        shift_index = i % shifts
+        bar.set_color(grays[shift_index])
 
-# Generate the demand pattern
-demands = poisson_demand(days, shifts, daily_demand)
-print(demands)
-# Print the generated demand pattern
-print("Generated Demand Pattern:")
-for key, value in demands.items():
-    print(f"Day {key[0]}, Shift {key[1]}: Demand {value}")
+    plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)],
+               labels=[f"Day {i + 1}" for i in range(days)], rotation=0)
 
-# Original line plot visualization
-plt.figure(figsize=(10, 6))
-for day in range(1, days + 1):
-    shift_demand = [demands[(day, shift)] for shift in range(1, shifts + 1)]
-    plt.plot(range(1, shifts + 1), shift_demand, marker='o', label=f'Day {day}')
-plt.xlabel('Shift')
-plt.ylabel('Demand')
-plt.title('Demand Pattern Over Shifts')
-plt.legend()
-plt.grid(True)
-plt.show()
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
 
-# Prepare data for bar plot
-demands_list = []
-grays = plt.cm.Greys(np.linspace(0.3, 0.7, shifts))
-
-for day in range(1, days + 1):
-    for shift in range(1, shifts + 1):
-        demands_list.append(demands[(day, shift)])
-
-# Visualize the demand pattern using a bar plot
-plt.figure(figsize=(14, 8))
-bars = plt.bar(range(len(demands_list)), demands_list)
-
-# Color bars by shift
-for i, bar in enumerate(bars):
-    shift_index = i % shifts
-    bar.set_color(grays[shift_index])
-
-# Add some spacing between days and adjust X-ticks
-plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)], labels=[f"Day {i+1}" for i in range(days)], rotation=0)
-
-# Annotate bars with demand values
-for bar in bars:
-    yval = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
-
-plt.xlabel('Day')
-plt.ylabel('Demand')
-plt.title('Demand Pattern Over Shifts')
-plt.grid(axis='y')
-plt.tight_layout()
-plt.show()
+    plt.xlabel('Day')
+    plt.ylabel('Demand')
+    plt.title('Demand Pattern Over Shifts')
+    plt.grid(axis='y')
+    plt.tight_layout()
+    plt.show()
 
 
+def plot_demand_bar_by_day(demands, days, shifts):
+    """
+    Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
 
-# Prepare data for bar plot
-demands_list = []
-colors = plt.cm.viridis(np.linspace(0, 1, days))
+    Parameters:
+    - demands: dict, demand values with keys as (day, shift) tuples.
+    - days: int, number of days.
+    - shifts: int, number of shifts per day.
+    """
+    demands_list = []
+    colors = plt.cm.viridis(np.linspace(0, 1, days))
 
-for day in range(1, days + 1):
-    for shift in range(1, shifts + 1):
-        demands_list.append(demands[(day, shift)])
+    for day in range(1, days + 1):
+        for shift in range(1, shifts + 1):
+            demands_list.append(demands[(day, shift)])
 
-# Visualize the demand pattern using a bar plot
-plt.figure(figsize=(14, 8))
-bars = plt.bar(range(len(demands_list)), demands_list)
+    plt.figure(figsize=(14, 8))
+    bars = plt.bar(range(len(demands_list)), demands_list)
 
-# Color bars by day
-for i, bar in enumerate(bars):
-    day_index = i // shifts
-    bar.set_color(colors[day_index])
+    for i, bar in enumerate(bars):
+        day_index = i // shifts
+        bar.set_color(colors[day_index])
 
-# Add some spacing between days and adjust X-ticks
-plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)], labels=[f"Day {i+1}" for i in range(days)], rotation=0)
+    plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)],
+               labels=[f"Day {i + 1}" for i in range(days)], rotation=0)
 
-# Annotate bars with demand values
-for bar in bars:
-    yval = bar.get_height()
-    plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
+    for bar in bars:
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
 
-plt.xlabel('Day')
-plt.ylabel('Demand')
-plt.title('Demand Pattern Over Shifts')
-plt.grid(axis='y')
-plt.tight_layout()
-plt.show()
+    plt.xlabel('Day')
+    plt.ylabel('Demand')
+    plt.title('Demand Pattern Over Shifts')
+    plt.grid(axis='y')
+    plt.tight_layout()
+    plt.show()

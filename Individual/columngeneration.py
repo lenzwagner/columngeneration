@@ -5,6 +5,8 @@ from setup import *
 from gcutil import *
 from subproblem import *
 from compactsolver import Problem
+from demand import *
+
 
 # **** Prerequisites ****
 # Create Dataframes
@@ -38,7 +40,7 @@ threshold = 5e-7
 eps = 0.1
 
 # Demand Dict
-demand_dict = generate_cost(len(T), len(I), len(K))
+demand_dict = demand_dict_fifty(len(T), 1.1, len(I))
 
 
 # **** Compact Solver ****

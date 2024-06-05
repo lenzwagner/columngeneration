@@ -39,7 +39,6 @@ def generate_demand(days, shifts, daily_demand):
 
     return demands
 
-
 def poisson_demand(days, shifts, lambda_daily_demand):
     demands = {}
     for day in range(1, days + 1):
@@ -76,7 +75,7 @@ daily_demand = 20
 
 # Generate the demand pattern
 demands = poisson_demand(days, shifts, daily_demand)
-
+print(demands)
 # Print the generated demand pattern
 print("Generated Demand Pattern:")
 for key, value in demands.items():
@@ -125,6 +124,8 @@ plt.title('Demand Pattern Over Shifts')
 plt.grid(axis='y')
 plt.tight_layout()
 plt.show()
+
+
 
 # Prepare data for bar plot
 demands_list = []

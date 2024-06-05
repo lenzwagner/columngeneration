@@ -205,6 +205,8 @@ class MasterProblem:
         self.cumulative_sum = [0]
         self.doctors_cumulative_multiplied = []
         self.vals = self.demand_values
+        print(f"D-vals:{self.vals}")
+
 
         self.comp_result = []
         for i in range(len(self.vals)):

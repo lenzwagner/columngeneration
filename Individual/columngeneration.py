@@ -22,6 +22,7 @@ for file in os.listdir():
 
 ## Dataframe
 results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap", "chi", "epsilon", "consistency"])
+results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange"])
 
 
 
@@ -34,7 +35,7 @@ max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0
+eps = 0.1
 
 # Demand Dict
 demand_dict = generate_cost(len(T), len(I), len(K))
@@ -303,6 +304,17 @@ while True:
         avg_sp_time.append(avg_time)
         timeHist.clear()
 
+        new_row2 = pd.DataFrame({
+            "it": [itr],
+            "I": [len(master.nurses)],
+            "D": [len(master.days)],
+            "S": [len(master.shifts)],
+            "objective_value": [round(objValHistRMP[-1], 2)],
+            "time": [avg_time],
+            "lagrange": [round((objValHistRMP[-1] + sum_rc_hist[-1]), 3)]
+        })
+        results_cg =  pd.concat([results_cg, new_row2], ignore_index=True)
+
         print("*{:^{output_len}}*".format(f"End Column Generation Iteration {itr}", output_len=output_len))
 
         if not modelImprovable:
@@ -330,6 +342,17 @@ objValHistRMP.append(master.model.objval)
 # Capture total time and objval
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
+
+new_row2 = pd.DataFrame({
+    "it": [itr+1],
+    "I": [len(master.nurses)],
+    "D": [len(master.days)],
+    "S": [len(master.shifts)],
+    "objective_value": [round(master.model.objval, 2)],
+    "time": [total_time_cg-sum(avg_sp_time)*len(master.nurses)],
+    "lagrange": [round((master.model.objval), 3)]
+})
+results_cg = pd.concat([results_cg, new_row2], ignore_index=True)
 
 #### Calculate Gap
 # Relative to the lower bound (best possible achievable solution)
@@ -362,6 +385,8 @@ new_row = pd.DataFrame({
 results_df = pd.concat([results, new_row], ignore_index=True)
 results_df.to_excel('results.xlsx', index=False)
 print(results_df)
+print(results_cg)
+
 
 
 # Print Results

@@ -47,7 +47,7 @@ class Problem:
         self.kk = self.model.addVars(self.I, self.Weeks, vtype=gu.GRB.BINARY, name="k")
         self.y = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="y")
         self.o = self.model.addVars(self.T, self.K, vtype=gu.GRB.CONTINUOUS, name="o")
-        self.u = self.model.addVars(self.T, self.K, vtype=gu.GRB.CONTINUOUS, name="u")
+        self.u = self.model.addVars(self.T, self.K, lb = 0, vtype=gu.GRB.CONTINUOUS, name="u")
         self.sc = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="sc")
         self.v = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="v")
         self.q = self.model.addVars(self.I, self.T, self.K, vtype=gu.GRB.BINARY, name="q")

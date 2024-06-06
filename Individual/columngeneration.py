@@ -32,7 +32,7 @@ print(results)
 # Parameter
 random.seed(1338)
 time_Limit = 3600
-max_itr = 20
+max_itr = 40
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
@@ -70,42 +70,15 @@ problem_start.model.Params.RINS = 10
 problem_start.model.Params.MIPGap = 0.8
 problem_start.model.update()
 problem_start.model.optimize()
-start_values_perf = {}
-for i in I:
-    for t in T:
-        for s in K:
-            start_values_perf[(i, t, s)] = problem_start.perf[i, t, s].x
 
-start_values_p = {}
-for i in I:
-    for t in T:
-        start_values_p[(i, t)] = problem_start.p[i, t].x
-
-start_values_x = {}
-for i in I:
-    for t in T:
-        for s in K:
-            start_values_x[(i, t, s)] = problem_start.x[i, t, s].x
-
-start_values_c = {}
-for i in I:
-    for t in T:
-        start_values_c[(i, t)] = problem_start.sc[i, t].x
-
-start_values_r = {}
-for i in I:
-    for t in T:
-        start_values_r[(i, t)] = problem_start.r[i, t].x
-
-start_values_eup = {}
-for i in I:
-    for t in T:
-        start_values_eup[(i, t)] = problem_start.e[i, t].x
-
-start_values_elow = {}
-for i in I:
-    for t in T:
-        start_values_elow[(i, t)] = problem_start.b[i, t].x
+# Create
+start_values_perf = {(i, t, s): problem_start.perf[i, t, s].x for i in I for t in T for s in K}
+start_values_p = {(i, t): problem_start.p[i, t].x for i in I for t in T}
+start_values_x = {(i, t, s): problem_start.x[i, t, s].x for i in I for t in T for s in K}
+start_values_c = {(i, t): problem_start.sc[i, t].x for i in I for t in T}
+start_values_r = {(i, t): problem_start.r[i, t].x for i in I for t in T}
+start_values_eup = {(i, t): problem_start.e[i, t].x for i in I for t in T}
+start_values_elow = {(i, t): problem_start.b[i, t].x for i in I for t in T}
 
 while True:
     # Initialize iterations
@@ -114,15 +87,14 @@ while True:
     last_itr = 0
 
     # Create empty results lists
-    objValHistSP = []
-    timeHist = []
-    objValHistRMP = []
-    avg_rc_hist = []
-    lagrange_hist = []
-    sum_rc_hist = []
-    avg_sp_time = []
-    gap_rc_hist = []
+    histories = ["objValHistSP", "timeHist", "objValHistRMP", "avg_rc_hist", "lagrange_hist", "sum_rc_hist",
+                 "avg_sp_time", "gap_rc_hist"]
+    histories_dict = {}
+    for history in histories:
+        histories_dict[history] = []
+    objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist = histories_dict.values()
 
+    # Create Dicts
     X_schedules = {}
     for index in I:
         X_schedules[f"Physician_{index}"] = []
@@ -216,8 +188,6 @@ while True:
         # Get and Print Duals
         duals_i = master.getDuals_i()
         duals_ts = master.getDuals_ts()
-        #print(f"DualsI: {duals_i}")
-        #print(f"DualsTs: {duals_ts}")
 
         # Save current optimality gap
         gap_rc = round(((round(master.model.objval, 3) - round(obj_val_problem, 3)) / round(master.model.objval, 3)), 3)
@@ -239,37 +209,14 @@ while True:
             timeHist.append(sub_totaltime)
 
             # Get optimal values
-            optx_values = subproblem.getOptX()
-            X_schedules[f"Physician_{index}"].append(optx_values)
-            optPerf_values = subproblem.getOptPerf()
-            Perf_schedules[f"Physician_{index}"].append(optPerf_values)
-            optP_values = subproblem.getOptP()
-            P_schedules[f"Physician_{index}"].append(optP_values)
-            optc_values = subproblem.getOptC()
-            Cons_schedules[f"Physician_{index}"].append(optc_values)
-            optr_values = subproblem.getOptR()
-            Recovery_schedules[f"Physician_{index}"].append(optr_values)
+            keys = ["X", "Perf", "P", "C", "R", "EUp", "Elow", "X1"]
+            methods = ["getOptX", "getOptPerf", "getOptP", "getOptC", "getOptR", "getOptEUp", "getOptElow", "getOptX"]
+            schedules = [X_schedules, Perf_schedules, P_schedules, Cons_schedules, Recovery_schedules, EUp_schedules,
+                         ELow_schedules, X1_schedules]
 
-            opteup_values = subproblem.getOptEUp()
-            EUp_schedules[f"Physician_{index}"].append(opteup_values)
-
-            optelow_values = subproblem.getOptElow()
-
-            ELow_schedules[f"Physician_{index}"].append(optelow_values)
-
-
-            optf_values = subproblem.getOptF()
-            optn_values = subproblem.getOptN()
-
-            print(f"SC-sched {optc_values}")
-            print(f"R-sched {optr_values}")
-            print(f"F-sched {optf_values}")
-            print(f"N-sched {optn_values}")
-            print(f"B-sched {optelow_values}")
-
-
-            optx1_values = subproblem.getOptX()
-            X1_schedules[f"Physician_{index}"].append(optx1_values)
+            for key, method, schedule in zip(keys, methods, schedules):
+                value = getattr(subproblem, method)()
+                schedule[f"Physician_{index}"].append(value)
 
             # Check if SP is solvable
             status = subproblem.getStatus()

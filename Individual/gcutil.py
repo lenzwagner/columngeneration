@@ -342,3 +342,12 @@ def total_consistency(lm1, lm2):
         for key, value in l.items():
             total_value += value
     return total_value, selected_lists
+
+def create_schedule_dict(start_values, physician_indices, time_indices, shift_indices=None):
+    schedule_dict = {}
+    for i in physician_indices:
+        if shift_indices is None:
+            schedule_dict[f"Physician_{i}"] = [{(i, t): start_values[(i, t)] for t in time_indices}]
+        else:
+            schedule_dict[f"Physician_{i}"] = [{(i, t, s): start_values[(i, t, s)] for t in time_indices for s in shift_indices}]
+    return schedule_dict

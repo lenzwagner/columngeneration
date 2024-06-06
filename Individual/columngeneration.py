@@ -30,9 +30,9 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 # Ergebnisse ausgeben
 print(results)
 # Parameter
-random.seed(13322222288)
-time_Limit = 3600
-max_itr = 40
+random.seed(123)
+time_Limit = 1800
+max_itr = 100
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
@@ -99,61 +99,13 @@ while True:
     for index in I:
         X_schedules[f"Physician_{index}"] = []
 
-    start_values_perf_dict = {}
-    for i in I:
-        start_values_perf_dict[f"Physician_{i}"] = {(i, t, s): start_values_perf[(i, t, s)] for t in T for s in K}
-
-    Perf_schedules = {}
-    for index in I:
-        Perf_schedules[f"Physician_{index}"] = [start_values_perf_dict[f"Physician_{index}"]]
-
-    start_values_c_dict = {}
-    for i in I:
-        start_values_c_dict[f"Physician_{i}"] = {(i, t): start_values_c[(i, t)] for t in T}
-
-    Cons_schedules = {}
-    for index in I:
-        Cons_schedules[f"Physician_{index}"] = [start_values_c_dict[f"Physician_{index}"]]
-
-    start_values_r_dict = {}
-    for i in I:
-        start_values_r_dict[f"Physician_{i}"] = {(i, t): start_values_r[(i, t)] for t in T}
-
-    Recovery_schedules = {}
-    for index in I:
-        Recovery_schedules[f"Physician_{index}"] = [start_values_r_dict[f"Physician_{index}"]]
-
-    start_values_eup_dict = {}
-    for i in I:
-        start_values_eup_dict[f"Physician_{i}"] = {(i, t): start_values_eup[(i, t)] for t in T}
-
-    EUp_schedules = {}
-    for index in I:
-        EUp_schedules[f"Physician_{index}"] = [start_values_eup_dict[f"Physician_{index}"]]
-
-    start_values_elow_dict = {}
-    for i in I:
-        start_values_elow_dict[f"Physician_{i}"] = {(i, t): start_values_elow[(i, t)] for t in T}
-
-    ELow_schedules = {}
-    for index in I:
-        ELow_schedules[f"Physician_{index}"] = [start_values_elow_dict[f"Physician_{index}"]]
-
-    start_values_p_dict = {}
-    for i in I:
-        start_values_p_dict[f"Physician_{i}"] = {(i, t): start_values_p[(i, t)] for t in T}
-
-    P_schedules = {}
-    for index in I:
-        P_schedules[f"Physician_{index}"] = [start_values_p_dict[f"Physician_{index}"]]
-
-    start_values_x_dict = {}
-    for i in I:
-        start_values_x_dict[f"Physician_{i}"] = {(i, t, s): start_values_x[(i, t, s)] for t in T for s in K}
-
-    X1_schedules = {}
-    for index in I:
-        X1_schedules[f"Physician_{index}"] = [start_values_x_dict[f"Physician_{index}"]]
+    Perf_schedules = create_schedule_dict(start_values_perf, I, T, K)
+    Cons_schedules = create_schedule_dict(start_values_c, I, T)
+    Recovery_schedules = create_schedule_dict(start_values_r, I, T)
+    EUp_schedules = create_schedule_dict(start_values_eup, I, T)
+    ELow_schedules = create_schedule_dict(start_values_elow, I, T)
+    P_schedules = create_schedule_dict(start_values_p, I, T)
+    X1_schedules = create_schedule_dict(start_values_x, I, T, K)
 
 
     master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)

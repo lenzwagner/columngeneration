@@ -7,7 +7,6 @@ from subproblem import *
 from compactsolver import Problem
 from demand import *
 
-
 # **** Prerequisites ****
 # Create Dataframes
 data = pd.DataFrame({
@@ -24,14 +23,14 @@ for file in os.listdir():
 
 ## Dataframe
 results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap", "chi", "epsilon", "consistency"])
-results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange"])
+results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange", "lp-bound"])
 
-random.seed(123)
+
 
 # Ergebnisse ausgeben
 print(results)
 # Parameter
-random.seed(13338)
+random.seed(1338)
 time_Limit = 3600
 max_itr = 20
 output_len = 98
@@ -49,7 +48,8 @@ problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
 problem.buildLinModel()
 problem.updateModel()
 problem.solveModel()
-
+bound = problem.model.ObjBound
+print(f"Bound {bound}")
 obj_val_problem = round(problem.model.objval, 3)
 time_problem = time.time() - problem_t0
 vals_prob = problem.get_final_values()
@@ -211,6 +211,7 @@ while True:
         master.solveRelaxModel()
         objValHistRMP.append(master.model.objval)
         current_obj = master.model.objval
+        current_bound = master.model.objval
 
         # Get and Print Duals
         duals_i = master.getDuals_i()
@@ -313,7 +314,8 @@ while True:
             "S": [len(master.shifts)],
             "objective_value": [round(objValHistRMP[-1], 2)],
             "time": [avg_time],
-            "lagrange": [round((objValHistRMP[-1] + sum_rc_hist[-1]), 3)]
+            "lagrange": [round((objValHistRMP[-1] + sum_rc_hist[-1]), 3)],
+            "lp-bound": [current_bound]
         })
         results_cg =  pd.concat([results_cg, new_row2], ignore_index=True)
 
@@ -382,7 +384,8 @@ new_row = pd.DataFrame({
     "mip_gap": [mip_gap],
     "chi": [subproblem.chi],
     "epsilon": [subproblem.epsilon],
-    "consistency": [result]
+    "consistency": [result],
+    "lowerbound": [bound]
 })
 results_df = pd.concat([results, new_row], ignore_index=True)
 results_df.to_excel('results.xlsx', index=False)

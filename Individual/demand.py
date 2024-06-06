@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-def demand_dict_fifty(num_days, prob, demand):
+def demand_dict_fifty(num_days, prob, demand, middle_shift):
     total_demand = int(prob * demand)
     demand_dict = {}
 
@@ -10,13 +10,25 @@ def demand_dict_fifty(num_days, prob, demand):
         middle_shift_ratio = random.random()
         middle_shift_demand = round(total_demand * middle_shift_ratio)
         remaining_demand = total_demand - middle_shift_demand
-        early_shift_ratio = random.random()
-        early_shift_demand = round(remaining_demand * early_shift_ratio)
-        late_shift_demand = remaining_demand - early_shift_demand
 
-        demand_dict[(day, 1)] = early_shift_demand
-        demand_dict[(day, 2)] = middle_shift_demand
-        demand_dict[(day, 3)] = late_shift_demand
+        early_late_ratio = random.random()
+        early_demand = round(remaining_demand * early_late_ratio)
+        late_demand = remaining_demand - early_demand
+
+        if middle_shift == 1:
+            demand_dict[(day, 1)] = middle_shift_demand
+            demand_dict[(day, 2)] = early_demand
+            demand_dict[(day, 3)] = late_demand
+        elif middle_shift == 2:
+            demand_dict[(day, 1)] = early_demand
+            demand_dict[(day, 2)] = middle_shift_demand
+            demand_dict[(day, 3)] = late_demand
+        elif middle_shift == 3:
+            demand_dict[(day, 1)] = early_demand
+            demand_dict[(day, 2)] = late_demand
+            demand_dict[(day, 3)] = middle_shift_demand
+        else:
+            raise ValueError("Invalid")
 
     return demand_dict
 

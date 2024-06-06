@@ -23,8 +23,12 @@ def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagr
     print("*{:^{nr}}*".format("The LP Relaxation (Lower Bound) is: " + str(round(optimal_lp, 4)), nr=nr))
     print("*{:^{nr}}*".format("The Analytical Lower Bound is: " + str(round(lb, 4)), nr=nr))
     print("*{:^{nr}}*".format("The Lagrangian Bound is: " + str(round(lagranigan_bound, 4)), nr=nr))
-    gap = round((((optimal_ip-optimal_lp) / optimal_lp) * 100),3)
+
+
+    gap = round((((optimal_ip - optimal_lp) / optimal_lp) * 100), 3)
+    gap = 0.0 if abs(gap) < 1e-9 else gap
     gap_str = f"{gap}%"
+
     if gap == 0:
         print("*{:^{nr}}*".format("LP-Optimality GAP: " + str(gap_str), nr=nr))
     else:

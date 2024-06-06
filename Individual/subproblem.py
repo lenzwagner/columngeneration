@@ -68,7 +68,7 @@ class Subproblem:
     def generateConstraints(self):
         for i in [self.index]:
             for t in self.days:
-                self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.shifts) <= 1)
+                #self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.shifts) <= 1)
                 self.model.addLConstr(gu.quicksum(self.x[i, t, k] for k in self.shifts) == self.y[i, t])
         for i in [self.index]:
             for t in self.days:
@@ -151,7 +151,7 @@ class Subproblem:
             for t in range(1, len(self.days) - self.Max_WD + 1):
                 self.model.addLConstr(
                     gu.quicksum(self.y[i, u] for u in range(t, t + 1 + self.Max_WD)) <= self.Max_WD)
-            for t in range(2, len(self.days) - self.Min_WD + 1):
+            for t in range(1, len(self.days) - self.Min_WD + 1):
                 self.model.addLConstr(
                     gu.quicksum(self.y[i, u] for u in range(t + 1, t + self.Min_WD + 1)) >= self.Min_WD * (
                             self.y[i, t + 1] - self.y[i, t]))

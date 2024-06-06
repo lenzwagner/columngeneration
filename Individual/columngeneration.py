@@ -30,7 +30,7 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 # Ergebnisse ausgeben
 print(results)
 # Parameter
-random.seed(1338)
+random.seed(13322222288)
 time_Limit = 3600
 max_itr = 40
 output_len = 98

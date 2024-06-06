@@ -287,7 +287,10 @@ new_row = pd.DataFrame({
     "lowerbound": [bound]
 })
 results_df = pd.concat([results, new_row], ignore_index=True)
+results_df.to_csv('results.csv', index=False)
 results_df.to_excel('results.xlsx', index=False)
+results_cg.to_csv('cg.csv', index=False)
+results_cg.to_excel('cg.xlsx', index=False)
 print(results_df)
 print(results_cg)
 

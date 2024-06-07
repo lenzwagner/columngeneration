@@ -36,7 +36,7 @@ max_itr = 11
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0
+eps = 0.04
 
 # Demand Dict
 demand_dict = demand_dict_fifty(len(T), 1.1, len(I), 2)
@@ -322,6 +322,6 @@ ls_x = plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr)
 master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc)
 
 # Naive
-master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
+master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.04)
 
 print(master.printLambdas())

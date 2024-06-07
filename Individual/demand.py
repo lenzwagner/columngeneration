@@ -2,11 +2,14 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-def demand_dict_fifty(num_days, prob, demand, middle_shift):
-    total_demand = int(prob * demand)
+def demand_dict_fifty(num_days, prob, demand, middle_shift, fluctuation=0.25):
+    base_total_demand = int(prob * demand)
     demand_dict = {}
 
     for day in range(1, num_days + 1):
+        fluctuation_factor = 1 + (random.uniform(-fluctuation, fluctuation))
+        total_demand = int(base_total_demand * fluctuation_factor)
+
         middle_shift_ratio = random.random()
         middle_shift_demand = round(total_demand * middle_shift_ratio)
         remaining_demand = total_demand - middle_shift_demand
@@ -28,9 +31,10 @@ def demand_dict_fifty(num_days, prob, demand, middle_shift):
             demand_dict[(day, 2)] = late_demand
             demand_dict[(day, 3)] = middle_shift_demand
         else:
-            raise ValueError("Invalid")
+            raise ValueError("Invalid middle_shift value")
 
     return demand_dict
+
 
 def demand_dict_third(num_days, prob, demand):
     total_demand = int(prob * demand)

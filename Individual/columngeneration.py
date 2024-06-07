@@ -32,11 +32,11 @@ print(results)
 # Parameter
 random.seed(123)
 time_Limit = 1800
-max_itr = 100
+max_itr = 11
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.1
+eps = 0
 
 # Demand Dict
 demand_dict = demand_dict_fifty(len(T), 1.1, len(I), 2)
@@ -48,6 +48,7 @@ problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
 problem.buildLinModel()
 problem.updateModel()
 problem.solveModel()
+print(f"Perf: {problem.getNewSchedule()}")
 bound = problem.model.ObjBound
 print(f"Bound {bound}")
 obj_val_problem = round(problem.model.objval, 3)
@@ -317,10 +318,10 @@ ls_e = plotPerformanceList(master.printLambdas(), EUp_schedules, I ,max_itr)
 ls_b = plotPerformanceList(master.printLambdas(), ELow_schedules, I ,max_itr)
 ls_x = plotPerformanceList(master.printLambdas(), X_schedules, I ,max_itr)
 
-# Behvaior
+# Behavior
 master.calc_behavior(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc)
 
 # Naive
 master.calc_naive(plotPerformanceList(master.printLambdas(), Perf_schedules, I ,max_itr), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
 
-print(f"Lambdas {master.printLambdas()}")
+print(master.printLambdas())

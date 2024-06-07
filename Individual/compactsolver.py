@@ -209,3 +209,6 @@ class Problem:
             self.x[key].Start = value
         self.model.Params.MIPFocus = 3
         self.model.update()
+
+    def getNewSchedule(self):
+        return self.model.getAttr("X", self.perf)

@@ -30,7 +30,7 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 # Ergebnisse ausgeben
 print(results)
 # Parameter
-random.seed(123)
+random.seed(144236)
 time_Limit = 1800
 max_itr = 11
 output_len = 98
@@ -39,7 +39,7 @@ threshold = 5e-7
 eps = 0.04
 
 # Demand Dict
-demand_dict = demand_dict_fifty(len(T), 1.1, len(I), 2)
+demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
 
 
 # **** Compact Solver ****

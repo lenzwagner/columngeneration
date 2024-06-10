@@ -1,4 +1,5 @@
 import random
+import os
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -83,8 +84,7 @@ def demand_dict_third(num_days, prob, demand):
 
     return demand_dict
 
-def plot_demand_pattern(demands, days, shifts):
-    shift_labels = ["Morning", "Noon", "Evening"]
+def plot_demand_pattern(demands, days, shifts, name):
     """
     Plots the demand pattern over shifts for a given number of days and shifts.
 
@@ -94,6 +94,10 @@ def plot_demand_pattern(demands, days, shifts):
     - shifts: int, number of shifts per day.
     - shift_labels: list of str, labels for each shift.
     """
+    file = str(name)
+    file_name = f'.{os.sep}images{os.sep}{file}.png'
+    shift_labels = ["Morning", "Noon", "Evening"]
+
     plt.figure(figsize=(10, 6))
 
     colors = plt.cm.viridis(np.linspace(0, 1, days))
@@ -108,9 +112,10 @@ def plot_demand_pattern(demands, days, shifts):
     plt.xticks(range(1, shifts + 1), shift_labels)
     plt.legend()
     plt.grid(True)
+    plt.savefig(file_name, format='png')
     plt.show()
 
-def plot_demand_bar(demands, days, shifts):
+def plot_demand_bar(demands, days, shifts, name):
     """
     Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
 
@@ -119,6 +124,9 @@ def plot_demand_bar(demands, days, shifts):
     - days: int, number of days.
     - shifts: int, number of shifts per day.
     """
+    file = str(name)
+    file_name = f'.{os.sep}images{os.sep}{file}.png'
+
     demands_list = []
     grays = plt.cm.Greys(np.linspace(0.3, 0.7, shifts))
 
@@ -145,10 +153,11 @@ def plot_demand_bar(demands, days, shifts):
     plt.title('Demand Pattern Over Shifts')
     plt.grid(axis='y')
     plt.tight_layout()
+    plt.savefig(file_name, format='png')
     plt.show()
 
 
-def plot_demand_bar_by_day(demands, days, shifts):
+def plot_demand_bar_by_day(demands, days, shifts, name):
     """
     Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
 
@@ -157,6 +166,9 @@ def plot_demand_bar_by_day(demands, days, shifts):
     - days: int, number of days.
     - shifts: int, number of shifts per day.
     """
+    file = str(name)
+    file_name = f'.{os.sep}images{os.sep}{file}.png'
+
     demands_list = []
     colors = plt.cm.viridis(np.linspace(0, 1, days))
 
@@ -172,7 +184,7 @@ def plot_demand_bar_by_day(demands, days, shifts):
         bar.set_color(colors[day_index])
 
     plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)],
-               labels=[f"Day {i + 1}" for i in range(days)], rotation=0)
+               labels=[f"{i + 1}" for i in range(days)], rotation=0)
 
     for bar in bars:
         yval = bar.get_height()
@@ -180,7 +192,8 @@ def plot_demand_bar_by_day(demands, days, shifts):
 
     plt.xlabel('Day')
     plt.ylabel('Demand')
-    plt.title('Demand Pattern Over Shifts')
+    #plt.title('Demand Pattern Over Shifts')
     plt.grid(axis='y')
     plt.tight_layout()
+    plt.savefig(file_name, format='png')
     plt.show()

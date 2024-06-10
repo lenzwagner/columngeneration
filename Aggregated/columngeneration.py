@@ -27,7 +27,7 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 print(results)
 
 # Parameter
-random.seed(13337755)
+random.seed(1333775588)
 time_Limit = 3600
 max_itr = 20
 output_len = 98

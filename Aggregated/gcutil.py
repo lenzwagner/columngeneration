@@ -1,5 +1,8 @@
 from itertools import chain
 import random
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # **** Print Results Table ****
 def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagranigan_bound, compact_obj, step):
@@ -20,8 +23,12 @@ def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagr
     print("*{:^{nr}}*".format("The LP Relaxation (Lower Bound) is: " + str(round(optimal_lp, 4)), nr=nr))
     print("*{:^{nr}}*".format("The Analytical Lower Bound is: " + str(round(lb, 4)), nr=nr))
     print("*{:^{nr}}*".format("The Lagrangian Bound is: " + str(round(lagranigan_bound, 4)), nr=nr))
-    gap = round((((optimal_ip-optimal_lp) / optimal_lp) * 100),3)
+
+
+    gap = round((((optimal_ip - optimal_lp) / optimal_lp) * 100), 3)
+    gap = 0.0 if abs(gap) < 1e-9 else gap
     gap_str = f"{gap}%"
+
     if gap == 0:
         print("*{:^{nr}}*".format("LP-Optimality GAP: " + str(gap_str), nr=nr))
     else:
@@ -109,6 +116,21 @@ def get_nurse_schedules(Iter_schedules, lambdas, I_list):
     flat = list(chain(*flat_nurse_schedules))
     return flat
 
+def get_consistency(Schedules, lambdas, I):
+    physician_schedules = []
+    flat_physician_schedules = []
+
+    for i in I:
+        physician_schedule = []
+        for r, schedule in enumerate(Schedules[f"Physician_{i}"]):
+            if (i, r + 1) in lambdas and lambdas[(i, r + 1)] == 1:
+                physician_schedule.append(schedule)
+        physician_schedules.append(physician_schedule)
+        flat_physician_schedules.extend(physician_schedule)
+
+    flat_cons = list(chain(*flat_physician_schedules))
+    return flat_cons
+
 # **** List comparison ****
 def list_diff_sum(list1, list2):
     result = []
@@ -169,6 +191,71 @@ def create_demand_dict(num_days, total_demand):
         for i in range(3):
             shifts[i] = round(shifts[i])
             demand_dict[(day, i + 1)] = shifts[i]
+
+    return demand_dict
+
+def demand_dict_fifty(num_days, prob, demand):
+    total_demand = int(prob * demand)
+    demand_dict = {}
+
+    for day in range(1, num_days + 1):
+        middle_shift_ratio = random.random()
+        middle_shift_demand = round(total_demand * middle_shift_ratio)
+        remaining_demand = total_demand - middle_shift_demand
+        early_shift_ratio = random.random()
+        early_shift_demand = round(remaining_demand * early_shift_ratio)
+        late_shift_demand = remaining_demand - early_shift_demand
+
+        demand_dict[(day, 1)] = early_shift_demand
+        demand_dict[(day, 2)] = middle_shift_demand
+        demand_dict[(day, 3)] = late_shift_demand
+
+    return demand_dict
+
+def demand_dict_third(num_days, prob, demand):
+    total_demand = int(prob * demand)
+    demand_dict = {}
+
+    for day in range(1, num_days + 1):
+        z1 = random.random()
+        z2 = random.random()
+        z3 = random.random()
+
+        summe = z1 + z2 + z3
+
+        demand1 = (z1 / summe) * total_demand
+        demand2 = (z2 / summe) * total_demand
+        demand3 = (z3 / summe) * total_demand
+
+        demand1_rounded = round(demand1)
+        demand2_rounded = round(demand2)
+        demand3_rounded = round(demand3)
+
+        rounded_total = demand1_rounded + demand2_rounded + demand3_rounded
+        rounding_difference = total_demand - rounded_total
+
+        if rounding_difference != 0:
+            shift_indices = [1, 2, 3]
+            random.shuffle(shift_indices)
+            for i in range(abs(rounding_difference)):
+                if rounding_difference > 0:
+                    if shift_indices[i] == 1:
+                        demand1_rounded += 1
+                    elif shift_indices[i] == 2:
+                        demand2_rounded += 1
+                    else:
+                        demand3_rounded += 1
+                else:
+                    if shift_indices[i] == 1:
+                        demand1_rounded -= 1
+                    elif shift_indices[i] == 2:
+                        demand2_rounded -= 1
+                    else:
+                        demand3_rounded -= 1
+
+        demand_dict[(day, 1)] = demand1_rounded
+        demand_dict[(day, 2)] = demand2_rounded
+        demand_dict[(day, 3)] = demand3_rounded
 
     return demand_dict
 
@@ -242,3 +329,29 @@ def analytical_lb(optimal_lp, step, optimal_ip):
             return current_value + step
     return optimal_ip
 
+def total_consistency(lm1, lm2):
+    print(f"lm1: {lm1}")
+    print(f"lm2: {lm2}")
+
+    selected_lists = []
+    for physician, lists in lm2.items():
+        for i, l in enumerate(lists):
+            iteration = i + 1
+            for key, value in lm1.items():
+                if key[0] == int(physician[-1]) and key[1] == iteration and value == 1:
+                    selected_lists.append(l)
+                    break
+    total_value = 0
+    for l in selected_lists:
+        for key, value in l.items():
+            total_value += value
+    return total_value, selected_lists
+
+def create_schedule_dict(start_values, physician_indices, time_indices, shift_indices=None):
+    schedule_dict = {}
+    for i in physician_indices:
+        if shift_indices is None:
+            schedule_dict[f"Physician_{i}"] = [{(i, t): start_values[(i, t)] for t in time_indices}]
+        else:
+            schedule_dict[f"Physician_{i}"] = [{(i, t, s): start_values[(i, t, s)] for t in time_indices for s in shift_indices}]
+    return schedule_dict

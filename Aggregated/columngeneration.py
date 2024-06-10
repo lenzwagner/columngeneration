@@ -4,6 +4,7 @@ from setup import *
 from gcutil import *
 from subproblem import *
 from compactsolver import Problem
+from demand import *
 
 # **** Prerequisites ****
 # Create Dataframes
@@ -18,8 +19,15 @@ for file in os.listdir():
     if file.endswith('.lp') or file.endswith('.sol') or file.endswith('.txt'):
         os.remove(file)
 
+## Dataframe
+results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap", "mip_gap", "chi", "epsilon", "consistency"])
+results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange", "lp-bound"])
+
+# Ergebnisse ausgeben
+print(results)
+
 # Parameter
-random.seed(13338)
+random.seed(13337755)
 time_Limit = 3600
 max_itr = 20
 output_len = 98
@@ -28,7 +36,7 @@ threshold = 5e-7
 eps = 0.1
 
 # Demand Dict
-demand_dict = generate_cost(len(T), len(I), len(K))
+demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
 
 
 # **** Compact Solver ****
@@ -37,6 +45,9 @@ problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
 problem.buildLinModel()
 problem.updateModel()
 problem.solveModel()
+
+bound = problem.model.ObjBound
+print(f"Bound {bound}")
 
 obj_val_problem = round(problem.model.objval, 3)
 time_problem = time.time() - problem_t0
@@ -58,22 +69,16 @@ problem_start.model.Params.RINS = 10
 problem_start.model.Params.MIPGap = 0.8
 problem_start.model.update()
 problem_start.model.optimize()
-start_values_perf = {}
-for i in I:
-    for t in T:
-        for s in K:
-            start_values_perf[(i, t, s)] = problem_start.perf[i, t, s].x
 
-start_values_p = {}
-for i in I:
-    for t in T:
-        start_values_p[(i, t)] = problem_start.p[i, t].x
-
-start_values_x = {}
-for i in I:
-    for t in T:
-        for s in K:
-            start_values_x[(i, t, s)] = problem_start.x[i, t, s].x
+# Schedules
+# Create
+start_values_perf = {(i, t, s): problem_start.perf[i, t, s].x for i in I for t in T for s in K}
+start_values_p = {(i, t): problem_start.p[i, t].x for i in I for t in T}
+start_values_x = {(i, t, s): problem_start.x[i, t, s].x for i in I for t in T for s in K}
+start_values_c = {(i, t): problem_start.sc[i, t].x for i in I for t in T}
+start_values_r = {(i, t): problem_start.r[i, t].x for i in I for t in T}
+start_values_eup = {(i, t): problem_start.e[i, t].x for i in I for t in T}
+start_values_elow = {(i, t): problem_start.b[i, t].x for i in I for t in T}
 
 while True:
     # Initialize iterations
@@ -82,42 +87,24 @@ while True:
     last_itr = 0
 
     # Create empty results lists
-    objValHistSP = []
-    timeHist = []
-    objValHistRMP = []
-    avg_rc_hist = []
-    lagrange_hist = []
-    sum_rc_hist = []
-    avg_sp_time = []
-    gap_rc_hist = []
+    histories = ["objValHistSP", "timeHist", "objValHistRMP", "avg_rc_hist", "lagrange_hist", "sum_rc_hist",
+                 "avg_sp_time", "gap_rc_hist"]
+    histories_dict = {}
+    for history in histories:
+        histories_dict[history] = []
+    objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist = histories_dict.values()
 
     X_schedules = {}
     for index in I:
         X_schedules[f"Physician_{index}"] = []
 
-    start_values_perf_dict = {}
-    for i in I:
-        start_values_perf_dict[f"Physician_{i}"] = {(i, t, s): start_values_perf[(i, t, s)] for t in T for s in K}
-
-    Perf_schedules = {}
-    for index in I:
-        Perf_schedules[f"Physician_{index}"] = [start_values_perf_dict[f"Physician_{index}"]]
-
-    start_values_p_dict = {}
-    for i in I:
-        start_values_p_dict[f"Physician_{i}"] = {(i, t): start_values_p[(i, t)] for t in T}
-
-    P_schedules = {}
-    for index in I:
-        P_schedules[f"Physician_{index}"] = [start_values_p_dict[f"Physician_{index}"]]
-
-    start_values_x_dict = {}
-    for i in I:
-        start_values_x_dict[f"Physician_{i}"] = {(i, t, s): start_values_x[(i, t, s)] for t in T for s in K}
-
-    X1_schedules = {}
-    for index in I:
-        X1_schedules[f"Physician_{index}"] = [start_values_x_dict[f"Physician_{index}"]]
+    Perf_schedules = create_schedule_dict(start_values_perf, I, T, K)
+    Cons_schedules = create_schedule_dict(start_values_c, I, T)
+    Recovery_schedules = create_schedule_dict(start_values_r, I, T)
+    EUp_schedules = create_schedule_dict(start_values_eup, I, T)
+    ELow_schedules = create_schedule_dict(start_values_elow, I, T)
+    P_schedules = create_schedule_dict(start_values_p, I, T)
+    X1_schedules = create_schedule_dict(start_values_x, I, T, K)
 
 
     master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
@@ -147,12 +134,11 @@ while True:
         master.solveRelaxModel()
         objValHistRMP.append(master.model.objval)
         current_obj = master.model.objval
+        current_bound = master.model.objval
 
         # Get and Print Duals
         duals_i = master.getDuals_i()
         duals_ts = master.getDuals_ts()
-        #print(f"DualsI: {duals_i}")
-        #print(f"DualsTs: {duals_ts}")
 
         # Save current optimality gap
         gap_rc = round(((round(master.model.objval, 3) - round(obj_val_problem, 3)) / round(master.model.objval, 3)), 3)
@@ -173,14 +159,14 @@ while True:
         timeHist.append(sub_totaltime)
 
         # Get optimal values
-        optx_values = subproblem.getOptX()
-        X_schedules[f"Physician_{index}"].append(optx_values)
-        optPerf_values = subproblem.getOptPerf()
-        Perf_schedules[f"Physician_{index}"].append(optPerf_values)
-        optP_values = subproblem.getOptP()
-        P_schedules[f"Physician_{index}"].append(optP_values)
-        optx1_values = subproblem.getOptX()
-        X1_schedules[f"Physician_{index}"].append(optx1_values)
+        keys = ["X", "Perf", "P", "C", "R", "EUp", "Elow", "X1"]
+        methods = ["getOptX", "getOptPerf", "getOptP", "getOptC", "getOptR", "getOptEUp", "getOptElow", "getOptX"]
+        schedules = [X_schedules, Perf_schedules, P_schedules, Cons_schedules, Recovery_schedules, EUp_schedules,
+                     ELow_schedules, X1_schedules]
+
+        for key, method, schedule in zip(keys, methods, schedules):
+            value = getattr(subproblem, method)()
+            schedule[f"Physician_{index}"].append(value)
 
         # Check if SP is solvable
         status = subproblem.getStatus()
@@ -225,6 +211,18 @@ while True:
         avg_sp_time.append(avg_time)
         timeHist.clear()
 
+        new_row2 = pd.DataFrame({
+            "it": [itr],
+            "I": [len(master.nurses)],
+            "D": [len(master.days)],
+            "S": [len(master.shifts)],
+            "objective_value": [round(objValHistRMP[-1], 2)],
+            "time": [avg_time],
+            "lagrange": [round((objValHistRMP[-1] + sum_rc_hist[-1]), 3)],
+            "lp-bound": [current_bound]
+        })
+        results_cg = pd.concat([results_cg, new_row2], ignore_index=True)
+
         print("*{:^{output_len}}*".format(f"End Column Generation Iteration {itr}", output_len=output_len))
 
         if not modelImprovable:
@@ -253,6 +251,18 @@ objValHistRMP.append(master.model.objval)
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
 
+
+ew_row2 = pd.DataFrame({
+    "it": [itr+1],
+    "I": [len(master.nurses)],
+    "D": [len(master.days)],
+    "S": [len(master.shifts)],
+    "objective_value": [round(master.model.objval, 2)],
+    "time": [total_time_cg-sum(avg_sp_time)*len(master.nurses)],
+    "lagrange": [round((master.model.objval), 3)]
+})
+results_cg = pd.concat([results_cg, new_row2], ignore_index=True)
+
 # Calculate Gap
 # Relative to the lower bound (best possible achievable solution)
 gap = ((objValHistRMP[-1]-objValHistRMP[-2])/objValHistRMP[-2])*100
@@ -265,3 +275,31 @@ print(f"Lagrangian Bound {sum_rc_hist}")
 
 # Print Results
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)
+
+### Store results
+
+# Calculate Consistency
+
+result, _ = total_consistency(master.printLambdas(), Cons_schedules)
+mip_gap = round((((final_obj_cg-objValHistRMP[-2]) / objValHistRMP[-2]) * 100),3)
+new_row = pd.DataFrame({
+    "I": [len(master.nurses)],
+    "D": [len(master.days)],
+    "S": [len(master.shifts)],
+    "objective_value": [round(final_obj_cg,2)],
+    "time": [round(total_time_cg,2)],
+    "gap": [gap],
+    "mip_gap": [mip_gap],
+    "chi": [subproblem.chi],
+    "epsilon": [subproblem.epsilon],
+    "consistency": [result],
+    "lowerbound": [bound]
+
+})
+results_df = pd.concat([results, new_row], ignore_index=True)
+results_df.to_csv('results.csv', index=False)
+results_df.to_excel('results.xlsx', index=False)
+results_cg.to_csv('cg.csv', index=False)
+results_cg.to_excel('cg.xlsx', index=False)
+print(results_df)
+print(results_cg)

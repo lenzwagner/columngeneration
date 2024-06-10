@@ -47,7 +47,7 @@ class Problem:
         self.kk = self.model.addVars(self.I, self.Weeks, vtype=gu.GRB.BINARY, name="k")
         self.y = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="y")
         self.o = self.model.addVars(self.T, self.K, vtype=gu.GRB.CONTINUOUS, name="o")
-        self.u = self.model.addVars(self.T, self.K, vtype=gu.GRB.CONTINUOUS, name="u")
+        self.u = self.model.addVars(self.T, self.K, lb = 0, vtype=gu.GRB.CONTINUOUS, name="u")
         self.sc = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="sc")
         self.v = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="v")
         self.q = self.model.addVars(self.I, self.T, self.K, vtype=gu.GRB.BINARY, name="q")
@@ -109,7 +109,7 @@ class Problem:
             for t in range(1, len(self.T) - self.Max_WD_i[i] + 1):
                 self.model.addLConstr(
                     gu.quicksum(self.y[i, u] for u in range(t, t + 1 + self.Max_WD_i[i])) <= self.Max_WD_i[i])
-            for t in range(1, len(self.T) - self.Min_WD_i[i] + 1):
+            for t in range(2, len(self.T) - self.Min_WD_i[i] + 1):
                 self.model.addLConstr(
                     gu.quicksum(self.y[i, u] for u in range(t + 1, t + self.Min_WD_i[i] + 1)) >= self.Min_WD_i[i] * (
                                 self.y[i, t + 1] - self.y[i, t]))
@@ -209,3 +209,6 @@ class Problem:
             self.x[key].Start = value
         self.model.Params.MIPFocus = 3
         self.model.update()
+
+    def getNewSchedule(self):
+        return self.model.getAttr("X", self.perf)

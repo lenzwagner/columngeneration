@@ -2,7 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 
-def demand_dict_fifty(num_days, prob, demand, middle_shift, fluctuation=0.25):
+def demand_dict_fifty2(num_days, prob, demand, middle_shift, fluctuation=0.25):
     base_total_demand = int(prob * demand)
     demand_dict = {}
 

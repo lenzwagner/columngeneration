@@ -20,12 +20,11 @@ for file in os.listdir():
         os.remove(file)
 
 ## Dataframe
-results_cg = pd.DataFrame(columns=["seed","I", "D", "S", "objective_value_cp", "objective_value_cg", "time_cg", "time_cp", "gap", "mip_gap", "lowerbound", "optimal", "lagrange", "lp-bound"])
+results_cg = pd.DataFrame(columns=["seed","I", "D", "S", "objective_value_cp", "objective_value_cg", "time_cg", "time_cp", "gap", "mip_gap", "lowerbound", "optimal", "lagrange"])
 
 # Parameter
-for seed in range(1, 3):
+for seed in range(1, 101):
     random.seed(seed)
-    time_Limit = 3600
     max_itr = 20
     output_len = 98
     mue = 1e-4
@@ -33,7 +32,7 @@ for seed in range(1, 3):
     eps = 0.1
 
     # Demand Dict
-    demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
+    demand_dict = demand_dict_fifty2(len(T), 1, len(I), 2, 0.1)
 
 
     # **** Compact Solver ****
@@ -106,9 +105,6 @@ for seed in range(1, 3):
 
         master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
         master.buildModel()
-        print("*" * (output_len + 2))
-        print("*{:^{output_len}}*".format("Restricted Master Problem successfully built!", output_len=output_len))
-        print("*" * (output_len + 2))
 
         # Initialize and solve relaxed model
         master.setStartSolution()
@@ -151,7 +147,7 @@ for seed in range(1, 3):
 
             # Save time to solve SP
             sub_t0 = time.time()
-            subproblem.solveModel(time_Limit)
+            subproblem.solveModel()
             sub_totaltime = time.time() - sub_t0
             timeHist.append(sub_totaltime)
 
@@ -180,7 +176,6 @@ for seed in range(1, 3):
             # Generate and add columns with reduced cost
             if reducedCost < -threshold:
                 Schedules = subproblem.getNewSchedule()
-                print(f"Fff{Schedules}")
                 for index in [1]:
                     master.addColumn(index, itr, Schedules)
                     master.addLambda(index, itr)
@@ -211,7 +206,6 @@ for seed in range(1, 3):
             print("*{:^{output_len}}*".format(f"End Column Generation Iteration {itr}", output_len=output_len))
 
             if not modelImprovable:
-                master.model.write("Final_LP.sol")
                 print("*{:^{output_len}}*".format("", output_len=output_len))
                 print("*{:^{output_len}}*".format("No more improvable columns found.", output_len=output_len))
                 print("*{:^{output_len}}*".format("", output_len=output_len))
@@ -226,10 +220,8 @@ for seed in range(1, 3):
         else:
             break
 
-    print(f" List of objvals relaxed {objValHistRMP}")
     # Solve Master Problem with integrality restored
-    master.finalSolve(time_Limit)
-    master.model.write("Final_IP.sol")
+    master.finalSolve()
     objValHistRMP.append(master.model.objval)
 
     # Capture total time and objval
@@ -250,10 +242,12 @@ for seed in range(1, 3):
     printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound,
                  obj_val_problem, eps)
 
-    if mip_gap <= 0.001:
+    if mip_gap < 0.001:
         opt = 1
     else:
         opt = 0
+
+    print(f"Is opt? {opt}: with Gap {mip_gap}")
 
     new_row = pd.DataFrame({
         "seed": [seed],

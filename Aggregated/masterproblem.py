@@ -100,9 +100,9 @@ class MasterProblem:
         self.model.remove(current_lmb_cons)
         self.cons_lmbda[self.nurseIndex] = newconlmb
 
-    def finalSolve(self, timeLimit):
+    def finalSolve(self):
         try:
-            self.model.setParam('TimeLimit', timeLimit)
+            #self.model.setParam('TimeLimit', timeLimit)
             self.model.Params.IntegralityFocus = 1
             self.model.Params.FeasibilityTol = 1e-9
             self.model.Params.BarConvTol = 0.0
@@ -122,9 +122,9 @@ class MasterProblem:
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))
 
-    def solveModel(self, timeLimit):
+    def solveModel(self):
         try:
-            self.model.setParam('TimeLimit', timeLimit)
+            #self.model.setParam('TimeLimit', timeLimit)
             self.model.Params.QCPDual = 1
             self.model.Params.OutputFlag = 0
             self.model.Params.IntegralityFocus = 1

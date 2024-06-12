@@ -36,8 +36,6 @@ class Problem:
         self.genChangesCons()
         self.genRegCons()
         self.model.update()
-        self.Recovery()
-        self.linPerformance()
         self.generateObjective()
         self.updateModel()
 

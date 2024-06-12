@@ -7,7 +7,7 @@ from plots import optimality_plot
 from test import *
 from demand import *
 
-I, T, K = list(range(1,5)), list(range(1,14)), [1, 2, 3]
+I, T, K = list(range(1,200)), list(range(1,29)), [1, 2, 3]
 
 # **** Solve ****
 data = pd.DataFrame({

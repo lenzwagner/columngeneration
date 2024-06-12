@@ -9,14 +9,14 @@ from demand import *
 import numpy as np
 
 # Parameterdefinitionen
-I_values = [3, 4]
+I_values = [50, 100, 150]
 prob_values = [1.0, 1.1, 1.2]
-patterns = [1, 2, 3, 4]
-T = list(range(1, 14))
+patterns = [2]
+T = list(range(1, 29))
 K = [1, 2, 3]
 
 prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
-pattern_mapping = {1: 'Split_Early', 2: 'Split_Noon', 3: 'Split_Evening', 4: 'Equal'}
+pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
 results = pd.DataFrame(columns=['I', 'T', 'K', 'prob', 'pattern', 'time', 'gap', 'lb', 'ub', 'obj'])

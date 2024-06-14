@@ -197,9 +197,9 @@ class Subproblem:
     def getStatus(self):
         return self.model.status
 
-    def solveModel(self):
+    def solveModel(self, timeLimit):
         try:
-            #self.model.setParam('TimeLimit', timeLimit)
+            self.model.setParam('TimeLimit', timeLimit)
             self.model.Params.OutputFlag = 0
             self.model.Params.IntegralityFocus = 1
             self.model.Params.FeasibilityTol = 1e-9

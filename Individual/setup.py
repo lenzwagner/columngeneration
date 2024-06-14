@@ -14,6 +14,7 @@ K = df1['Shift'].tolist()
 S_T = df1['Hours'].tolist()
 I_T = work['WT'].tolist()
 
+
 # Zip sets
 S_T = {a: c for a, c in zip(K, S_T)}
 I_T = {a: d for a, d in zip(I, I_T)}

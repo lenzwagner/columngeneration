@@ -8,6 +8,7 @@ from demand import *
 
 # **** Prerequisites ****
 # Create Dataframes
+
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
     'T': T + [np.nan] * (max(len(I), len(T), len(K)) - len(T)),
@@ -20,12 +21,19 @@ for file in os.listdir():
         os.remove(file)
 
 ## Dataframe
-results_cg = pd.DataFrame(columns=["seed","I", "D", "S", "objective_value_cp", "objective_value_cg", "time_cg", "time_cp", "gap", "mip_gap", "lowerbound", "optimal", "lagrange"])
+results_cg = pd.DataFrame(columns=["seed","I", "D", "S", "objective_value_cp", "objective_value_cg", "time_cg", "time_cp", "gap", "mip_gap", "lowerbound", "optimal", "iter"])
 
 # Parameter
-for seed in range(1, 101):
+for seed in range(1, 501):
+    print(f"")
+    print(f"")
+    print(f"")
+    print(f"Iteration: {seed}")
+    print(f"")
+    print(f"")
+    print(f"")
     random.seed(seed)
-    max_itr = 20
+    max_itr = 100
     output_len = 98
     mue = 1e-4
     threshold = 5e-7
@@ -247,7 +255,13 @@ for seed in range(1, 101):
     else:
         opt = 0
 
+    print(f"")
+    print(f"")
+    print(f"")
     print(f"Is opt? {opt}: with Gap {mip_gap}")
+    print(f"")
+    print(f"")
+    print(f"")
 
     new_row = pd.DataFrame({
         "seed": [seed],
@@ -262,8 +276,7 @@ for seed in range(1, 101):
         "mip_gap": [mip_gap],
         "lowerbound": [bound],
         "optimal": [opt],
-        "lagrange": [lagranigan_bound]
-
+        "iter": [itr]
     })
     results_cg = pd.concat([results_cg, new_row], ignore_index=True)
 

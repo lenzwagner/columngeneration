@@ -10,7 +10,7 @@ import numpy as np
 
 # Parameterdefinitionen
 I_values = [50, 100, 150]
-prob_values = [1.0, 1.1, 1.2]
+prob_values = [1.0]
 patterns = [2]
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -21,8 +21,8 @@ pattern_mapping = {2: 'Noon'}
 # Ergebnisse DataFrame initialisieren
 results = pd.DataFrame(columns=['I', 'T', 'K', 'prob', 'pattern', 'time', 'gap', 'lb', 'ub', 'obj'])
 
-time_Limit = 3600
-eps = 0.05
+time_Limit = 7200
+eps = 0.1
 
 for I_len in I_values:
     I = list(range(1, I_len + 1))
@@ -32,6 +32,8 @@ for I_len in I_values:
                 demand_dict = demand_dict_third(len(T), prob, len(I))
             else:
                 demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern)
+
+            seed = 123
 
             data = pd.DataFrame({
                 'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -71,3 +73,4 @@ for I_len in I_values:
 
 # Ergebnisse in eine CSV-Datei speichern
 results.to_csv('compact.csv', index=False)
+results.to_excel('compact.xlsx', index=False)

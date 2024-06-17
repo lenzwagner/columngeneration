@@ -1,14 +1,14 @@
-import pandas as pd
+from masterproblem import *
 import time
-import os
-from compactsolver import *
-from setup import Max_WD_i, Min_WD_i
-from plots import optimality_plot
-from test import *
+from setup import Min_WD_i, Max_WD_i
+from gcutil import *
+from subproblem import *
+from compactsolver import Problem
 from demand import *
-import numpy as np
+import os
 
-# Parameterdefinitionen
+# **** Prerequisites ****
+# Create Dataframes
 I_values = [50, 100, 150]
 prob_values = [1.0]
 patterns = [2]
@@ -21,9 +21,12 @@ pattern_mapping = {2: 'Noon'}
 # Ergebnisse DataFrame initialisieren
 results = pd.DataFrame(columns=['I', 'T', 'K', 'prob', 'pattern', 'time', 'gap', 'lb', 'ub', 'obj'])
 
-time_Limit = 7200
+time_Limit = 100
 eps = 0.1
 
+## Dataframe
+
+# Parameter
 for I_len in I_values:
     I = list(range(1, I_len + 1))
     for prob in prob_values:
@@ -31,9 +34,18 @@ for I_len in I_values:
             if pattern == 4:
                 demand_dict = demand_dict_third(len(T), prob, len(I))
             else:
-                demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern)
+                demand_dict = demand_dict_fifty2(len(T), prob, len(I), pattern, 0.25)
 
             seed = 123
+
+            max_itr = 20
+            output_len = 98
+            mue = 1e-4
+            threshold = 5e-7
+            eps = 0.1
+
+            # Demand Dict
+            demand_dict = demand_dict_fifty2(len(T), 1, len(I), 2, 0.1)
 
             data = pd.DataFrame({
                 'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -41,14 +53,22 @@ for I_len in I_values:
                 'K': K + [np.nan] * (max(len(I), len(T), len(K)) - len(K))
             })
 
+            # **** Compact Solver ****
+            problem_t0 = time.time()
             problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
             problem.buildLinModel()
             problem.updateModel()
-            problem.model.Params.TimeLimit = time_Limit
-            problem.model.Params.Threads = 1
             problem_t0 = time.time()
-            problem.model.optimize()
+            problem.solveModel()
             problem_t1 = time.time()
+
+            bound = problem.model.ObjBound
+            print(f"Bound {bound}")
+
+            obj_val_problem = round(problem.model.objval, 3)
+            time_problem = time.time() - problem_t0
+            vals_prob = problem.get_final_values()
+
 
             runtime = round(problem_t1 - problem_t0, 1)
             mip_gap = round(problem.model.MIPGap, 2)
@@ -71,6 +91,9 @@ for I_len in I_values:
 
             results = pd.concat([results, result], ignore_index=True)
 
-# Ergebnisse in eine CSV-Datei speichern
-results.to_csv('compact.csv', index=False)
-results.to_excel('compact.xlsx', index=False)
+
+
+
+
+results.to_csv('cg.csv', index=False)
+results.to_excel('cg.xlsx', index=False)

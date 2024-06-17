@@ -1,13 +1,16 @@
 from masterproblem import *
 import time
-from setup import *
+from setup import Min_WD_i, Max_WD_i
 from gcutil import *
 from subproblem import *
 from compactsolver import Problem
 from demand import *
+import os
 
 # **** Prerequisites ****
 # Create Dataframes
+
+I, T, K = list(range(1, 51)), list(range(1, 29)), list(range(1, 4))
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
     'T': T + [np.nan] * (max(len(I), len(T), len(K)) - len(T)),

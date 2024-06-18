@@ -9,7 +9,7 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [50, 100, 150]
+I_values = [50, 100]
 prob_values = [1.0]
 patterns = [2]
 T = list(range(1, 29))
@@ -21,7 +21,7 @@ pattern_mapping = {2: 'Noon'}
 # Ergebnisse DataFrame initialisieren
 results = pd.DataFrame(columns=['I', 'T', 'K', 'prob', 'pattern', 'time', 'gap', 'lb', 'ub', 'obj'])
 
-time_Limit = 100
+time_Limit = 7200
 eps = 0.1
 
 ## Dataframe
@@ -36,7 +36,7 @@ for I_len in I_values:
             else:
                 demand_dict = demand_dict_fifty2(len(T), prob, len(I), pattern, 0.25)
 
-            seed = 123
+            seed = 12
 
             max_itr = 20
             output_len = 98
@@ -57,6 +57,7 @@ for I_len in I_values:
             problem_t0 = time.time()
             problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
             problem.buildLinModel()
+            problem.model.Params.TimeLimit = time_Limit
             problem.updateModel()
             problem_t0 = time.time()
             problem.solveModel()
@@ -95,5 +96,5 @@ for I_len in I_values:
 
 
 
-results.to_csv('cg.csv', index=False)
-results.to_excel('cg.xlsx', index=False)
+results.to_csv('compact.csv', index=False)
+results.to_excel('compact.xlsx', index=False)

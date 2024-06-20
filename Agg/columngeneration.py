@@ -33,7 +33,7 @@ max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.1
+eps = 0
 
 # Demand Dict
 demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
@@ -73,7 +73,12 @@ start_values_perf = {(t, s): problem_start.perf[1, t, s].x for t in T for s in K
 
 # Schedules
 # Create
-
+start_values_p = {(t): problem_start.p[1, t].x for t in T}
+start_values_x = {(t, s): problem_start.x[1, t, s].x for t in T for s in K}
+start_values_c = {(t): problem_start.sc[1, t].x for t in T}
+start_values_r = {(t): problem_start.r[1, t].x for t in T}
+start_values_eup = {(t): problem_start.e[1, t].x for t in T}
+start_values_elow = {(t): problem_start.b[1, t].x for t in T}
 
 while True:
     # Initialize iterations
@@ -89,7 +94,17 @@ while True:
         histories_dict[history] = []
     objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist = histories_dict.values()
 
+    X_schedules = {}
+    for index in I:
+        X_schedules[f"Physician_{index}"] = []
 
+    Perf_schedules = create_schedule_dict(start_values_perf, 1, T, K)
+    Cons_schedules = create_schedule_dict(start_values_c, 1, T)
+    Recovery_schedules = create_schedule_dict(start_values_r, 1, T)
+    EUp_schedules = create_schedule_dict(start_values_eup, 1, T)
+    ELow_schedules = create_schedule_dict(start_values_elow, 1, T)
+    P_schedules = create_schedule_dict(start_values_p, 1, T)
+    X1_schedules = create_schedule_dict(start_values_x, 1, T, K)
 
     master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
     master.buildModel()
@@ -141,6 +156,16 @@ while True:
         subproblem.solveModel(time_Limit)
         sub_totaltime = time.time() - sub_t0
         timeHist.append(sub_totaltime)
+        index = 1
+
+        keys = ["X", "Perf", "P", "C", "R", "EUp", "Elow", "X1"]
+        methods = ["getOptX", "getOptPerf", "getOptP", "getOptC", "getOptR", "getOptEUp", "getOptElow", "getOptX"]
+        schedules = [X_schedules, Perf_schedules, P_schedules, Cons_schedules, Recovery_schedules, EUp_schedules,
+                     ELow_schedules, X1_schedules]
+
+        for key, method, schedule in zip(keys, methods, schedules):
+            value = getattr(subproblem, method)()
+            schedule[f"Physician_{index}"].append(value)
 
 
         # Check if SP is solvable
@@ -242,3 +267,13 @@ lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
 print(f"Lagrangian Bound {sum_rc_hist}")
 
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)
+
+ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
+ls_r = plotPerformanceList( Recovery_schedules, master.printLambdas())
+ls_e = plotPerformanceList( EUp_schedules, master.printLambdas())
+ls_b = plotPerformanceList( ELow_schedules, master.printLambdas())
+ls_x = plotPerformanceList( X_schedules, master.printLambdas())
+
+master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
+master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x, eps)
+

@@ -34,7 +34,7 @@ for I_len in I_values:
             if pattern == 4:
                 demand_dict = demand_dict_third(len(T), prob, len(I))
             else:
-                demand_dict = demand_dict_fifty2(len(T), prob, len(I), pattern, 0.25)
+                demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern, 0.25)
 
             seed = 123
 
@@ -45,7 +45,7 @@ for I_len in I_values:
             eps = 0.1
 
             # Demand Dict
-            demand_dict = demand_dict_fifty2(len(T), 1, len(I), 2, 0.1)
+            demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
 
             data = pd.DataFrame({
                 'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),

@@ -349,9 +349,23 @@ def total_consistency(lm1, lm2):
 
 def create_schedule_dict(start_values, physician_indices, time_indices, shift_indices=None):
     schedule_dict = {}
-    for i in physician_indices:
-        if shift_indices is None:
-            schedule_dict[f"Physician_{i}"] = [{(i, t): start_values[(i, t)] for t in time_indices}]
-        else:
-            schedule_dict[f"Physician_{i}"] = [{(i, t, s): start_values[(i, t, s)] for t in time_indices for s in shift_indices}]
+    index = 1
+    if shift_indices is None:
+        schedule_dict[f"Physician_{index}"] = [{(t): start_values[(t)] for t in time_indices}]
+    else:
+        schedule_dict[f"Physician_{index}"] = [{(t, s): start_values[(t, s)] for t in time_indices for s in shift_indices}]
     return schedule_dict
+
+def plotPerformanceList(dict_a, dict_b):
+    result_list = []
+
+    for key, value in dict_b.items():
+        if value == 1.0:
+            if f"Physician_1" in dict_a:
+                result_list.extend(list(dict_a[f"Physician_1"][key - 1].values()))
+        elif value > 1.0:
+            if f"Physician_1" in dict_a:
+                for _ in range(int(value)):
+                    result_list.extend(list(dict_a[f"Physician_1"][key - 1].values()))
+
+    return result_list

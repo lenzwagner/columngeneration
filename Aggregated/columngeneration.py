@@ -36,7 +36,7 @@ threshold = 5e-7
 eps = 0.1
 
 # Demand Dict
-demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
+demand_dict = demand_dict_fifty2(len(T), 1, len(I), 2, 0.1)
 
 
 # **** Compact Solver ****

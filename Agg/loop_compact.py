@@ -9,7 +9,7 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [50, 100, 150]
+I_values = [25]
 prob_values = [1.0]
 patterns = [2]
 T = list(range(1, 29))
@@ -217,36 +217,9 @@ for I_len in I_values:
 
             # Capture total time and objval
             total_time_cg = time.time() - t0
+            print(f"Total Time CG: {total_time_cg}")
             final_obj_cg = master.model.objval
             gap = round((((final_obj_cg - objValHistRMP[-2]) / objValHistRMP[-2]) * 100), 3)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             result = pd.DataFrame([{
                 'I': I_len,

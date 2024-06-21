@@ -200,8 +200,14 @@ while True:
         sum_rc = sum(objValHistSP)
         avg_rc_hist.append(avg_rc)
         sum_rc_hist.append(sum_rc)
+        print(f"Hist Sp: {objValHistSP}")
+
         lagrange_hist.append(lagrange)
         objValHistSP.clear()
+
+        print(f"Avg_rc in Itr. {itr}: {avg_rc}")
+        print(f"lagrange in Itr. {itr}: {lagrange}")
+        print(f"Sum_rc in Itr. {itr}: {sum_rc}")
 
         avg_time = sum(timeHist)/len(timeHist)
         avg_sp_time.append(avg_time)
@@ -305,9 +311,11 @@ print(f"MP: {objValHistRMP}")
 
 # Plots
 lagrangeprimal(sum_rc_hist, objValHistRMP, 'primal_dual_plot')
-plot_obj_val(objValHistRMP, 'obj_val_plot')
-plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
-performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')
+print(sum_rc_hist)
+print(objValHistRMP)
+#plot_obj_val(objValHistRMP, 'obj_val_plot')
+#plot_avg_rc(avg_rc_hist, 'rc_vals_plot')
+#performancePlot(plotPerformanceList(master.printLambdas(), P_schedules, I ,max_itr), len(T), len(I), 'perf_over_time')
 
 
 ### Calculate Metrics

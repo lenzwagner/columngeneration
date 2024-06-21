@@ -194,6 +194,7 @@ class Subproblem:
             self.model.Params.FeasibilityTol = 1e-9
             self.model.Params.BarConvTol = 0.0
             self.model.Params.MIPGap = 1e-4
+            self.model.Params.MIPFocus = 1
             self.model.optimize()
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))

@@ -275,5 +275,5 @@ ls_b = plotPerformanceList( ELow_schedules, master.printLambdas())
 ls_x = plotPerformanceList( X_schedules, master.printLambdas())
 
 master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
-master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x, eps)
+master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
 

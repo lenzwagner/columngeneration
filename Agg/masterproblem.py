@@ -258,6 +258,11 @@ class MasterProblem:
             self.doctors_cumulative_multiplied.append(self.total_sum)
             self.sum_all_doctors += self.total_sum
 
+            print(f"self.cumulative_values:{self.cumulative_values}")
+            print(f"self.multiplied_values:{self.multiplied_values}")
+            print(f"self.multiplied_values1:{self.multiplied_values1}")
+            print(f"self.total_sum:{self.total_sum}")
+
         self.understaffing1 = u_results + self.sum_all_doctors
         print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\n".format(
             self.understaffing1,

@@ -257,13 +257,12 @@ def lagrangeprimal(sum_rc_hist, objValHistRMP):
 
     plt.figure(figsize=(12, 6))
 
-    plt.plot(iterations, result, label='Dual Bound', marker='o', linestyle='-', color='b')
+    plt.plot(iterations, result, label='LagrangeBound', linestyle='-', color='b')
 
-    plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='Primal Bound', marker='s', linestyle='--',
+    plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='PrimalMasterObj', linestyle='-',
              color='r')
 
     plt.xlabel('Iteration')
-    plt.title('Primal vs. Dual Solution')
     plt.legend()
     plt.grid(True)
 

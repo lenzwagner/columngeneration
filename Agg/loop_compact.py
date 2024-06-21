@@ -220,19 +220,22 @@ for I_len in I_values:
             print(f"Total Time CG: {total_time_cg}")
             final_obj_cg = master.model.objval
             gap = round((((final_obj_cg - objValHistRMP[-2]) / objValHistRMP[-2]) * 100), 3)
+            print(f"GAP CG: {gap}")
 
             result = pd.DataFrame([{
                 'I': I_len,
-                'T': len(T),
-                'K': len(K),
                 'prob': prob_mapping[prob],
-                'pattern': pattern_mapping[pattern],
-                'time': runtime,
-                'gap': mip_gap,
                 'lb': lower_bound,
                 'ub': upper_bound,
-                'obj': objective_value
+                'gap': mip_gap,
+                'time': runtime,
+                'lb_cg': objValHistRMP[-2],
+                'ub_cg': master.model.objval,
+                'gap_cg': gap,
+                'time_cg': total_time_cg,
             }])
+
+            results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])
 
             results = pd.concat([results, result], ignore_index=True)
 

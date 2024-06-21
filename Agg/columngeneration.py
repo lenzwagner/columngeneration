@@ -196,7 +196,7 @@ while True:
         # Calculate Metrics
         avg_rc = sum(objValHistSP) / len(objValHistSP)
         lagrange = avg_rc + current_obj
-        sum_rc = sum(objValHistSP) + len(master.nurses)
+        sum_rc = sum(objValHistSP) * len(master.nurses)
         avg_rc_hist.append(avg_rc)
         sum_rc_hist.append(sum_rc)
         lagrange_hist.append(lagrange)

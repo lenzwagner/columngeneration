@@ -5,6 +5,7 @@ from gcutil import *
 from subproblem import *
 from compactsolver import Problem
 from demand import *
+from plots import *
 
 # **** Prerequisites ****
 # Create Dataframes
@@ -32,7 +33,7 @@ time_Limit = 3600
 max_itr = 200
 output_len = 98
 mue = 1e-4
-threshold = 5e-6
+threshold = 5e-5
 eps = 0.1
 
 # Demand Dict
@@ -176,6 +177,7 @@ while True:
         # Save ObjVal History
         reducedCost = subproblem.model.objval
         objValHistSP.append(reducedCost)
+        print(f"Red: {reducedCost}")
 
         # Increase latest used iteration
         last_itr = itr + 1
@@ -277,3 +279,7 @@ ls_x = plotPerformanceList( X_schedules, master.printLambdas())
 master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
 master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
 
+lagrangeprimal(sum_rc_hist, objValHistRMP)
+
+print(sum_rc_hist)
+print(objValHistRMP)

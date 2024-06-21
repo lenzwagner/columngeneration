@@ -38,10 +38,10 @@ for I_len in I_values:
 
             seed = 123
 
-            max_itr = 20
+            max_itr = 200
             output_len = 98
             mue = 1e-4
-            threshold = 5e-7
+            threshold = 5e-5
             eps = 0.1
 
             # Demand Dict
@@ -57,7 +57,7 @@ for I_len in I_values:
             problem_t0 = time.time()
             problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
             problem.buildLinModel()
-            problem.model.Params.TimeLimit = 100
+            problem.model.Params.TimeLimit = 7200
             problem.updateModel()
             problem_t0 = time.time()
             problem.solveModel()

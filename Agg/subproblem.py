@@ -190,9 +190,7 @@ class Subproblem:
         try:
             self.model.setParam('TimeLimit', timeLimit)
             self.model.Params.OutputFlag = 0
-            self.model.Params.IntegralityFocus = 1
-            self.model.Params.FeasibilityTol = 1e-9
-            self.model.Params.BarConvTol = 0.0
+            self.model.Params.IntegralityFocus = 0
             self.model.Params.MIPGap = 1e-4
             self.model.Params.MIPFocus = 1
             self.model.optimize()

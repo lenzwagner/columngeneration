@@ -103,8 +103,8 @@ class MasterProblem:
             self.model.Params.FeasibilityTol = 1e-9
             self.model.Params.BarConvTol = 0.0
             self.model.Params.MIPGap = 1e-4
-            self.model.Params.OutputFlag = 0
-            self.model.setAttr("vType", self.lmbda, gu.GRB.BINARY)
+            self.model.Params.OutputFlag = 1
+            self.model.setAttr("vType", self.lmbda, gu.GRB.INTEGER)
             self.model.update()
             self.model.optimize()
             if self.model.status == gu.GRB.OPTIMAL:
@@ -257,11 +257,6 @@ class MasterProblem:
             self.total_sum = sum(self.multiplied_values1)
             self.doctors_cumulative_multiplied.append(self.total_sum)
             self.sum_all_doctors += self.total_sum
-
-            print(f"self.cumulative_values:{self.cumulative_values}")
-            print(f"self.multiplied_values:{self.multiplied_values}")
-            print(f"self.multiplied_values1:{self.multiplied_values1}")
-            print(f"self.total_sum:{self.total_sum}")
 
         self.understaffing1 = u_results + self.sum_all_doctors
         print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\n".format(

@@ -24,15 +24,15 @@ results = pd.DataFrame(columns=["I", "D", "S", "objective_value", "time", "gap",
 results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time", "lagrange", "lp-bound"])
 
 # Ergebnisse ausgeben
-print(results)
+print(I)
 
 # Parameter
 random.seed(1333775588)
 time_Limit = 3600
-max_itr = 20
+max_itr = 200
 output_len = 98
 mue = 1e-4
-threshold = 5e-7
+threshold = 5e-6
 eps = 0.1
 
 # Demand Dict
@@ -250,7 +250,7 @@ objValHistRMP.append(master.model.objval)
 # Capture total time and objval
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
-
+print(f"TIME TIME: {total_time_cg}")
 
 ew_row2 = pd.DataFrame({
     "it": [itr+1],

@@ -27,13 +27,13 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 print(results)
 
 # Parameter
-random.seed(1333775558823)
+random.seed(1333775588)
 time_Limit = 3600
-max_itr = 20
+max_itr = 200
 output_len = 98
 mue = 1e-4
-threshold = 5e-7
-eps = 0
+threshold = 5e-6
+eps = 0.1
 
 # Demand Dict
 demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
@@ -237,15 +237,15 @@ while True:
 print(f" List of objvals relaxed {objValHistRMP}")
 # Solve Master Problem with integrality restored
 master.finalSolve(time_Limit)
-master.model.write("Final_IP.sol")
 objValHistRMP.append(master.model.objval)
 
 # Capture total time and objval
 total_time_cg = time.time() - t0
 final_obj_cg = master.model.objval
 
-
-ew_row2 = pd.DataFrame({
+print(f"TIME TIME: {total_time_cg}")
+print(master.model.objval)
+new_row2 = pd.DataFrame({
     "it": [itr+1],
     "I": [len(master.nurses)],
     "D": [len(master.days)],

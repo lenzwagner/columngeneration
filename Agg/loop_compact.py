@@ -236,9 +236,5 @@ for I_len in I_values:
 
             results = pd.concat([results, result], ignore_index=True)
 
-
-
-
-
 results.to_csv('cg.csv', index=False)
 results.to_excel('cg.xlsx', index=False)

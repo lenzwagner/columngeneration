@@ -192,7 +192,6 @@ class Subproblem:
             self.model.Params.OutputFlag = 0
             self.model.Params.IntegralityFocus = 0
             self.model.Params.MIPGap = 1e-4
-            self.model.Params.MIPFocus = 1
             self.model.optimize()
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))

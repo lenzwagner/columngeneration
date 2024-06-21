@@ -183,7 +183,6 @@ while True:
         # Generate and add columns with reduced cost
         if reducedCost < -threshold:
             Schedules = subproblem.getNewSchedule()
-            print(f"Fff{Schedules}")
             for index in [1]:
                 master.addColumn(index, itr, Schedules)
                 master.addLambda(index, itr)

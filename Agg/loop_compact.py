@@ -9,8 +9,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [25]
-prob_values = [1.0]
+I_values = [25, 50, 100, 150]
+prob_values = [1.0, 1.1, 1.2]
 patterns = [2]
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -19,9 +19,12 @@ prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
 pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])
+results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg', 'iter'])
 
-time_Limit = 7200
+time_Limit_cg = 60
+time_Limit_compact = 10
+name_csv = 'loop.csv'
+name_xlsx = 'loop.xlsx'
 eps = 0.1
 
 ## Dataframe
@@ -41,7 +44,7 @@ for I_len in I_values:
             max_itr = 200
             output_len = 98
             mue = 1e-4
-            threshold = 5e-5
+            threshold = 9e-6
             eps = 0.1
 
             # Demand Dict
@@ -54,10 +57,11 @@ for I_len in I_values:
             })
 
             # **** Compact Solver ****
+            print(f"******* COMPACT Start *********")
             problem_t0 = time.time()
             problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
             problem.buildLinModel()
-            problem.model.Params.TimeLimit = 7200
+            problem.model.Params.TimeLimit = time_Limit_compact
             problem.updateModel()
             problem_t0 = time.time()
             problem.solveModel()
@@ -76,9 +80,13 @@ for I_len in I_values:
             lower_bound = round(problem.model.ObjBound, 2)
             upper_bound = round(problem.model.ObjVal, 2)
             objective_value = round(problem.model.ObjVal, 2)
+            print(f"******* COMPACT End *********")
+
 
             # **** Column Generation ****
             # Prerequisites
+            print(f"******* CG Start *********")
+
             modelImprovable = True
             reached_max_itr = False
 
@@ -88,7 +96,7 @@ for I_len in I_values:
             problem_start.model.Params.MIPFocus = 1
             problem_start.model.Params.Heuristics = 1
             problem_start.model.Params.RINS = 10
-            problem_start.model.Params.TimeLimit = 60
+            problem_start.model.Params.TimeLimit = time_Limit_cg
             problem_start.model.update()
             problem_start.model.optimize()
 
@@ -157,7 +165,7 @@ for I_len in I_values:
 
                     # Save time to solve SP
                     sub_t0 = time.time()
-                    subproblem.solveModel(time_Limit)
+                    subproblem.solveModel(time_Limit_cg)
                     sub_totaltime = time.time() - sub_t0
                     timeHist.append(sub_totaltime)
 
@@ -212,7 +220,7 @@ for I_len in I_values:
                     break
 
             # Solve Master Problem with integrality restored
-            master.finalSolve(time_Limit)
+            master.finalSolve(time_Limit_compact)
             objValHistRMP.append(master.model.objval)
 
             # Capture total time and objval
@@ -233,11 +241,10 @@ for I_len in I_values:
                 'ub_cg': master.model.objval,
                 'gap_cg': gap,
                 'time_cg': total_time_cg,
+                'iter': itr
             }])
-
-            results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])
 
             results = pd.concat([results, result], ignore_index=True)
 
-results.to_csv('cg.csv', index=False)
+results.to_csv(name, index=False)
 results.to_excel('cg.xlsx', index=False)

@@ -76,12 +76,12 @@ for I_len in I_values:
             bound = problem.model.ObjBound
             print(f"Bound {bound}")
 
-            obj_val_problem = round(problem.model.objval, 3)
+            obj_val_problem = round(problem.model.objval, 2)
             time_problem = time.time() - problem_t0
             vals_prob = problem.get_final_values()
 
 
-            runtime = round(problem_t1 - problem_t0, 1)
+            runtime = round(problem_t1 - problem_t0, 2)
             mip_gap = round(problem.model.MIPGap, 2)
             lower_bound = round(problem.model.ObjBound, 2)
             print(f"lower_bound {lower_bound}")

@@ -19,15 +19,16 @@ prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
 pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg', 'iter', 'time_rmp', 'time_sp'])
-columns = ['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', 'time_cg', 'iter', 'time_rmp', 'time_sp']
+results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_c', 'time_cg', 'iter', 'time_rmp', 'time_sp', 'time_ip'])
+columns = ['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', 'time_cg', 'iter', 'time_rmp', 'time_sp', 'time_ip']
 
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_compact = 20
+time_compact = 5
 eps = 0.1
+seed = 123
 
 ## Dataframe
 
@@ -36,12 +37,11 @@ for I_len in I_values:
     I = list(range(1, I_len + 1))
     for prob in prob_values:
         for pattern in patterns:
+            random.seed(seed)
             if pattern == 4:
                 demand_dict = demand_dict_third(len(T), prob, len(I))
             else:
                 demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern, 0.25)
-
-            seed = 123
 
             max_itr = 200
             output_len = 98
@@ -79,6 +79,7 @@ for I_len in I_values:
             runtime = round(problem_t1 - problem_t0, 1)
             mip_gap = round(problem.model.MIPGap, 2)
             lower_bound = round(problem.model.ObjBound, 2)
+            print(f"lower_bound {lower_bound}")
             upper_bound = round(problem.model.ObjVal, 2)
             objective_value = round(problem.model.ObjVal, 2)
 
@@ -219,7 +220,9 @@ for I_len in I_values:
                 max_itr *= 2
 
             # Solve Master Problem with integrality restored
+            time_ip_start = time.time()
             master.finalSolve(time_cg)
+            time_ip_end = time.time() - time_ip_start
             objValHistRMP.append(master.model.objval)
 
             # Total Times
@@ -246,7 +249,8 @@ for I_len in I_values:
                 'time_cg': total_time_cg,
                 'iter': itr,
                 'time_rmp': time_rmp,
-                'time_sp': time_sp
+                'time_sp': time_sp,
+                'time_ip': time_ip_start
             }])
 
             results = pd.concat([results, result], ignore_index=True)

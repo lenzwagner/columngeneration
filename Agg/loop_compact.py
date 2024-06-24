@@ -20,6 +20,7 @@ pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
 results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg', 'iter', 'time_rmp', 'time_sp'])
+columns = ['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', 'time_cg', 'iter', 'time_rmp', 'time_sp']
 
 # Times and Parameter
 time_Limit = 7200
@@ -222,8 +223,8 @@ for I_len in I_values:
             objValHistRMP.append(master.model.objval)
 
             # Total Times
-            time_rmp = sum(rmp_time_hist)
-            time_sp = sum(sp_time_hist)
+            time_rmp = round(sum(rmp_time_hist), 3)
+            time_sp = round(sum(sp_time_hist), 3)
 
             # Capture total time and objval
             total_time_cg = time.time() - t0

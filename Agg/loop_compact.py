@@ -248,8 +248,6 @@ for I_len in I_values:
                 'time_sp': time_sp
             }])
 
-            results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])
-
             results = pd.concat([results, result], ignore_index=True)
 
 results.to_csv('cg.csv', index=False)

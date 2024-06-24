@@ -246,6 +246,8 @@ def optimalityplot(df, df2, last_itr, name):
 
         plt.show()
 
+import matplotlib.pyplot as plt
+
 def lagrangeprimal(sum_rc_hist, objValHistRMP):
     result = [x + y for x, y in zip(sum_rc_hist, objValHistRMP[:-1])]
 
@@ -257,15 +259,12 @@ def lagrangeprimal(sum_rc_hist, objValHistRMP):
 
     plt.figure(figsize=(12, 6))
 
-    plt.plot(iterations, result, label='LagrangeBound', linestyle='-', color='b')
-
-    plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='PrimalMasterObj', linestyle='-',
-             color='r')
+    plt.plot(iterations, result, label='LagrangeBound', linestyle='-', color='orange')
+    plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='PrimalMasterObj', linestyle='-', color='green')
 
     plt.xlabel('Iteration')
     plt.legend()
     plt.grid(True)
-
 
     plt.show()
 

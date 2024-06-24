@@ -9,8 +9,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [25]
-prob_values = [1.0]
+I_values = [25, 50, 100, 150]
+prob_values = [1.0, 1.1, 1.2]
 patterns = [2]
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -19,9 +19,13 @@ prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
 pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])
+results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg', 'iter', 'time_rmp', 'time_sp'])
 
+# Times and Parameter
 time_Limit = 7200
+time_cg = 7200
+time_cg_init = 60
+time_compact = 20
 eps = 0.1
 
 ## Dataframe
@@ -57,7 +61,7 @@ for I_len in I_values:
             problem_t0 = time.time()
             problem = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
             problem.buildLinModel()
-            problem.model.Params.TimeLimit = 7200
+            problem.model.Params.TimeLimit = time_compact
             problem.updateModel()
             problem_t0 = time.time()
             problem.solveModel()
@@ -88,7 +92,7 @@ for I_len in I_values:
             problem_start.model.Params.MIPFocus = 1
             problem_start.model.Params.Heuristics = 1
             problem_start.model.Params.RINS = 10
-            problem_start.model.Params.TimeLimit = 60
+            problem_start.model.Params.TimeLimit = time_cg_init
             problem_start.model.update()
             problem_start.model.optimize()
 
@@ -96,124 +100,130 @@ for I_len in I_values:
             # Create
             start_values_perf = {(t, s): problem_start.perf[1, t, s].x for t in T for s in K}
 
-            while True:
-                # Initialize iterations
-                itr = 0
-                last_itr = 0
+            import time
 
-                # Create empty results lists
-                histories = ["objValHistSP", "timeHist", "objValHistRMP", "avg_rc_hist", "lagrange_hist", "sum_rc_hist",
-                             "avg_sp_time", "gap_rc_hist"]
-                histories_dict = {}
-                for history in histories:
-                    histories_dict[history] = []
-                objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist = histories_dict.values()
+            # Initialize iterations
+            itr = 0
+            last_itr = 0
 
-                master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
-                master.buildModel()
+            # Create empty results lists
+            histories = ["objValHistSP", "timeHist", "objValHistRMP", "avg_rc_hist", "lagrange_hist", "sum_rc_hist",
+                         "avg_sp_time", "gap_rc_hist", "rmp_time_hist", "sp_time_hist"]
+            histories_dict = {}
+            for history in histories:
+                histories_dict[history] = []
+            objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist, rmp_time_hist, sp_time_hist = histories_dict.values()
 
-                # Initialize and solve relaxed model
-                master.setStartSolution()
-                master.updateModel()
+            master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
+            master.buildModel()
+
+            # Initialize and solve relaxed model
+            master.setStartSolution()
+            master.updateModel()
+            master.solveRelaxModel()
+
+            # Retrieve dual values
+            duals_i0 = master.getDuals_i()
+            duals_ts0 = master.getDuals_ts()
+
+            # Start time count
+            t0 = time.time()
+
+            while modelImprovable and itr < max_itr:
+                print("*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
+
+                # Start
+                itr += 1
+
+                # Solve RMP
+                rmp_start_time = time.time()
+                master.current_iteration = itr + 1
                 master.solveRelaxModel()
+                rmp_end_time = time.time()
+                rmp_time_hist.append(rmp_end_time - rmp_start_time)
 
-                # Retrieve dual values
-                duals_i0 = master.getDuals_i()
-                duals_ts0 = master.getDuals_ts()
+                objValHistRMP.append(master.model.objval)
+                current_obj = master.model.objval
+                current_bound = master.model.objval
 
-                # Start time count
-                t0 = time.time()
+                # Get and Print Duals
+                duals_i = master.getDuals_i()
+                duals_ts = master.getDuals_ts()
 
-                while (modelImprovable) and itr < max_itr:
-                    print(
-                        "*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
+                # Save current optimality gap
+                gap_rc = round(
+                    ((round(master.model.objval, 3) - round(obj_val_problem, 3)) / round(master.model.objval, 3)), 3)
+                gap_rc_hist.append(gap_rc)
 
-                    # Start
-                    itr += 1
+                # Solve SPs
+                modelImprovable = False
 
-                    # Solve RMP
-                    master.current_iteration = itr + 1
-                    master.solveRelaxModel()
-                    objValHistRMP.append(master.model.objval)
-                    current_obj = master.model.objval
-                    current_bound = master.model.objval
+                # Build SP
+                subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
+                subproblem.buildModel()
 
-                    # Get and Print Duals
-                    duals_i = master.getDuals_i()
-                    duals_ts = master.getDuals_ts()
+                # Save time to solve SP
+                sub_start_time = time.time()
+                subproblem.solveModel(time_cg)
+                sub_end_time = time.time()
+                sp_time_hist.append(sub_end_time - sub_start_time)
 
-                    # Save current optimality gap
-                    gap_rc = round(
-                        ((round(master.model.objval, 3) - round(obj_val_problem, 3)) / round(master.model.objval, 3)),
-                        3)
-                    gap_rc_hist.append(gap_rc)
+                sub_totaltime = sub_end_time - sub_start_time
+                timeHist.append(sub_totaltime)
 
-                    # Solve SPs
-                    modelImprovable = False
+                # Check if SP is solvable
+                status = subproblem.getStatus()
+                if status != 2:
+                    raise Exception(
+                        "*{:^{output_len}}*".format("Pricing-Problem can not reach optimality!", output_len=output_len))
 
-                    # Build SP
-                    subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
-                    subproblem.buildModel()
+                # Save ObjVal History
+                reducedCost = subproblem.model.objval
+                objValHistSP.append(reducedCost)
+                print("*{:^{output_len}}*".format(f"Reduced Costs in Iteration {itr}: {reducedCost}",
+                                                  output_len=output_len))
 
-                    # Save time to solve SP
-                    sub_t0 = time.time()
-                    subproblem.solveModel(time_Limit)
-                    sub_totaltime = time.time() - sub_t0
-                    timeHist.append(sub_totaltime)
+                # Increase latest used iteration
+                last_itr = itr + 1
 
-                    # Check if SP is solvable
-                    status = subproblem.getStatus()
-                    if status != 2:
-                        raise Exception("*{:^{output_len}}*".format("Pricing-Problem can not reach optimality!",
-                                                                    output_len=output_len))
-
-                    # Save ObjVal History
-                    reducedCost = subproblem.model.objval
-                    objValHistSP.append(reducedCost)
-                    print(
-                        "*{:^{output_len}}*".format(f"Reduced Costs in Iteration {itr}: {reducedCost}",
-                                                    output_len=output_len))
-
-                    # Increase latest used iteration
-                    last_itr = itr + 1
-
-                    # Generate and add columns with reduced cost
-                    if reducedCost < -threshold:
-                        Schedules = subproblem.getNewSchedule()
-                        master.addColumn(itr, Schedules)
-                        master.addLambda(itr)
-                        master.updateModel()
-                        modelImprovable = True
-
-                    # Update Model
+                # Generate and add columns with reduced cost
+                if reducedCost < -threshold:
+                    Schedules = subproblem.getNewSchedule()
+                    master.addColumn(itr, Schedules)
+                    master.addLambda(itr)
                     master.updateModel()
+                    modelImprovable = True
 
-                    # Calculate Metrics
-                    avg_rc = sum(objValHistSP) / len(objValHistSP)
-                    lagrange = avg_rc + current_obj
-                    sum_rc = sum(objValHistSP)
-                    avg_rc_hist.append(avg_rc)
-                    sum_rc_hist.append(sum_rc)
-                    lagrange_hist.append(lagrange)
-                    objValHistSP.clear()
+                # Update Model
+                master.updateModel()
 
-                    avg_time = sum(timeHist) / len(timeHist)
-                    avg_sp_time.append(avg_time)
-                    timeHist.clear()
+                # Calculate Metrics
+                avg_rc = sum(objValHistSP) / len(objValHistSP)
+                lagrange = avg_rc + current_obj
+                sum_rc = sum(objValHistSP)
+                avg_rc_hist.append(avg_rc)
+                sum_rc_hist.append(sum_rc)
+                lagrange_hist.append(lagrange)
+                objValHistSP.clear()
 
-                    if not modelImprovable:
-                        print("*" * (output_len + 2))
+                avg_time = sum(timeHist) / len(timeHist)
+                avg_sp_time.append(avg_time)
+                timeHist.clear()
 
-                        break
-
-                if modelImprovable and itr == max_itr:
-                    max_itr *= 2
-                else:
+                if not modelImprovable:
+                    print("*" * (output_len + 2))
                     break
 
+            if modelImprovable and itr == max_itr:
+                max_itr *= 2
+
             # Solve Master Problem with integrality restored
-            master.finalSolve(time_Limit)
+            master.finalSolve(time_cg)
             objValHistRMP.append(master.model.objval)
+
+            # Total Times
+            time_rmp = sum(rmp_time_hist)
+            time_sp = sum(sp_time_hist)
 
             # Capture total time and objval
             total_time_cg = time.time() - t0
@@ -233,6 +243,9 @@ for I_len in I_values:
                 'ub_cg': master.model.objval,
                 'gap_cg': gap,
                 'time_cg': total_time_cg,
+                'iter': itr,
+                'time_rmp': time_rmp,
+                'time_sp': time_sp
             }])
 
             results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_c', 'ub_c', 'gap_c', 'time_cg'])

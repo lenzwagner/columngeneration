@@ -5,6 +5,7 @@ from gcutil import *
 from subproblem import *
 from compactsolver import Problem
 from demand import *
+from datetime import datetime
 import os
 
 # **** Prerequisites ****
@@ -19,7 +20,7 @@ prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
 pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_c', 'time_cg', 'iter', 'time_rmp', 'time_sp', 'time_ip'])
+results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', 'time_cg', 'iter', 'time_rmp', 'time_sp', 'time_ip'])
 columns = ['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', 'time_cg', 'iter', 'time_rmp', 'time_sp', 'time_ip']
 
 # Times and Parameter
@@ -31,6 +32,10 @@ eps = 0.1
 seed = 123
 
 ## Dataframe
+current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+file = f'results_{current_time}'
+file_name_csv = f'.{os.sep}results{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}{file}.xlsx'
 
 # Parameter
 for I_len in I_values:
@@ -255,5 +260,5 @@ for I_len in I_values:
 
             results = pd.concat([results, result], ignore_index=True)
 
-results.to_csv('cg.csv', index=False)
-results.to_excel('cg.xlsx', index=False)
+results.to_csv(file_name_csv, index=False)
+results.to_excel(file_name_xlsx, index=False)

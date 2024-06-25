@@ -1,3 +1,5 @@
+import math
+
 from masterproblem import *
 import time
 from setup import Min_WD_i, Max_WD_i
@@ -27,9 +29,8 @@ columns = ['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg', 'ub_cg', 'gap_cg', '
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_compact = 5
+time_compact = 4
 eps = 0.1
-seed = 123
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -42,6 +43,12 @@ for I_len in I_values:
     I = list(range(1, I_len + 1))
     for prob in prob_values:
         for pattern in patterns:
+
+            print(f"")
+            print(f"Iteration: {len(I)}-{prob}-{pattern}")
+            print(f"")
+
+            seed = 123 - math.floor(len(I)*len(T)*prob)
             random.seed(seed)
             if pattern == 4:
                 demand_dict = demand_dict_third(len(T), prob, len(I))
@@ -51,11 +58,12 @@ for I_len in I_values:
             max_itr = 200
             output_len = 98
             mue = 1e-4
-            threshold = 5e-5
+            threshold = 4e-5
             eps = 0.1
 
             # Demand Dict
             demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
+            print('Demand dict', demand_dict)
 
             data = pd.DataFrame({
                 'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -255,7 +263,7 @@ for I_len in I_values:
                 'iter': itr,
                 'time_rmp': time_rmp,
                 'time_sp': time_sp,
-                'time_ip': time_ip_start
+                'time_ip': time_ip_end
             }])
 
             results = pd.concat([results, result], ignore_index=True)

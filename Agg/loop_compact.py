@@ -11,12 +11,12 @@ import os
 # **** Prerequisites ****
 # Create Dataframes
 I_values = [25, 50, 100, 150]
-prob_values = [1.0, 1.1, 1.2]
+prob_values = [0.9, 1.0, 1.1]
 patterns = [2]
 T = list(range(1, 29))
 K = [1, 2, 3]
 
-prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
+prob_mapping = {0.9: 'Low', 1.0: 'Medium', 1.1: 'High'}
 pattern_mapping = {2: 'Noon'}
 
 # Ergebnisse DataFrame initialisieren

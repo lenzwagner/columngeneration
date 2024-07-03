@@ -266,7 +266,7 @@ class MasterProblem:
         self.understaffing1 = u_results + self.sum_all_doctors
 
         # Noramlized Values
-        understaffing1_norm =self.understaffing1 / (len(self.nurses)*len(self.days))
+        understaffing1_norm = self.understaffing1 / (len(self.nurses)*len(self.days))
         u_results_norm = u_results / (len(self.nurses)*len(self.days))
         sum_all_doctors_norm = self.sum_all_doctors / (len(self.nurses)*len(self.days))
 

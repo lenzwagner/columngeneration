@@ -2,7 +2,7 @@ import gurobipy as gu
 import math
 
 class Subproblem:
-    def __init__(self, duals_i, duals_ts, df, i, iteration, eps, Min_WD_i, Max_WD_i):
+    def __init__(self, duals_i, duals_ts, df, i, iteration, eps, Min_WD_i, Max_WD_i, chi):
         itr = iteration + 1
         self.days = df['T'].dropna().astype(int).unique().tolist()
         self.shifts = df['K'].dropna().astype(int).unique().tolist()
@@ -15,7 +15,7 @@ class Subproblem:
         self.mu = 0.1
         self.epsilon = eps
         self.mue = 0.1
-        self.chi = 5
+        self.chi = chi
         self.omega = math.floor(1 / (self.epsilon + 1e-6))
         self.M = len(self.days) + self.omega
         self.xi = 1 - self.epsilon * self.omega

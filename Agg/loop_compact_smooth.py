@@ -28,8 +28,9 @@ results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg',
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_compact = 7200
+time_compact = 3
 eps = 0.1
+alpha = 0.5
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
@@ -125,6 +126,10 @@ for I_len in I_values:
             histories_dict[history] = []
         objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist, rmp_time_hist, sp_time_hist = histories_dict.values()
 
+        prev_duals_i = 0
+        prev_duals_ts = {(t, s): 0 for t in T for s in K}
+
+
         master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
         master.buildModel()
 
@@ -133,10 +138,13 @@ for I_len in I_values:
         master.updateModel()
         master.solveRelaxModel()
 
-        # Retrieve dual values
         duals_i0 = master.getDuals_i()
+
         duals_ts0 = master.getDuals_ts()
-        print(f"{duals_i0, duals_ts0}")
+
+        # Initialize Smoothing
+        smoothed_duals_i = duals_i0
+        smoothed_duals_ts = duals_ts0
 
         # Start time count
         t0 = time.time()
@@ -161,6 +169,17 @@ for I_len in I_values:
             # Get and Print Duals
             duals_i = master.getDuals_i()
             duals_ts = master.getDuals_ts()
+            smoothed_duals_i = (alpha * prev_duals_i + (1 - alpha) * duals_i)
+            smoothed_duals_ts = {(t, s): alpha * prev_duals_ts[(t, s)] + (1 - alpha) * duals_ts[(t, s)] for t in T for s in K}
+
+            # Update previous duals for next iteration
+            prev_duals_i, prev_duals_ts = duals_i, duals_ts
+
+            # Smoothing
+            alphas = [0.5, 0.5]
+            smoothed_duals_i = alphas[0] * duals_i + (1 - alphas[0]) * smoothed_duals_i
+            for key in duals_ts:
+                smoothed_duals_ts[key] = alphas[1] * duals_ts[key] + (1 - alphas[1]) * smoothed_duals_ts[key]
 
             # Save current optimality gap
             gap_rc = round(
@@ -171,7 +190,7 @@ for I_len in I_values:
             modelImprovable = False
 
             # Build SP
-            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
+            subproblem = Subproblem(smoothed_duals_i, smoothed_duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
             subproblem.buildModel()
 
             # Save time to solve SP

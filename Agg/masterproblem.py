@@ -147,8 +147,9 @@ class MasterProblem:
             print('Error code ' + str(e.errno) + ': ' + str(e))
 
     def calc_behavior(self, lst, ls_sc):
+        print(f"LS: {ls_sc}")
         consistency = sum(ls_sc)
-        consistency_norm = sum(ls_sc) / (len(self.nurses)*len(self.days))
+        consistency_norm = sum(ls_sc) / (len(self.nurses))
         sublist_length = len(lst) // len(self.nurses)
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
 
@@ -165,9 +166,9 @@ class MasterProblem:
         perf_loss = round(u_results - understaffing, 3)
 
         # Noramlized Values
-        u_results_norm = u_results / (len(self.nurses)*len(self.days))
-        understaffing_norm = understaffing / (len(self.nurses)*len(self.days))
-        perf_loss_norm = perf_loss / (len(self.nurses)*len(self.days))
+        u_results_norm = u_results / (len(self.nurses))
+        understaffing_norm = understaffing / (len(self.nurses))
+        perf_loss_norm = perf_loss / (len(self.nurses))
 
         # Ausgabe
         print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\nNorm_Undercoverage: {:.2f}\nNorm_Understaffing: {:.2f}\nNorm_Performance Loss: {:.2f}\nNorm_Consistency: {:.2f}\n".format(u_results,
@@ -178,7 +179,7 @@ class MasterProblem:
 
     def calc_naive(self, lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue):
         consistency = sum(ls_sc)
-        consistency_norm = sum(ls_sc) / (len(self.nurses) * len(self.days))
+        consistency_norm = sum(ls_sc) / (len(self.nurses))
 
         self.sum_all_doctors = 0
         sublist_length = len(lst) // len(self.nurses)
@@ -266,9 +267,9 @@ class MasterProblem:
         self.understaffing1 = u_results + self.sum_all_doctors
 
         # Noramlized Values
-        understaffing1_norm = self.understaffing1 / (len(self.nurses)*len(self.days))
-        u_results_norm = u_results / (len(self.nurses)*len(self.days))
-        sum_all_doctors_norm = self.sum_all_doctors / (len(self.nurses)*len(self.days))
+        understaffing1_norm = self.understaffing1 / (len(self.nurses))
+        u_results_norm = u_results / (len(self.nurses))
+        sum_all_doctors_norm = self.sum_all_doctors / (len(self.nurses))
 
 
         print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\nNorm_Undercoverage: {:.2f}\nNorm_Understaffing: {:.2f}\nNorm_Performance Loss: {:.2f}\nNorm_Consistency: {:.2f}\n".format(

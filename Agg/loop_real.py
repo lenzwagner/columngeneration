@@ -20,27 +20,24 @@ K = [1, 2, 3]
 
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['epsilon', 'chi', 'obj', 'undercoverage', 'undercoverage_norm', 'consistency', 'consistency_norm'])
-
-
+results = pd.DataFrame(columns=['epsilon', 'chi', 'obj', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm'])
 
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
-time_cg_init = 60
-time_compact = 7200
+time_cg_init = 2
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
 file = f'study_results_{current_time}'
-file_name_csv = f'.{os.sep}results{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}{file}.xlsx'
+file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}{file}.xlsx'
 
 # Parameter
 for epsilon in eps_ls:
     for chi in chi_ls:
 
-        epsilon = eps
+        eps = epsilon
         print(f"")
         print(f"Iteration: {epsilon}-{chi}")
         print(f"")
@@ -59,7 +56,6 @@ for epsilon in eps_ls:
             'T': T + [np.nan] * (max(len(I), len(T), len(K)) - len(T)),
             'K': K + [np.nan] * (max(len(I), len(T), len(K)) - len(K))
         })
-
 
         # **** Column Generation ****
         # Prerequisites
@@ -92,11 +88,23 @@ for epsilon in eps_ls:
 
         # Create empty results lists
         histories = ["objValHistSP", "timeHist", "objValHistRMP", "avg_rc_hist", "lagrange_hist", "sum_rc_hist",
-                     "avg_sp_time", "gap_rc_hist", "rmp_time_hist", "sp_time_hist"]
+                     "avg_sp_time", "rmp_time_hist", "sp_time_hist"]
         histories_dict = {}
         for history in histories:
             histories_dict[history] = []
-        objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, gap_rc_hist, rmp_time_hist, sp_time_hist = histories_dict.values()
+        objValHistSP, timeHist, objValHistRMP, avg_rc_hist, lagrange_hist, sum_rc_hist, avg_sp_time, rmp_time_hist, sp_time_hist = histories_dict.values()
+
+        X_schedules = {}
+        for index in I:
+            X_schedules[f"Physician_{index}"] = []
+
+        Perf_schedules = create_schedule_dict(start_values_perf, 1, T, K)
+        Cons_schedules = create_schedule_dict(start_values_c, 1, T)
+        Recovery_schedules = create_schedule_dict(start_values_r, 1, T)
+        EUp_schedules = create_schedule_dict(start_values_eup, 1, T)
+        ELow_schedules = create_schedule_dict(start_values_elow, 1, T)
+        P_schedules = create_schedule_dict(start_values_p, 1, T)
+        X1_schedules = create_schedule_dict(start_values_x, 1, T, K)
 
         master = MasterProblem(data, demand_dict, max_itr, itr, last_itr, output_len, start_values_perf)
         master.buildModel()
@@ -134,11 +142,6 @@ for epsilon in eps_ls:
             # Get and Print Duals
             duals_i = master.getDuals_i()
             duals_ts = master.getDuals_ts()
-
-            # Save current optimality gap
-            gap_rc = round(
-                ((round(master.model.objval, 3) - round(obj_val_problem, 3)) / round(master.model.objval, 3)), 3)
-            gap_rc_hist.append(gap_rc)
 
             # Solve SPs
             modelImprovable = False
@@ -200,7 +203,6 @@ for epsilon in eps_ls:
             sum_rc_hist.append(sum_rc)
             lagrange_hist.append(lagrange)
             objValHistSP.clear()
-
             avg_time = sum(timeHist) / len(timeHist)
             avg_sp_time.append(avg_time)
             timeHist.clear()
@@ -213,21 +215,8 @@ for epsilon in eps_ls:
             max_itr *= 2
 
         # Solve Master Problem with integrality restored
-        time_ip_start = time.time()
         master.finalSolve(time_cg)
-        time_ip_end = time.time() - time_ip_start
         objValHistRMP.append(master.model.objval)
-
-        # Total Times
-        time_rmp = round(sum(rmp_time_hist), 3)
-        time_sp = round(sum(sp_time_hist), 3)
-
-        # Capture total time and objval
-        total_time_cg = time.time() - t0
-        print(f"Total Time CG: {total_time_cg}")
-        final_obj_cg = master.model.objval
-        gap = round((((final_obj_cg - objValHistRMP[-2]) / objValHistRMP[-2]) * 100), 3)
-        print(f"GAP CG: {gap}")
 
         # Calc Stats
         ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
@@ -235,16 +224,19 @@ for epsilon in eps_ls:
         ls_e = plotPerformanceList(EUp_schedules, master.printLambdas())
         ls_b = plotPerformanceList(ELow_schedules, master.printLambdas())
         ls_x = plotPerformanceList(X_schedules, master.printLambdas())
-        understaffing1, u_results, sum_all_doctors, consistency, consistency_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = self.calc_naive(lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue)
+        understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
+        #master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x,0.025)
 
         result = pd.DataFrame([{
             'epsilon': epsilon,
             'chi': chi,
             'obj': round(master.model.objval, 3),
-            'undercoverage': understaffing1,
-            'undercoverage_norm': understaffing1_norm,
-            'undercoverage': consistency,
-            'undercoverage_norm': consistency_norm
+            'undercover': round(understaffing1, 3),
+            'undercover_norm': round(understaffing1_norm, 3),
+            'cons': consistency2,
+            'cons_norm': consistency2_norm,
+            'perf': sum_all_doctors,
+            'perf_norm': sum_all_doctors_norm
         }])
 
 

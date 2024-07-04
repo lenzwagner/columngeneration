@@ -147,7 +147,11 @@ class MasterProblem:
             print('Error code ' + str(e.errno) + ': ' + str(e))
 
     def calc_behavior(self, lst, ls_sc):
+        print(f"Length of self.demand_values: {len(self.demand_values)}")
         print(f"LS: {ls_sc}")
+        print(f"lst{lst}")
+        print(f"len {len(lst)}")
+
         consistency = sum(ls_sc)
         consistency_norm = sum(ls_sc) / (len(self.nurses))
         sublist_length = len(lst) // len(self.nurses)
@@ -156,6 +160,8 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+        print(f"Length of sum_xWerte: {len(sum_xWerte)}")
+
 
         comparison_result = [
             max(0, self.demand_values[i] - sum_xWerte[i])
@@ -164,6 +170,7 @@ class MasterProblem:
 
         understaffing = round(sum(comparison_result), 3)
         perf_loss = round(u_results - understaffing, 3)
+
 
         # Noramlized Values
         u_results_norm = u_results / (len(self.nurses))

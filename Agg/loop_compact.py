@@ -12,8 +12,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [50, 100, 150]
-prob_values = [0.9, 1.0, 1.1]
+I_values = [100]
+prob_values = [0.9,1.0,1.1]
 pattern = 2
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -171,7 +171,7 @@ for I_len in I_values:
             modelImprovable = False
 
             # Build SP
-            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
+            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, 5)
             subproblem.buildModel()
 
             # Save time to solve SP
@@ -242,8 +242,7 @@ for I_len in I_values:
         # Capture total time and objval
         total_time_cg = time.time() - t0
         print(f"Total Time CG: {total_time_cg}")
-        final_obj_cg = master.model.objval
-        gap = round((((final_obj_cg - objValHistRMP[-2]) / objValHistRMP[-2]) * 100), 3)
+        gap = round((((master.model.objval - objValHistRMP[-2]) / objValHistRMP[-2]) * 100), 3)
         print(f"GAP CG: {gap}")
 
         result = pd.DataFrame([{

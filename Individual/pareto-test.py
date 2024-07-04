@@ -1,20 +1,42 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
+import csv
 
-# Beispielsdaten erstellen
 data = {
-    'undercoverage': [10, 20, 30, 25, 15, 35, 40, 50, 45, 55, 60, 70, 65, 75, 80, 90, 85, 1, 100, 110,
-                      95, 100, 105, 110, 115, 120, 125, 130, 135, 140],
-    'consistency': [40, 35, 30, 32, 37, 25, 20, 15, 18, 12, 10, 7, 9, 6, 5, 3, 4, 2, 1, 0.5,
-                    0.1, 42, 40, 38, 35, 33, 30, 28, 25, 22],
-    'variant': [f'Var{i}' for i in range(1, 31)],
-    'chi': [3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4, 5, 6, 3, 4],
-    'epsilon': [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1, 0, 0.02,
-                0.04, 0.06, 0.08, 0.1, 0, 0.02, 0.04, 0.06, 0.08, 0.1]
+    'undercoverage1': [], 'consistency1': [], 'chi1': [], 'epsilon1': [],
+    'undercoverage2': [], 'consistency2': [], 'chi2': [], 'epsilon2': []
 }
 
-df = pd.DataFrame(data)
+with open('ihre_datei.csv', 'r') as file:
+    csv_reader = csv.DictReader(file)
+    for row in csv_reader:
+        data['undercoverage1'].append(float(row['under1']))
+        data['undercoverage2'].append(float(row['under2']))
+        data['consistency1'].append(float(row['cons1']))
+        data['consistency2'].append(float(row['cons2']))
+        data['chi1'].append(float(row['chi']))
+        data['chi2'].append(float(row['chi']))
+        data['epsilon1'].append(float(row['epsilon']))
+        data['epsilon2'].append(float(row['epsilon']))
+
+print(data)
+
+df1 = pd.DataFrame({
+    'undercoverage': data['undercoverage1'],
+    'consistency': data['consistency1'],
+    'chi': data['chi1'],
+    'epsilon': data['epsilon1']
+})
+
+df2 = pd.DataFrame({
+    'undercoverage': data['undercoverage2'],
+    'consistency': data['consistency2'],
+    'chi': data['chi2'],
+    'epsilon': data['epsilon2']
+})
+
+df = pd.concat([df1, df2], ignore_index=True)
+
 
 # Pareto-Frontier berechnen
 def pareto_frontier(df):
@@ -22,7 +44,8 @@ def pareto_frontier(df):
     for i, row in df.iterrows():
         dominated = False
         for j, other in df.iterrows():
-            if (other['undercoverage'] <= row['undercoverage'] and other['consistency'] <= row['consistency']) and (other['undercoverage'] < row['undercoverage'] or other['consistency'] < row['consistency']):
+            if (other['undercoverage'] <= row['undercoverage'] and other['consistency'] <= row['consistency']) and (
+                    other['undercoverage'] < row['undercoverage'] or other['consistency'] < row['consistency']):
                 dominated = True
                 break
         if not dominated:
@@ -31,28 +54,60 @@ def pareto_frontier(df):
     pareto_front_df = pareto_front_df.sort_values(by=['undercoverage'])
     return pareto_front_df
 
+
 pareto_df = pareto_frontier(df)
 
 # Plot erstellen
 plt.figure(figsize=(12, 8))
 colors = plt.cm.tab20.colors
 
-for i, row in df.iterrows():
-    plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], label=f"$\chi={row['chi']}, \epsilon={row['epsilon']}$")
+# Dictionary to store the labels to avoid duplication in the legend
+labels_dict = {}
 
+# Punkte aus der ersten Liste (Kreise)
+for i, row in df1.iterrows():
+    label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
+    if label not in labels_dict:
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='o', s=100, label=label)
+    else:
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='o', s=100)
+
+# Punkte aus der zweiten Liste (Quadrate)
+for i, row in df2.iterrows():
+    label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
+    if label not in labels_dict:
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='s', s=100, alpha=0.8, label=label)
+    else:
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='s', s=100, alpha=0.8)
+
+# Pareto-optimale Punkte hervorheben
 for i, row in pareto_df.iterrows():
-    plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], edgecolors='black', linewidths=2, alpha=0.6, s=100)
+    index_in_df1 = df1[(df1['undercoverage'] == row['undercoverage']) &
+                       (df1['consistency'] == row['consistency']) &
+                       (df1['chi'] == row['chi']) &
+                       (df1['epsilon'] == row['epsilon'])].index
+    index_in_df2 = df2[(df2['undercoverage'] == row['undercoverage']) &
+                       (df2['consistency'] == row['consistency']) &
+                       (df2['chi'] == row['chi']) &
+                       (df2['epsilon'] == row['epsilon'])].index
+
+    if not index_in_df1.empty:
+        color_index = index_in_df1[0] % len(colors)
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], edgecolors='black',
+                    linewidths=2, alpha=0.6, s=150, marker='o')
+    if not index_in_df2.empty:
+        color_index = index_in_df2[0] % len(colors)
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], edgecolors='black',
+                    linewidths=2, alpha=0.6, s=150, marker='s')
 
 # Verbinde die Pareto-optimalen Punkte
 plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='-', marker='x', color='red', alpha=0.7)
 
 # Legende außerhalb des Plots positionieren
-handles, labels = plt.gca().get_legend_handles_labels()
-plt.legend(handles, labels, loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
-plt.xlabel('Undercoverage')
-plt.ylabel('Consistency (ø Shift Changes)')
-plt.title('Pareto Frontier')
+plt.xlabel('Scaled Undercoverage')
+plt.ylabel('Scaled Consistency (ø Shift Changes)')
 plt.grid(True)
 plt.tight_layout()
 plt.show()

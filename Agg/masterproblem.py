@@ -1,5 +1,5 @@
 import gurobipy as gu
-
+import statistics
 class MasterProblem:
     def __init__(self, df, Demand, max_iteration, current_iteration, last, nr, start):
         self.iteration = current_iteration
@@ -284,3 +284,20 @@ class MasterProblem:
             u_results, self.sum_all_doctors, consistency, understaffing1_norm, u_results_norm, sum_all_doctors_norm, consistency_norm))
 
         return self.understaffing1, u_results, self.sum_all_doctors, consistency, consistency_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm
+    def process_LSR(self, lst, num_sublists):
+        total_length = len(lst)
+        sublist_size = total_length // num_sublists
+
+        sublists = [lst[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
+
+        sums = [sum(sublist) for sublist in sublists]
+
+        mean_value = statistics.mean(sums)
+        min_value = min(sums)
+        max_value = max(sums)
+
+        print(f"Min: {min_value}")
+        print(f"Max: {max_value}")
+        print(f"Mean: {mean_value}")
+
+        return sums, mean_value, min_value, max_value

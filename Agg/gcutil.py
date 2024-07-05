@@ -1,5 +1,6 @@
 from itertools import chain
 import random
+import math
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -375,3 +376,55 @@ def plotPerformanceList(dict_a, dict_b):
                     result_list.extend(values_to_add)
 
     return result_list
+
+def calculate_stats(values):
+    if not values:  # Überprüfung auf leere Liste
+        return None, None, None, None
+    min_value = min(values)
+    max_value = max(values)
+    mean_value = sum(values) / len(values)
+    std_dev = math.sqrt(sum((x - mean_value) ** 2 for x in values) / len(values))
+    return min_value, max_value, mean_value, std_dev
+
+def process_LSR(LSR, num_sublists):
+    sublist_length = len(LSR) // num_sublists
+    sublists = [LSR[i:i + sublist_length] for i in range(0, len(LSR), sublist_length)]
+
+    first_ones = []
+    last_ones = []
+    avg_ones = []
+
+    for sublist in sublists:
+        subdict = {i + 1: value for i, value in enumerate(sublist)}
+
+        first_one = next((k for k, v in subdict.items() if v == 1), None)
+        if first_one:
+            first_ones.append(first_one)
+
+        last_one = max((k for k, v in subdict.items() if v == 1), default=None)
+        if last_one:
+            last_ones.append(last_one)
+
+        ones_keys = [k for k, v in subdict.items() if v == 1]
+        if ones_keys:
+            avg_ones.append(sum(ones_keys) / len(ones_keys))
+
+    first_stats = calculate_stats(first_ones)
+    last_stats = calculate_stats(last_ones)
+    avg_stats = calculate_stats(avg_ones)
+
+    stats = [
+        first_stats,
+        last_stats,
+        avg_stats
+    ]
+
+    return stats
+
+def format_LSR_stats(LSR, n=100):
+    stats = process_LSR(LSR, n)
+    formatted_stats = [
+        tuple(round(val, 2) if isinstance(val, float) else val for val in stat)
+        for stat in stats
+    ]
+    return formatted_stats

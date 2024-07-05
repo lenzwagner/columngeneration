@@ -13,7 +13,7 @@ import time
 # **** Prerequisites ****
 # Create Dataframes
 eps_ls = [0.02501]
-chi_ls = [3, 5, 7]
+chi_ls = [3]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -377,12 +377,12 @@ for epsilon in eps_ls:
         master_n.finalSolve(time_cg)
 
         # Calc Stats
-        ls_sc_n = plotPerformanceList(Cons_schedules, master_n.printLambdas())
-        ls_r_n = plotPerformanceList(Recovery_schedules, master_n.printLambdas())
-        ls_e_n = plotPerformanceList(EUp_schedules, master_n.printLambdas())
-        ls_b_n = plotPerformanceList(ELow_schedules, master_n.printLambdas())
-        ls_x_n = plotPerformanceList(X_schedules, master_n.printLambdas())
-        understaffing1_n, u_results_n, sum_all_doctors_n, consistency2_n, consistency2_norm_n, understaffing1_norm_n, u_results_norm_n, sum_all_doctors_norm_n = master_n.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, ls_e, ls_b, ls_x,epsilon)
+        ls_sc_n = plotPerformanceList(Cons_schedules_n, master_n.printLambdas())
+        ls_r_n = plotPerformanceList(Recovery_schedules_n, master_n.printLambdas())
+        ls_e_n = plotPerformanceList(EUp_schedules_n, master_n.printLambdas())
+        ls_b_n = plotPerformanceList(ELow_schedules_n, master_n.printLambdas())
+        ls_x_n = plotPerformanceList(X_schedules_n, master_n.printLambdas())
+        understaffing1_n, u_results_n, sum_all_doctors_n, consistency2_n, consistency2_norm_n, understaffing1_norm_n, u_results_norm_n, sum_all_doctors_norm_n = master_n.calc_naive(plotPerformanceList(Perf_schedules_n, master.printLambdas()), ls_sc_n, ls_r_n, ls_e_n, ls_b_n, ls_x_n, epsilon)
 
         result = pd.DataFrame([{
             'epsilon': epsilon,

@@ -273,7 +273,7 @@ def generate_cost(num_days, phys, K):
     return cost
 
 
-def plotPerformanceList(dicts, dict_phys, I, max_itr):
+def plotPerformanceList2(dicts, dict_phys, I, max_itr):
     final_list = []
 
     for i in I:

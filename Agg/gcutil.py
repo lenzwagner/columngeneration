@@ -363,17 +363,11 @@ def plotPerformanceList(dict_a, dict_b):
     for key, value in dict_b.items():
         if value == 1.0:
             if f"Physician_1" in dict_a:
-                values_to_add = list(dict_a[f"Physician_1"][key - 1].values())
-                # Replace -0.0 with 0.0
-                values_to_add = [0.0 if x == -0.0 else x for x in values_to_add]
-                result_list.extend(values_to_add)
+                result_list.extend(list(dict_a[f"Physician_1"][key - 1].values()))
         elif value > 1.0:
             if f"Physician_1" in dict_a:
                 for _ in range(int(value)):
-                    values_to_add = list(dict_a[f"Physician_1"][key - 1].values())
-                    # Replace -0.0 with 0.0
-                    values_to_add = [0.0 if x == -0.0 else x for x in values_to_add]
-                    result_list.extend(values_to_add)
+                    result_list.extend(list(dict_a[f"Physician_1"][key - 1].values()))
 
     return result_list
 

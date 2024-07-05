@@ -12,8 +12,8 @@ import time
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.1001]
-chi_ls = [7]
+eps_ls = [0.025, 0.05, 0.1]
+chi_ls = [3, 5, 7]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -64,7 +64,7 @@ for epsilon in eps_ls:
         reached_max_itr = False
 
         # Get Starting Solutions
-        problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
+        problem_start = Problem(data, demand_dict, 0, Min_WD_i, Max_WD_i)
         problem_start.buildLinModel()
         problem_start.model.Params.MIPFocus = 1
         problem_start.model.Params.Heuristics = 1
@@ -148,7 +148,7 @@ for epsilon in eps_ls:
             modelImprovable = False
 
             # Build SP
-            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, chi)
+            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, 0, Min_WD_i, Max_WD_i, chi)
             subproblem.buildModel()
 
             # Save time to solve SP
@@ -220,14 +220,16 @@ for epsilon in eps_ls:
         objValHistRMP.append(master.model.objval)
 
         # Calc Stats
-        print(Cons_schedules)
         ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
         ls_p = plotPerformanceList(Perf_schedules, master.printLambdas())
+        print(master.printLambdas())
+        print(Perf_schedules)
+        print(len(ls_p))
         ls_r = plotPerformanceList(Recovery_schedules, master.printLambdas())
         ls_e = plotPerformanceList(EUp_schedules, master.printLambdas())
         ls_b = plotPerformanceList(ELow_schedules, master.printLambdas())
         ls_x = plotPerformanceList(X_schedules, master.printLambdas())
-        understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_behavior(ls_p , ls_sc)
+        understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_naive(ls_p , ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
 
         result = pd.DataFrame([{
             'epsilon': epsilon,

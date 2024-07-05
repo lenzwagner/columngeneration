@@ -80,7 +80,11 @@ class MasterProblem:
         self.model.update()
 
     def printLambdas(self):
-        return self.model.getAttr("X", self.lmbda)
+        vals = self.model.getAttr("X", self.lmbda)
+
+        round_vals = {key: round(value) for key, value in vals.items()}
+
+        return round_vals
 
     def addLambda(self, itr):
         self.rosterIndex = itr + 1
@@ -204,6 +208,8 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+        print(f"len {len(sum_xWerte)}")
+
 
         self.sum_xWerte = sum_xWerte
         self.sum_all_doctors = 0
@@ -289,7 +295,7 @@ class MasterProblem:
             u_results, self.sum_all_doctors, consistency, understaffing1_norm, u_results_norm, sum_all_doctors_norm, consistency_norm))
 
         return self.understaffing1, u_results, self.sum_all_doctors, consistency, consistency_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm
-    def process_LSR(self, lst, num_sublists):
+    def average_nr_of(self, lst, num_sublists):
         total_length = len(lst)
         sublist_size = total_length // num_sublists
 

@@ -292,7 +292,7 @@ class MasterProblem:
 
         sums = [sum(sublist) for sublist in sublists]
 
-        mean_value = statistics.mean(sums)
+        mean_value = round(statistics.mean(sums), 3)
         min_value = min(sums)
         max_value = max(sums)
 

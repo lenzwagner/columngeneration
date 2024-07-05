@@ -86,7 +86,7 @@ for I_len in I_values:
 
 
         runtime = round(problem_t1 - problem_t0, 2)
-        mip_gap = round(problem.model.MIPGap, 2)
+        mip_gap = round(problem.model.MIPGap, 3)
         lower_bound = round(problem.model.ObjBound, 2)
         print(f"lower_bound {lower_bound}")
         upper_bound = round(problem.model.ObjVal, 2)

@@ -25,7 +25,7 @@ results = pd.DataFrame(columns=['epsilon', 'chi', 'obj', 'undercover', 'undercov
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
-time_cg_init = 2
+time_cg_init = 30
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
@@ -64,7 +64,7 @@ for epsilon in eps_ls:
         reached_max_itr = False
 
         # Get Starting Solutions
-        problem_start = Problem(data, demand_dict, 0, Min_WD_i, Max_WD_i)
+        problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
         problem_start.buildLinModel()
         problem_start.model.Params.MIPFocus = 1
         problem_start.model.Params.Heuristics = 1
@@ -148,7 +148,7 @@ for epsilon in eps_ls:
             modelImprovable = False
 
             # Build SP
-            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, 0, Min_WD_i, Max_WD_i, chi)
+            subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, chi)
             subproblem.buildModel()
 
             # Save time to solve SP

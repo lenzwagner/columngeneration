@@ -159,6 +159,9 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+        print(f"XWerte: {len(sum_xWerte)}")
+        print(f"Demand: {len(self.demand_values)}")
+
 
         comparison_result = [
             max(0, self.demand_values[i] - sum_xWerte[i])
@@ -190,6 +193,9 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
+
+        print(f"XWerte: {len(sum_xWerte)}")
+        print(f"Demand: {len(self.demand_values)}")
 
         self.sum_xWerte = sum_xWerte
         self.sum_all_doctors = 0

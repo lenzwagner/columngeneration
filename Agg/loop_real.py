@@ -12,8 +12,8 @@ import time
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025, 0.05, 0.1]
-chi_ls = [3, 5, 7]
+eps_ls = [0.025]
+chi_ls = [3]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -229,7 +229,7 @@ for epsilon in eps_ls:
         ls_e = plotPerformanceList(EUp_schedules, master.printLambdas())
         ls_b = plotPerformanceList(ELow_schedules, master.printLambdas())
         ls_x = plotPerformanceList(X_schedules, master.printLambdas())
-        understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_naive(ls_p , ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
+        understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_naive(ls_p , ls_sc, ls_r, ls_e, ls_b, ls_x, 0.25)
 
         result = pd.DataFrame([{
             'epsilon': epsilon,
@@ -243,7 +243,7 @@ for epsilon in eps_ls:
             'perf_norm': sum_all_doctors_norm
         }])
 
-        master.process_LSR(ls_sc, len(master.nurses))
+        master.average_nr_of(ls_sc, len(master.nurses))
 
         results = pd.concat([results, result], ignore_index=True)
 

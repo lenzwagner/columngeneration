@@ -12,7 +12,7 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [100]
+I_values = [150]
 prob_values = [0.9,1.0,1.1]
 pattern = 2
 T = list(range(1, 29))

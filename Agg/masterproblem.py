@@ -183,7 +183,7 @@ class MasterProblem:
         perf_loss_norm = perf_loss / (len(self.nurses))
 
         # Ausgabe
-        print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\nNorm_Undercoverage: {:.2f}\nNorm_Understaffing: {:.2f}\nNorm_Performance Loss: {:.2f}\nNorm_Consistency: {:.2f}\n".format(u_results,
+        print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(u_results,
                                                                                                   understaffing,
                                                                                                   perf_loss, consistency, u_results_norm, understaffing_norm, perf_loss_norm, consistency_norm))
 
@@ -290,7 +290,7 @@ class MasterProblem:
         sum_all_doctors_norm = self.sum_all_doctors / (len(self.nurses))
 
 
-        print("\nUndercoverage: {:.2f}\nUnderstaffing: {:.2f}\nPerformance Loss: {:.2f}\nConsistency: {:.2f}\nNorm_Undercoverage: {:.2f}\nNorm_Understaffing: {:.2f}\nNorm_Performance Loss: {:.2f}\nNorm_Consistency: {:.2f}\n".format(
+        print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
             self.understaffing1,
             u_results, self.sum_all_doctors, consistency, understaffing1_norm, u_results_norm, sum_all_doctors_norm, consistency_norm))
 

@@ -3,59 +3,61 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.lines import Line2D
+from collections import defaultdict
+import csv
 
-# Updated parameter combinations
-param1_values = [0.1, 0.2, 0.3]
-param2_values = [10, 20, 30]
+# Read the CSV file containing mean values
+data_mean = pd.read_csv('data_mean.csv')
 
-# Adjusted means for parameter combinations for both models (scaled to 0-1)
-means_model1 = {
-    (0.1, 10): (0.2, 0.75),
-    (0.1, 20): (0.35, 0.6),
-    (0.1, 30): (0.5, 0.55),
-    (0.2, 10): (0.45, 0.5),
-    (0.2, 20): (0.6, 0.45),
-    (0.2, 30): (0.75, 0.4),
-    (0.3, 10): (0.7, 0.35),
-    (0.3, 20): (0.85, 0.3),
-    (0.3, 30): (0.40, 0.25)
-}
+# Extract unique values for parameters
+param1_values = sorted(data_mean['epsilon'].unique().tolist())
+param2_values = sorted(data_mean['chi'].unique().tolist())
 
-means_model2 = {
-    (0.1, 10): (0.22, 0.77),
-    (0.1, 20): (0.37, 0.62),
-    (0.1, 30): (0.52, 0.57),
-    (0.2, 10): (0.47, 0.52),
-    (0.2, 20): (0.62, 0.47),
-    (0.2, 30): (0.77, 0.42),
-    (0.3, 10): (0.72, 0.37),
-    (0.3, 20): (0.87, 0.32),
-    (0.3, 30): (0.62, 0.17)
-}
+# Helper function to format float values
+def to_python_float(value):
+    return float(format(value, '.4f'))
 
-# Vordefinierte Standardabweichungen (scaled to 0-1)
-std_dev_matrix = {
-    ('BAM', 0.1, 10): (0.02, 0.002),
-    ('BAM', 0.1, 20): (0.04, 0.05),
-    ('BAM', 0.1, 30): (0.06, 0.04),
-    ('BAM', 0.2, 10): (0.05, 0.05),
-    ('BAM', 0.2, 20): (0.002, 0.04),
-    ('BAM', 0.2, 30): (0.06, 0.03),
-    ('BAM', 0.3, 10): (0.05, 0.04),
-    ('BAM', 0.3, 20): (0.04, 0.03),
-    ('BAM', 0.3, 30): (0.06, 0.02),
-    ('NPM', 0.1, 10): (0.05, 0.06),
-    ('NPM', 0.1, 20): (0.04, 0.05),
-    ('NPM', 0.1, 30): (0.06, 0.04),
-    ('NPM', 0.2, 10): (0.05, 0.05),
-    ('NPM', 0.2, 20): (0.04, 0.04),
-    ('NPM', 0.2, 30): (0.06, 0.03),
-    ('NPM', 0.3, 10): (0.05, 0.04),
-    ('NPM', 0.3, 20): (0.04, 0.03),
-    ('NPM', 0.3, 30): (0.06, 0.02),
-}
+# Initialize dictionaries to store mean values
+means_model1 = {}
+means_model2 = {}
 
-# Generate data
+# Populate dictionaries with mean values from the CSV
+for _, row in data_mean.iterrows():
+    epsilon = to_python_float(row['epsilon'])
+    chi = int(row['chi'])
+    undercover = to_python_float(row['undercover'])
+    consistency = to_python_float(row['consistency'])
+    undercover_n = to_python_float(row['undercover_n'])
+    consistency_n = to_python_float(row['consistency_n'])
+
+    means_model1[(epsilon, chi)] = (undercover, consistency)
+    means_model2[(epsilon, chi)] = (undercover_n, consistency_n)
+
+# Read the CSV file containing standard deviation values
+data_std = []
+with open('data_std.csv', mode='r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        data_std.append(row)
+
+# Initialize a dictionary to store standard deviation values
+std_dev_matrix = defaultdict(dict)
+for row in data_std:
+    model = row['model']
+    epsilon = float(row['epsilon'])
+    chi = int(row['chi'])
+    undercover_std = float(row['undercover'])
+    consistency_std = float(row['consistency'])
+
+    std_dev_matrix[(model, epsilon, chi)] = (undercover_std, consistency_std)
+
+# Output the standard deviation matrix
+for key, std_devs in std_dev_matrix.items():
+    model, epsilon, chi = key
+    undercover_std, consistency_std = std_devs
+    print(f"({model}, {epsilon}, {chi}): ({undercover_std:.4f}, {consistency_std:.4f})")
+
+# Generate data for plotting
 data = {
     'Model': [],
     'Param1': np.repeat(param1_values, len(param2_values) * 2),
@@ -90,7 +92,7 @@ def is_pareto_efficient(costs):
 # Calculate mean
 mean_df = df.groupby(['Model', 'Param1', 'Param2']).mean().reset_index()
 
-# Create std_df from std_dev_matrix
+# Create a DataFrame for the standard deviations
 std_df = pd.DataFrame(columns=['Model', 'Param1', 'Param2', 'Metrik1_std', 'Metrik2_std'])
 for key, (std1, std2) in std_dev_matrix.items():
     new_row = pd.DataFrame({
@@ -106,7 +108,7 @@ for key, (std1, std2) in std_dev_matrix.items():
 mean_df['Combination'] = mean_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
 std_df['Combination'] = std_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
 
-# Calculate Pareto frontier for the means (globally across all means)
+# Calculate Pareto frontier for the means
 costs = mean_df[['Metrik1', 'Metrik2']].values
 pareto_efficient = is_pareto_efficient(costs)
 pareto_front = mean_df[pareto_efficient]
@@ -114,11 +116,11 @@ pareto_front = mean_df[pareto_efficient]
 # Sort Pareto frontier by Metrik1
 pareto_front = pareto_front.sort_values('Metrik1')
 
-# Nice color palette for different combinations
+# Color palette for different combinations
 palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
 colors = dict(zip(mean_df['Combination'].unique(), palette))
 
-plt.figure(figsize=(16, 8))  # Vergrößerte Breite für die Legende außerhalb
+plt.figure(figsize=(16, 8))  # Increased width for legend outside
 
 # Plot all points and store handles and labels
 handles = []
@@ -179,4 +181,3 @@ plt.legend(handles=handles, labels=labels, title='Models and Combinations:',
 
 plt.tight_layout()
 plt.show()
-

@@ -12,8 +12,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [150]
-prob_values = [0.9,1.0,1.1]
+I_values = [50]
+prob_values = [1.1]
 pattern = 2
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -85,12 +85,12 @@ for I_len in I_values:
         vals_prob = problem.get_final_values()
 
 
-        runtime = round(problem_t1 - problem_t0, 2)
+        runtime = round(problem_t1 - problem_t0, 3)
         mip_gap = round(problem.model.MIPGap, 3)
-        lower_bound = round(problem.model.ObjBound, 2)
+        lower_bound = round(problem.model.ObjBound, 3)
         print(f"lower_bound {lower_bound}")
-        upper_bound = round(problem.model.ObjVal, 2)
-        objective_value = round(problem.model.ObjVal, 2)
+        upper_bound = round(problem.model.ObjVal, 3)
+        objective_value = round(problem.model.ObjVal, 3)
 
         # **** Column Generation ****
         # Prerequisites

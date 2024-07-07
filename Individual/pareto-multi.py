@@ -1,102 +1,116 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Beispielhafte Datenstruktur für zwei Parameterkombinationen mit neun Modellinstanzen pro Kombination
-data = {
-    'undercoverage1': [10, 11, 9, 10, 12, 8, 10, 11, 9],
-    'consistency1': [1, 1, 2, 2, 2, 3, 3, 3, 3],
-    'chi1': [3] * 9,
-    'epsilon1': [0.0] * 9,
-    'undercoverage2': [20, 19, 21, 20, 18, 20, 19, 21, 20],
-    'consistency2': [2, 2, 3, 3, 3, 4, 4, 4, 4],
-    'chi2': [4] * 9,
-    'epsilon2': [0.02] * 9,
+# Example parameter combinations and instances
+param1_values = [1, 2, 3]
+param2_values = [10, 20, 30]
+instances = 12
+
+np.random.seed(123)
+
+# Adjusted means for parameter combinations for both models
+means_model1 = {
+    (1, 10): (20, 75),
+    (1, 20): (35, 60),
+    (1, 30): (50, 55),
+    (2, 10): (45, 50),
+    (2, 20): (60, 45),
+    (2, 30): (75, 40),
+    (3, 10): (70, 35),
+    (3, 20): (85, 30),
+    (3, 30): (100, 25)
 }
 
-# Erstelle DataFrames
-df1 = pd.DataFrame({
-    'undercoverage': data['undercoverage1'],
-    'consistency': data['consistency1'],
-    'chi': data['chi1'],
-    'epsilon': data['epsilon1']
-})
+means_model2 = {
+    (1, 10): (22, 77),
+    (1, 20): (37, 62),
+    (1, 30): (52, 57),
+    (2, 10): (47, 52),
+    (2, 20): (62, 47),
+    (2, 30): (77, 42),
+    (3, 10): (72, 37),
+    (3, 20): (87, 32),
+    (3, 30): (102, 27)
+}
 
-df2 = pd.DataFrame({
-    'undercoverage': data['undercoverage2'],
-    'consistency': data['consistency2'],
-    'chi': data['chi2'],
-    'epsilon': data['epsilon2']
-})
+# Slightly increased standard deviation
+std_dev = 8
 
-df = pd.concat([df1, df2], ignore_index=True)
+# Generate data
+data = {
+    'Model': [],
+    'Param1': np.repeat(param1_values, len(param2_values) * instances * 2),
+    'Param2': np.tile(np.repeat(param2_values, instances), len(param1_values) * 2),
+    'Metrik1': [],
+    'Metrik2': [],
+    'Instanz': np.tile(range(1, instances + 1), len(param1_values) * len(param2_values) * 2)
+}
 
-# Mittelwerte und Standardabweichungen berechnen
-agg_data = df.groupby(['chi', 'epsilon']).agg({
-    'undercoverage': ['mean', 'std'],
-    'consistency': ['mean', 'std']
-}).reset_index()
-agg_data.columns = ['chi', 'epsilon', 'mean_undercoverage', 'std_undercoverage', 'mean_consistency', 'std_consistency']
+for param1 in param1_values:
+    for param2 in param2_values:
+        mean1, mean2 = means_model1[(param1, param2)]
+        data['Model'].extend(['Model 1'] * instances)
+        data['Metrik1'].extend(mean1 + np.random.randn(instances) * std_dev)
+        data['Metrik2'].extend(mean2 + np.random.randn(instances) * std_dev)
+        
+        mean1, mean2 = means_model2[(param1, param2)]
+        data['Model'].extend(['Model 2'] * instances)
+        data['Metrik1'].extend(mean1 + np.random.randn(instances) * std_dev)
+        data['Metrik2'].extend(mean2 + np.random.randn(instances) * std_dev)
 
-# Pareto-Frontier berechnen
-def pareto_frontier(df):
-    pareto_front = []
-    for i, row in df.iterrows():
-        dominated = False
-        for j, other in df.iterrows():
-            if (other['mean_undercoverage'] <= row['mean_undercoverage'] and other['mean_consistency'] <= row['mean_consistency']) and (
-                    other['mean_undercoverage'] < row['mean_undercoverage'] or other['mean_consistency'] < row['mean_consistency']):
-                dominated = True
-                break
-        if not dominated:
-            pareto_front.append(row)
-    pareto_front_df = pd.DataFrame(pareto_front)
-    pareto_front_df = pareto_front_df.sort_values(by=['mean_undercoverage'])
-    return pareto_front_df
+df = pd.DataFrame(data)
 
-pareto_df = pareto_frontier(agg_data)
+# Pareto frontier function
+def is_pareto_efficient(costs):
+    is_efficient = np.ones(costs.shape[0], dtype=bool)
+    for i, c in enumerate(costs):
+        if is_efficient[i]:
+            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1) | np.all(costs[is_efficient] == c, axis=1)
+            is_efficient[i] = True
+    return is_efficient
 
-# Plot erstellen
-plt.figure(figsize=(14, 10))
-colors = plt.cm.tab20.colors
+# Calculate mean and standard deviation
+mean_df = df.groupby(['Model', 'Param1', 'Param2']).mean().reset_index()
+std_df = df.groupby(['Model', 'Param1', 'Param2']).std().reset_index()
 
-# Double Boxplots hinzufügen
-unique_params = df[['chi', 'epsilon']].drop_duplicates().sort_values(by=['chi', 'epsilon']).reset_index(drop=True)
-positions = np.arange(len(unique_params)) * 2
+# Create combination column for unique colors
+mean_df['Combination'] = mean_df.apply(lambda row: f'{int(row.Param1)}, {int(row.Param2)}', axis=1)
+std_df['Combination'] = std_df.apply(lambda row: f'{int(row.Param1)}, {int(row.Param2)}', axis=1)
 
-for i, (index, params) in enumerate(unique_params.iterrows()):
-    chi = params['chi']
-    epsilon = params['epsilon']
-    
-    subset = df[(df['chi'] == chi) & (df['epsilon'] == epsilon)]
-    
-    # Boxplot für Undercoverage
-    plt.boxplot(subset['undercoverage'], positions=[positions[i] - 0.2], widths=0.3, patch_artist=True,
-                boxprops=dict(facecolor=colors[i % len(colors)], color='black'),
-                medianprops=dict(color='black'))
-    
-    # Boxplot für Consistency
-    plt.boxplot(subset['consistency'], positions=[positions[i] + 0.2], widths=0.3, patch_artist=True,
-                boxprops=dict(facecolor=colors[i % len(colors)], color='black'),
-                medianprops=dict(color='black'))
+# Calculate Pareto frontier for the means (globally across all means)
+costs = mean_df[['Metrik1', 'Metrik2']].values
+pareto_efficient = is_pareto_efficient(costs)
+pareto_front = mean_df[pareto_efficient]
 
-# Pareto-optimale Punkte hervorheben
-for i, row in pareto_df.iterrows():
-    plt.scatter(positions[i], row['mean_undercoverage'], color='red', edgecolors='black',
-                linewidths=2, alpha=0.6, s=150, marker='o')
-    plt.scatter(positions[i], row['mean_consistency'], color='red', edgecolors='black',
-                linewidths=2, alpha=0.6, s=150, marker='o')
+# Sort Pareto frontier by Metrik1
+pareto_front = pareto_front.sort_values('Metrik1')
 
-# Verbinde die Pareto-optimalen Punkte
-plt.plot(positions[:len(pareto_df)], pareto_df['mean_undercoverage'], linestyle='-', marker='x', color='red', alpha=0.7)
-plt.plot(positions[:len(pareto_df)], pareto_df['mean_consistency'], linestyle='-', marker='x', color='red', alpha=0.7)
+# Nice color palette for different combinations
+palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
+colors = dict(zip(mean_df['Combination'].unique(), palette))
 
-# Legende außerhalb des Plots positionieren
-plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+plt.figure(figsize=(12, 6))  # Enlarged width for the legend
 
-plt.xlabel('Parameterkombinationen')
-plt.ylabel('Skalierte Werte')
-plt.xticks(ticks=positions, labels=[f"($\chi={row['chi']}, \epsilon={row['epsilon']}$)" for _, row in unique_params.iterrows()], rotation=45)
-plt.grid(True)
+# Plot all points
+for key, grp in mean_df.groupby(['Model', 'Combination']):
+    key_str = key if isinstance(key, str) else key[0]
+    alpha = 1.0 if key[0] == 'Model 1' else 0.5  # Set alpha value based on the model
+    plt.errorbar(grp['Metrik1'], grp['Metrik2'], 
+                 xerr=std_df[(std_df['Model'] == key[0]) & (std_df['Combination'] == key[1])]['Metrik1'], 
+                 yerr=std_df[(std_df['Model'] == key[0]) & (std_df['Combination'] == key[1])]['Metrik2'], 
+                 fmt='o', alpha=alpha, label=f'{key[0]}: {key[1]}', color=colors[key[1]])
+
+# Plot Pareto frontier line
+plt.plot(pareto_front['Metrik1'], pareto_front['Metrik2'], 'r--', linewidth=2, label='Pareto-Frontier Line')
+
+plt.xlabel('Scaled Undercoverage')
+plt.ylabel('Scaled Consistency (ø Shift Changes)')
+
+# Place legend outside the box
+plt.legend(title='Combinations', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# Adjust layout to make space for the legend
 plt.tight_layout()
 plt.show()

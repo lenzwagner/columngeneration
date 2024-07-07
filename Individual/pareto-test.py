@@ -2,12 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import csv
 
+# Data initialization
 data = {
     'undercoverage1': [], 'consistency1': [], 'chi1': [], 'epsilon1': [],
     'undercoverage2': [], 'consistency2': [], 'chi2': [], 'epsilon2': []
 }
 
-with open('ihre_datei.csv', 'r') as file:
+# Reading data from CSV file
+with open('your_file.csv', 'r') as file:
     csv_reader = csv.DictReader(file)
     for row in csv_reader:
         data['undercoverage1'].append(float(row['under1']))
@@ -21,6 +23,7 @@ with open('ihre_datei.csv', 'r') as file:
 
 print(data)
 
+# Creating DataFrames
 df1 = pd.DataFrame({
     'undercoverage': data['undercoverage1'],
     'consistency': data['consistency1'],
@@ -37,8 +40,7 @@ df2 = pd.DataFrame({
 
 df = pd.concat([df1, df2], ignore_index=True)
 
-
-# Pareto-Frontier berechnen
+# Calculate Pareto Frontier
 def pareto_frontier(df):
     pareto_front = []
     for i, row in df.iterrows():
@@ -54,17 +56,16 @@ def pareto_frontier(df):
     pareto_front_df = pareto_front_df.sort_values(by=['undercoverage'])
     return pareto_front_df
 
-
 pareto_df = pareto_frontier(df)
 
-# Plot erstellen
+# Create plot
 plt.figure(figsize=(12, 8))
-colors = plt.cm.tab20.colors
+colors = plt.cm.magma(np.linspace(0, 1, 20))  # Using magma color palette
 
 # Dictionary to store the labels to avoid duplication in the legend
 labels_dict = {}
 
-# Punkte aus der ersten Liste (Kreise)
+# Points from the first list (Circles)
 for i, row in df1.iterrows():
     label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
     if label not in labels_dict:
@@ -72,7 +73,7 @@ for i, row in df1.iterrows():
     else:
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='o', s=100)
 
-# Punkte aus der zweiten Liste (Quadrate)
+# Points from the second list (Squares)
 for i, row in df2.iterrows():
     label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
     if label not in labels_dict:
@@ -80,7 +81,7 @@ for i, row in df2.iterrows():
     else:
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='s', s=100, alpha=0.8)
 
-# Pareto-optimale Punkte hervorheben
+# Highlight Pareto-optimal points
 for i, row in pareto_df.iterrows():
     index_in_df1 = df1[(df1['undercoverage'] == row['undercoverage']) &
                        (df1['consistency'] == row['consistency']) &
@@ -100,10 +101,10 @@ for i, row in pareto_df.iterrows():
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], edgecolors='black',
                     linewidths=2, alpha=0.6, s=150, marker='s')
 
-# Verbinde die Pareto-optimalen Punkte
+# Connect Pareto-optimal points
 plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='-', marker='x', color='red', alpha=0.7)
 
-# Legende außerhalb des Plots positionieren
+# Position the legend outside the plot
 plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
 plt.xlabel('Scaled Undercoverage')

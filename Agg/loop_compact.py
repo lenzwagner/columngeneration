@@ -12,8 +12,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [50]
-prob_values = [1.1]
+I_values = [50, 100, 150]
+prob_values = [0.9, 1.0, 1.1]
 pattern = 2
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -28,14 +28,13 @@ results = pd.DataFrame(columns=['I', 'prob', 'lb', 'ub', 'gap', 'time', 'lb_cg',
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_compact = 7200
-eps = 0.1
+time_compact = 2
+eps = 0.02
 
 ## Dataframe
-current_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
-file = f'results_{current_time}'
+current_time = datetime.now().strftime('%Y-%m-%d_%H')
+file = f'results_comp_anal_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}{file}.xlsx'
 
 # Parameter
 for I_len in I_values:
@@ -55,7 +54,6 @@ for I_len in I_values:
         output_len = 98
         mue = 1e-4
         threshold = 4e-5
-        eps = 0.1
 
         # Demand Dict
         demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
@@ -265,4 +263,3 @@ for I_len in I_values:
         results = pd.concat([results, result], ignore_index=True)
 
 results.to_csv(file_name_csv, index=False)
-results.to_excel(file_name_xlsx, index=False)

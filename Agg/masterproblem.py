@@ -151,12 +151,6 @@ class MasterProblem:
             print('Error code ' + str(e.errno) + ': ' + str(e))
 
     def calc_behavior(self, lst, ls_sc):
-        print(f"Length of self.demand_values: {len(self.demand_values)}")
-        print(f"LS: {ls_sc}")
-        print(f"len LS: {len(ls_sc)}")
-        print(f"lst{lst}")
-        print(f"len ls {len(lst)}")
-
         consistency = sum(ls_sc)
         consistency_norm = sum(ls_sc) / (len(self.nurses))
         sublist_length = len(lst) // len(self.nurses)
@@ -190,10 +184,6 @@ class MasterProblem:
         return u_results, understaffing, perf_loss, consistency, consistency_norm, u_results_norm, understaffing_norm, perf_loss_norm
 
     def calc_naive(self, lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue):
-        print(f"Length of self.demand_values: {len(self.demand_values)}")
-        print(f"LS: {ls_sc}")
-        print(f"lst{lst}")
-        print(f"len {len(lst)}")
         consistency = sum(ls_sc)
         consistency_norm = sum(ls_sc) / (len(self.nurses))
 
@@ -208,7 +198,6 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
-        print(f"len {len(sum_xWerte)}")
 
 
         self.sum_xWerte = sum_xWerte

@@ -2,11 +2,11 @@ from masterproblem import *
 from subproblem import *
 from gcutil import *
 from compactsolver import *
+
 def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi, threshold, time_cg, I, T, K):
     # **** Column Generation ****
     # Prerequisites
     modelImprovable = True
-    reached_max_itr = False
 
     # Get Starting Solutions
     problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
@@ -175,4 +175,4 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         sum_all_doctors_norm
     }
 
-    return res
+    return round(understaffing1, 3), round(u_results, 3), round(sum_all_doctors, 3), round(consistency2, 3), round(consistency2_norm, 3), round(understaffing1_norm, 3), round(u_results_norm, 3), round(sum_all_doctors_norm, 3)

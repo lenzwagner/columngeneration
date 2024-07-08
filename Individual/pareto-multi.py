@@ -171,6 +171,9 @@ y_max = mean_df['Metrik2'].max() + 0.05
 plt.xlim(max(0, x_min), min(1, x_max))
 plt.ylim(max(0, y_min), min(1, y_max))
 
+# Add grid to the plot
+plt.grid(True)
+
 # Add Pareto frontier to legend
 handles.append(pareto_line)
 labels.append('Pareto-Frontier Line')

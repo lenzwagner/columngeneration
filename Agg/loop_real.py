@@ -9,20 +9,21 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025, 0.05, 0.1]
-chi_ls = [3, 5 , 7]
+eps_ls = [0.025]
+chi_ls = [3]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
 
 
 # Ergebnisse DataFrame initialisieren
-results = pd.DataFrame(columns=['epsilon', 'chi', 'obj', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n'])
+results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n'])
 
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
-time_cg_init = 30
+time_cg_init = 60
+time_cg_init_npm = 10
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M')
@@ -56,11 +57,12 @@ for epsilon in eps_ls:
         })
 
         # **** Column Generation ****
-        understaffing_n, u_results_n, sum_all_doctors_n, consistency_n, consistency_norm_n, understaffing_norm_n, u_results_norm_n, sum_all_doctors_norm_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
+        understaffing_n, u_results_n, sum_all_doctors_n, consistency_n, consistency_norm_n, understaffing_norm_n, u_results_norm_n, sum_all_doctors_norm_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K, eps)
 
         understaffing, u_results, sum_all_doctors, consistency, consistency_norm, understaffing_norm, u_results_norm, sum_all_doctors_norm = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K)
+        print(understaffing, u_results, sum_all_doctors)
 
         result = pd.DataFrame([{
             'epsilon': epsilon,

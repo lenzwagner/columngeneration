@@ -64,6 +64,7 @@ class Subproblem:
         self.r = self.model.addVars(self.days, vtype=gu.GRB.BINARY, name="r")
         self.f = self.model.addVars(self.days, vtype=gu.GRB.BINARY, name="f")
         self.ff = self.model.addVars(self.days, vtype=gu.GRB.BINARY, name="ff")
+        self.gam = self.model.addVars(self.days, vtype=gu.GRB.BINARY, name="gam")
 
     def generateConstraints(self):
         for t in self.days:
@@ -76,11 +77,16 @@ class Subproblem:
                 self.model.addLConstr(
                     self.performance[t, k, self.itr] <= self.p[t])
                 self.model.addLConstr(self.performance[t, k, self.itr] <= self.x[t, k])
+        self.model.addLConstr(self.gam[1] == 1)
+        for t in range(2, len(self.days) + 1):
+            self.model.addLConstr(self.gam[t] <= self.gam[t - 1])
+            self.model.addLConstr(self.gam[t] <= (1 - self.y[t - 1]))
+            self.model.addLConstr(self.gam[t] >= (1 - self.y[t - 1]) + self.gam[t - 1] - 1)
         for k in self.shifts:
             for t in self.days:
-                self.model.addLConstr(self.rho[t, k] <= 1 - self.q[t, k])
+                self.model.addLConstr(self.rho[t, k] <= 1 - self.q[t, k] - self.gam[t])
                 self.model.addLConstr(self.rho[t, k] <= self.x[t, k])
-                self.model.addLConstr(self.rho[t, k] >= (1 - self.q[t, k]) + self.x[t, k] - 1)
+                self.model.addLConstr(self.rho[t, k] >= (1 - self.q[t, k]) + self.x[t, k] - 1 - self.gam[t])
                 self.model.addLConstr(self.z[t, k] <= self.q[t, k])
                 self.model.addLConstr(self.z[t, k] <= (1 - self.y[t]))
                 self.model.addLConstr(self.z[t, k] >= self.q[t, k] + (1 - self.y[t]) - 1)

@@ -69,6 +69,8 @@ class Problem:
         self.w = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="w")
         self.gg = self.model.addVars(self.I, self.T, vtype=gu.GRB.CONTINUOUS, lb=-gu.GRB.INFINITY, ub=gu.GRB.INFINITY,
                                      name="gg")
+        self.gam = self.model.addVars(self.I, self.T, vtype=gu.GRB.BINARY, name="gam")
+
 
     def genGenCons(self):
         for i in self.I:
@@ -89,11 +91,16 @@ class Problem:
 
     def genChangesCons(self):
         for i in self.I:
+            self.model.addLConstr(self.gam[i, 1] == 1)
+            for t in range(2, len(self.T) + 1):
+                self.model.addLConstr(self.gam[i, t] <= self.gam[i, t-1])
+                self.model.addLConstr(self.gam[i, t] <= (1 - self.y[i, t - 1]))
+                self.model.addLConstr(self.gam[i, t] >= (1 - self.y[i, t -1 ]) + self.gam[i, t-1] - 1)
             for k in self.K:
                 for t in self.T:
-                    self.model.addLConstr(self.rho[i, t, k] <= 1 - self.q[i, t, k])
+                    self.model.addLConstr(self.rho[i, t, k] <= 1 - self.q[i, t, k]- self.gam[i, t])
                     self.model.addLConstr(self.rho[i, t, k] <= self.x[i, t, k])
-                    self.model.addLConstr(self.rho[i, t, k] >= (1 - self.q[i, t, k]) + self.x[i, t, k] - 1)
+                    self.model.addLConstr(self.rho[i, t, k] >= (1 - self.q[i, t, k]) + self.x[i, t, k] - 1- self.gam[i, t])
                     self.model.addLConstr(self.z[i, t, k] <= self.q[i, t, k])
                     self.model.addLConstr(self.z[i, t, k] <= (1 - self.y[i, t]))
                     self.model.addLConstr(self.z[i, t, k] >= self.q[i, t, k] + (1 - self.y[i, t]) - 1)

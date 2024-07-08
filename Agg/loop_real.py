@@ -25,7 +25,7 @@ time_cg_init_npm = 10
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'study_results_mulit_{current_time}'
+file = f'study_results_mulit_new_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
 
 # Loop

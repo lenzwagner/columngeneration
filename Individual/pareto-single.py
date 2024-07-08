@@ -17,8 +17,8 @@ with open('data/data.csv', 'r') as file:
         data['undercoverage2'].append(float(row['undercover_norm_n']))
         data['consistency1'].append(float(row['cons_norm']))
         data['consistency2'].append(float(row['cons_norm_n']))
-        data['chi1'].append(float(row['chi']))
-        data['chi2'].append(float(row['chi']))
+        data['chi1'].append(int(float(row['chi'])))  # Convert chi to int
+        data['chi2'].append(int(float(row['chi'])))  # Convert chi to int
         data['epsilon1'].append(float(row['epsilon']))
         data['epsilon2'].append(float(row['epsilon']))
 
@@ -68,7 +68,7 @@ labels_dict = {}
 
 # Points from the first list (Circles)
 for i, row in df1.iterrows():
-    label = f"BAP $\chi={row['chi']}/ \epsilon={row['epsilon']}$"
+    label = f"BAP $\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
     color_index = i % len(colors)
     if label not in labels_dict:
         labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='o', s=100, label=label)
@@ -77,7 +77,7 @@ for i, row in df1.iterrows():
 
 # Points from the second list (Squares)
 for i, row in df2.iterrows():
-    label = f"NPP $\chi={row['chi']} / \epsilon={row['epsilon']}$"
+    label = f"NPP $\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
     color_index = i % len(colors)
     if label not in labels_dict:
         labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='s', s=100, alpha=0.8, label=label)
@@ -108,14 +108,16 @@ for i, row in pareto_df.iterrows():
 pareto_line, = plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='--', color='red', linewidth=2, alpha=0.7)
 
 # Position the legend outside the plot
-plt.legend(title='Models and Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+plt.legend(title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
-plt.xlabel('Scaled Undercoverage')
-plt.ylabel('Scaled Consistency (ø Shift Changes)')
+# Increase the font size of axis labels marginally
+plt.xlabel('Scaled Undercoverage', fontsize=14)
+plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=14)
+
 plt.grid(True)
 
 # Add Pareto frontier to legend
-plt.legend(handles=list(labels_dict.values()) + [pareto_line], labels=list(labels_dict.keys()) + ['Pareto-Frontier Line'], title='Models and Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+plt.legend(handles=list(labels_dict.values()) + [pareto_line], labels=list(labels_dict.keys()) + ['Pareto-Frontier Line'], title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
 plt.tight_layout()
 plt.show()

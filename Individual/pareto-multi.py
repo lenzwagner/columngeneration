@@ -13,9 +13,11 @@ data_mean = pd.read_csv('data_mean.csv')
 param1_values = sorted(data_mean['epsilon'].unique().tolist())
 param2_values = sorted(data_mean['chi'].unique().tolist())
 
+
 # Helper function to format float values
 def to_python_float(value):
     return float(format(value, '.4f'))
+
 
 # Initialize dictionaries to store mean values
 means_model1 = {}
@@ -69,25 +71,28 @@ data = {
 for param1 in param1_values:
     for param2 in param2_values:
         mean1, mean2 = means_model1[(param1, param2)]
-        data['Model'].append('BAM')
+        data['Model'].append('BAP')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
         mean1, mean2 = means_model2[(param1, param2)]
-        data['Model'].append('NPM')
+        data['Model'].append('NPP')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
 df = pd.DataFrame(data)
+
 
 # Pareto frontier function
 def is_pareto_efficient(costs):
     is_efficient = np.ones(costs.shape[0], dtype=bool)
     for i, c in enumerate(costs):
         if is_efficient[i]:
-            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1) | np.all(costs[is_efficient] == c, axis=1)
+            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1) | np.all(costs[is_efficient] == c,
+                                                                                          axis=1)
             is_efficient[i] = True
     return is_efficient
+
 
 # Calculate mean
 mean_df = df.groupby(['Model', 'Param1', 'Param2']).mean().reset_index()
@@ -105,7 +110,8 @@ for key, (std1, std2) in std_dev_matrix.items():
     std_df = pd.concat([std_df, new_row], ignore_index=True)
 
 # Create combination column for unique colors
-mean_df['Combination'] = mean_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
+mean_df['Combination'] = mean_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$',
+                                       axis=1)
 std_df['Combination'] = std_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
 
 # Calculate Pareto frontier for the means
@@ -118,7 +124,10 @@ pareto_front = pareto_front.sort_values('Metrik1')
 
 # Color palette for different combinations
 palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
-colors = dict(zip(mean_df['Combination'].unique(), palette))
+# Adjusting the color range to focus on the brighter part of the magma palette
+palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
+colors = plt.cm.magma(np.linspace(0.2, 0.8, len(mean_df['Combination'].unique())))
+color_dict = dict(zip(mean_df['Combination'].unique(), colors))
 
 plt.figure(figsize=(16, 8))  # Increased width for legend outside
 
@@ -130,19 +139,23 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
     model, combination = key
     std_values = std_df[(std_df['Model'] == model) & (std_df['Combination'] == combination)]
 
-    if model == 'BAM':
+    if model == 'BAP':
         marker = 'o'
         alpha = 1.0
         linestyle = '-'
-        edgecolor = 'black'
-    else:  # NPM
+    else:  # NPP
         marker = 's'
         alpha = 0.7
         linestyle = ':'
-        edgecolor = 'gray'
 
-    base_color = colors[combination]
+    base_color = color_dict[combination]
     color = (base_color[0], base_color[1], base_color[2], alpha)
+
+    # Check if the point is Pareto-optimal to determine edge color
+    if any((pareto_front['Model'] == model) & (pareto_front['Combination'] == combination)):
+        edgecolor = 'black'
+    else:
+        edgecolor = 'none'
 
     h = plt.errorbar(grp['Metrik1'], grp['Metrik2'],
                      xerr=std_values['Metrik1_std'],
@@ -179,7 +192,7 @@ handles.append(pareto_line)
 labels.append('Pareto-Frontier Line')
 
 # Create legend outside the plot
-plt.legend(handles=handles, labels=labels, title='Models and Combinations:',
+plt.legend(handles=handles, labels=labels, title='Combinations:',
            loc='center left', bbox_to_anchor=(1, 0.5))
 
 plt.tight_layout()

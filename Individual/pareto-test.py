@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import csv
+import numpy as np
 
 # Data initialization
 data = {
@@ -12,16 +13,14 @@ data = {
 with open('data/data.csv', 'r') as file:
     csv_reader = csv.DictReader(file)
     for row in csv_reader:
-        data['undercoverage1'].append(float(row['undercover']))
-        data['undercoverage2'].append(float(row['undercover_n']))
-        data['consistency1'].append(float(row['consistency']))
-        data['consistency2'].append(float(row['consistency_n']))
+        data['undercoverage1'].append(float(row['undercover_norm']))
+        data['undercoverage2'].append(float(row['undercover_norm_n']))
+        data['consistency1'].append(float(row['cons_norm']))
+        data['consistency2'].append(float(row['cons_norm_n']))
         data['chi1'].append(float(row['chi']))
         data['chi2'].append(float(row['chi']))
         data['epsilon1'].append(float(row['epsilon']))
         data['epsilon2'].append(float(row['epsilon']))
-
-print(data)
 
 # Creating DataFrames
 df1 = pd.DataFrame({
@@ -60,26 +59,30 @@ pareto_df = pareto_frontier(df)
 
 # Create plot
 plt.figure(figsize=(12, 8))
-colors = plt.cm.magma(np.linspace(0, 1, 20))  # Using magma color palette
+
+# Adjusting the color range to focus on the brighter part of the magma palette
+colors = plt.cm.magma(np.linspace(0.2, 0.8, max(len(df1), len(df2))))  # Using a subset of magma color palette
 
 # Dictionary to store the labels to avoid duplication in the legend
 labels_dict = {}
 
 # Points from the first list (Circles)
 for i, row in df1.iterrows():
-    label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
+    label = f"BAP $\chi={row['chi']}/ \epsilon={row['epsilon']}$"
+    color_index = i % len(colors)
     if label not in labels_dict:
-        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='o', s=100, label=label)
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='o', s=100, label=label)
     else:
-        plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='o', s=100)
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='o', s=100)
 
 # Points from the second list (Squares)
 for i, row in df2.iterrows():
-    label = f"$\chi={row['chi']}, \epsilon={row['epsilon']}$"
+    label = f"NPP $\chi={row['chi']} / \epsilon={row['epsilon']}$"
+    color_index = i % len(colors)
     if label not in labels_dict:
-        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='s', s=100, alpha=0.8, label=label)
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='s', s=100, alpha=0.8, label=label)
     else:
-        plt.scatter(row['undercoverage'], row['consistency'], color=colors[i % len(colors)], marker='s', s=100, alpha=0.8)
+        plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='s', s=100, alpha=0.8)
 
 # Highlight Pareto-optimal points
 for i, row in pareto_df.iterrows():
@@ -101,14 +104,18 @@ for i, row in pareto_df.iterrows():
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], edgecolors='black',
                     linewidths=2, alpha=0.6, s=150, marker='s')
 
-# Connect Pareto-optimal points
-plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='-', marker='x', color='red', alpha=0.7)
+# Connect Pareto-optimal points with dashed line
+pareto_line, = plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='--', color='red', linewidth=2, alpha=0.7)
 
 # Position the legend outside the plot
-plt.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+plt.legend(title='Models and Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
 plt.xlabel('Scaled Undercoverage')
 plt.ylabel('Scaled Consistency (ø Shift Changes)')
 plt.grid(True)
+
+# Add Pareto frontier to legend
+plt.legend(handles=list(labels_dict.values()) + [pareto_line], labels=list(labels_dict.keys()) + ['Pareto-Frontier Line'], title='Models and Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+
 plt.tight_layout()
 plt.show()

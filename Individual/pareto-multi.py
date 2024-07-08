@@ -13,11 +13,9 @@ data_mean = pd.read_csv('data_mean.csv')
 param1_values = sorted(data_mean['epsilon'].unique().tolist())
 param2_values = sorted(data_mean['chi'].unique().tolist())
 
-
 # Helper function to format float values
 def to_python_float(value):
     return float(format(value, '.4f'))
-
 
 # Initialize dictionaries to store mean values
 means_model1 = {}
@@ -82,17 +80,14 @@ for param1 in param1_values:
 
 df = pd.DataFrame(data)
 
-
 # Pareto frontier function
 def is_pareto_efficient(costs):
     is_efficient = np.ones(costs.shape[0], dtype=bool)
     for i, c in enumerate(costs):
         if is_efficient[i]:
-            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1) | np.all(costs[is_efficient] == c,
-                                                                                          axis=1)
+            is_efficient[is_efficient] = np.any(costs[is_efficient] < c, axis=1) | np.all(costs[is_efficient] == c, axis=1)
             is_efficient[i] = True
     return is_efficient
-
 
 # Calculate mean
 mean_df = df.groupby(['Model', 'Param1', 'Param2']).mean().reset_index()
@@ -110,8 +105,7 @@ for key, (std1, std2) in std_dev_matrix.items():
     std_df = pd.concat([std_df, new_row], ignore_index=True)
 
 # Create combination column for unique colors
-mean_df['Combination'] = mean_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$',
-                                       axis=1)
+mean_df['Combination'] = mean_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
 std_df['Combination'] = std_df.apply(lambda row: f'$\\varepsilon={row.Param1:.1f}$ / $\\chi={int(row.Param2)}$', axis=1)
 
 # Calculate Pareto frontier for the means
@@ -163,8 +157,7 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
     labels.append(f'{model} {combination}')
 
 # Plot Pareto frontier line
-pareto_line, = plt.plot(pareto_front['Metrik1'], pareto_front['Metrik2'], 'r--', linewidth=2,
-                        label='Pareto-Frontier Line')
+pareto_line, = plt.plot(pareto_front['Metrik1'], pareto_front['Metrik2'], 'r--', linewidth=2, label='Pareto-Frontier Line')
 
 # Outline Pareto frontier points
 for _, row in pareto_front.iterrows():
@@ -212,8 +205,7 @@ handles.append(pareto_line)
 labels.append('Pareto-Frontier Line')
 
 # Create legend outside the plot
-plt.legend(handles=handles, labels=labels, title='Combinations:',
-           loc='center left', bbox_to_anchor=(1, 0.5))
+plt.legend(handles=handles, labels=labels, title='Combinations:', loc='center left', bbox_to_anchor=(1, 0.5))
 
 plt.tight_layout()
 plt.show()

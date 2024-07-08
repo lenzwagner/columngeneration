@@ -71,12 +71,12 @@ data = {
 for param1 in param1_values:
     for param2 in param2_values:
         mean1, mean2 = means_model1[(param1, param2)]
-        data['Model'].append('BAP')
+        data['Model'].append('BAM')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
         mean1, mean2 = means_model2[(param1, param2)]
-        data['Model'].append('NPP')
+        data['Model'].append('NPM')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
@@ -124,10 +124,7 @@ pareto_front = pareto_front.sort_values('Metrik1')
 
 # Color palette for different combinations
 palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
-# Adjusting the color range to focus on the brighter part of the magma palette
-palette = sns.color_palette("magma", len(mean_df['Combination'].unique()))
-colors = plt.cm.magma(np.linspace(0.2, 0.8, len(mean_df['Combination'].unique())))
-color_dict = dict(zip(mean_df['Combination'].unique(), colors))
+colors = dict(zip(mean_df['Combination'].unique(), palette))
 
 plt.figure(figsize=(16, 8))  # Increased width for legend outside
 
@@ -139,23 +136,20 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
     model, combination = key
     std_values = std_df[(std_df['Model'] == model) & (std_df['Combination'] == combination)]
 
-    if model == 'BAP':
+    base_color = colors[combination]
+
+    if model == 'BAM':
         marker = 'o'
         alpha = 1.0
         linestyle = '-'
-    else:  # NPP
+        edgecolor = 'none'  # No edge color for non-Pareto points
+    else:  # NPM
         marker = 's'
         alpha = 0.7
         linestyle = ':'
+        edgecolor = 'none'  # No edge color for non-Pareto points
 
-    base_color = color_dict[combination]
     color = (base_color[0], base_color[1], base_color[2], alpha)
-
-    # Check if the point is Pareto-optimal to determine edge color
-    if any((pareto_front['Model'] == model) & (pareto_front['Combination'] == combination)):
-        edgecolor = 'black'
-    else:
-        edgecolor = 'none'
 
     h = plt.errorbar(grp['Metrik1'], grp['Metrik2'],
                      xerr=std_values['Metrik1_std'],
@@ -171,6 +165,32 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
 # Plot Pareto frontier line
 pareto_line, = plt.plot(pareto_front['Metrik1'], pareto_front['Metrik2'], 'r--', linewidth=2,
                         label='Pareto-Frontier Line')
+
+# Outline Pareto frontier points
+for _, row in pareto_front.iterrows():
+    model = row['Model']
+    combination = row['Combination']
+    std_values = std_df[(std_df['Model'] == model) & (std_df['Combination'] == combination)]
+
+    if model == 'BAM':
+        marker = 'o'
+        alpha = 1.0
+        edgecolor = 'black'
+    else:  # NPM
+        marker = 's'
+        alpha = 0.7
+        edgecolor = 'gray'
+
+    base_color = colors[combination]
+    color = (base_color[0], base_color[1], base_color[2], alpha)
+
+    plt.errorbar(row['Metrik1'], row['Metrik2'],
+                 xerr=std_values['Metrik1_std'],
+                 yerr=std_values['Metrik2_std'],
+                 fmt=marker, alpha=alpha, color=color,
+                 ecolor=color, elinewidth=1, capsize=3,
+                 linestyle='None', markersize=8,
+                 markeredgewidth=1.5, markeredgecolor=edgecolor)
 
 plt.xlabel('Scaled Undercoverage', fontsize=12)
 plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=12)

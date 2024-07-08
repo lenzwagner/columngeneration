@@ -164,16 +164,15 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     ls_p = plotPerformanceList(Perf_schedules, master.printLambdas())
     understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_behavior(ls_p, ls_sc)
 
-    print(f"Under: {understaffing1}")
+    res = {
+        round(understaffing1, 3),
+        u_results,
+        sum_all_doctors,
+        consistency2,
+        consistency2_norm,
+        round(understaffing1_norm, 2),
+        u_results_norm,
+        sum_all_doctors_norm
+    }
 
-
-    return {
-        "understaffing1": round(understaffing1, 3),
-        "u_results": u_results,
-        "sum_all_doctors": sum_all_doctors,
-        "consistency2": consistency2,
-        "consistency2_norm": consistency2_norm,
-        "understaffing1_norm": round(understaffing1_norm, 2),
-        "u_results_norm": u_results_norm,
-        "sum_all_doctors_norm": sum_all_doctors_norm,
-        }
+    return res

@@ -9,13 +9,13 @@ data = {
 }
 
 # Reading data from CSV file
-with open('your_file.csv', 'r') as file:
+with open('data/data.csv', 'r') as file:
     csv_reader = csv.DictReader(file)
     for row in csv_reader:
-        data['undercoverage1'].append(float(row['under1']))
-        data['undercoverage2'].append(float(row['under2']))
-        data['consistency1'].append(float(row['cons1']))
-        data['consistency2'].append(float(row['cons2']))
+        data['undercoverage1'].append(float(row['undercover']))
+        data['undercoverage2'].append(float(row['undercover_n']))
+        data['consistency1'].append(float(row['consistency']))
+        data['consistency2'].append(float(row['consistency_n']))
         data['chi1'].append(float(row['chi']))
         data['chi2'].append(float(row['chi']))
         data['epsilon1'].append(float(row['epsilon']))

@@ -1,9 +1,6 @@
-import pandas as pd
-import time
-import os
 from compactsolver import *
 from setup import *
-from demand import demand_dict_fifty2
+from demand import demand_dict_fifty
 from masterproblem import *
 from subproblem import *
 from gcutil import *
@@ -37,7 +34,7 @@ for I_len in I_values:
     I = list(range(1, I_len + 1))
     for prob in prob_values:
         for pattern in patterns:
-            demand_dict = demand_dict_fifty2(len(T), prob, len(I), pattern, 0.25)
+            demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern, 0.25)
             for eps in epsilon:
                 for chis in chi:
                     data = pd.DataFrame({

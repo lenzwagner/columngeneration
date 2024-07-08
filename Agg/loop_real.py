@@ -22,7 +22,7 @@ results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
-time_cg_init = 60
+time_cg_init = 10
 time_cg_init_npm = 10
 
 ## Dataframe
@@ -62,7 +62,7 @@ for epsilon in eps_ls:
 
         understaffing, u_results, sum_all_doctors, consistency, consistency_norm, understaffing_norm, u_results_norm, sum_all_doctors_norm = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K)
-        print(understaffing, u_results, sum_all_doctors)
+
 
         result = pd.DataFrame([{
             'epsilon': epsilon,

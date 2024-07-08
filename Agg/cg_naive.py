@@ -168,15 +168,15 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     ls_x = plotPerformanceList(X_schedules, master.printLambdas())
     understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_naive(ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
 
-    print(f"Under: {understaffing1}")
+    res = {
+        round(understaffing1, 3),
+        u_results,
+        sum_all_doctors,
+        consistency2,
+        consistency2_norm,
+        round(understaffing1_norm, 2),
+        u_results_norm,
+        sum_all_doctors_norm
+    }
 
-    return {
-        "understaffing1": round(understaffing1, 3),
-        "u_results": u_results,
-        "sum_all_doctors": sum_all_doctors,
-        "consistency2": consistency2,
-        "consistency2_norm": consistency2_norm,
-        "understaffing1_norm": round(understaffing1_norm, 2),
-        "u_results_norm": u_results_norm,
-        "sum_all_doctors_norm": sum_all_doctors_norm,
-        }
+    return res

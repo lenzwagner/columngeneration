@@ -69,12 +69,12 @@ data = {
 for param1 in param1_values:
     for param2 in param2_values:
         mean1, mean2 = means_model1[(param1, param2)]
-        data['Model'].append('BAM')
+        data['Model'].append('BAP')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
         mean1, mean2 = means_model2[(param1, param2)]
-        data['Model'].append('NPM')
+        data['Model'].append('NPP')
         data['Metrik1'].append(mean1)
         data['Metrik2'].append(mean2)
 
@@ -137,7 +137,7 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
         alpha = 1.0
         linestyle = '-'
         edgecolor = 'none'  # No edge color for non-Pareto points
-    else:  # NPM
+    else:  # NPP
         marker = 's'
         alpha = 0.7
         linestyle = ':'
@@ -156,20 +156,39 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
     handles.append(h[0])
     labels.append(f'{model} {combination}')
 
+# Store current handles and labels
+original_handles = handles[:]
+original_labels = labels[:]
+
 # Plot Pareto frontier line
 pareto_line, = plt.plot(pareto_front['Metrik1'], pareto_front['Metrik2'], 'r--', linewidth=2, label='Pareto-Frontier Line')
 
-# Outline Pareto frontier points
+# Outline Pareto frontier points and add them to the legend
+for unique_comb in pareto_front['Combination'].unique():
+    model = pareto_front[pareto_front['Combination'] == unique_comb]['Model'].values[0]
+    color = colors[unique_comb]
+    if model == 'BAP':
+        marker = 'o'
+        edgecolor = 'black'
+    else:  # NPP
+        marker = 's'
+        edgecolor = 'gray'
+
+    handles.append(Line2D([0], [0], marker=marker, color='w', label=f'Pareto-optimal {model} {unique_comb}',
+                          markerfacecolor=color, markersize=8, markeredgewidth=1.5, markeredgecolor=edgecolor))
+    labels.append(f'Pareto-optimal {model} {unique_comb}')
+
+# Plot Pareto-efficient points
 for _, row in pareto_front.iterrows():
     model = row['Model']
     combination = row['Combination']
     std_values = std_df[(std_df['Model'] == model) & (std_df['Combination'] == combination)]
 
-    if model == 'BAM':
+    if model == 'BAP':
         marker = 'o'
         alpha = 1.0
         edgecolor = 'black'
-    else:  # NPM
+    else:  # NPP
         marker = 's'
         alpha = 0.7
         edgecolor = 'gray'
@@ -201,8 +220,8 @@ plt.ylim(max(0, y_min), min(1, y_max))
 plt.grid(True)
 
 # Add Pareto frontier to legend
-handles.append(pareto_line)
-labels.append('Pareto-Frontier Line')
+handles = original_handles + [pareto_line]
+labels = original_labels + ['Pareto-Frontier Line']
 
 # Create legend outside the plot
 plt.legend(handles=handles, labels=labels, title='Combinations:', loc='center left', bbox_to_anchor=(1, 0.5))

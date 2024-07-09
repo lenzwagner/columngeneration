@@ -10,7 +10,7 @@ data = {
 }
 
 # Reading data from CSV file
-with open('data/data.csv', 'r') as file:
+with open('data/data_new.csv', 'r') as file:
     csv_reader = csv.DictReader(file)
     for row in csv_reader:
         data['undercoverage1'].append(float(row['undercover_norm']))

@@ -1,5 +1,6 @@
 import gurobipy as gu
 import statistics
+import numpy as np
 class MasterProblem:
     def __init__(self, df, Demand, max_iteration, current_iteration, last, nr, start):
         self.iteration = current_iteration
@@ -290,14 +291,34 @@ class MasterProblem:
 
         sublists = [lst[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
 
+        print(f"LS: {sublists}")
+
+        indices_list = []
+
+        for sublist in sublists:
+            indices = [index + 1 for index, value in enumerate(sublist) if value == 1.0]
+            indices_list.append(indices)
+
+        print(indices_list)
+
         sums = [sum(sublist) for sublist in sublists]
 
         mean_value = round(statistics.mean(sums), 3)
         min_value = min(sums)
         max_value = max(sums)
 
-        print(f"Min: {min_value}")
-        print(f"Max: {max_value}")
-        print(f"Mean: {mean_value}")
+        return sums, mean_value, min_value, max_value, indices_list
 
-        return sums, mean_value, min_value, max_value
+    def calculate_variation_coefficient(self, shift_change_days):
+        if len(shift_change_days) < 2:
+            return 0
+
+        sorted_days = sorted(shift_change_days)
+        intervals = np.diff(sorted_days)
+
+        mean = np.mean(intervals)
+        std_dev = np.std(intervals)
+
+        variation_coefficient = (std_dev / mean)
+
+        return round(variation_coefficient,3)

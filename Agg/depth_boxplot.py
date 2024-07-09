@@ -48,4 +48,4 @@ def plot_comparison_boxplots_seaborn(stats1, stats2, var1_name, var2_name, lengt
     plt.tight_layout()
     plt.show()
 
-plot_comparison_boxplots_seaborn(formatted_stats, formatted_stats, "Variable 1", "Variable 2", 28)
+#plot_comparison_boxplots_seaborn(formatted_stats, formatted_stats, "Variable 1", "Variable 2", 28)

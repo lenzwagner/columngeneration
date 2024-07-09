@@ -117,7 +117,7 @@ plt.legend(title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5),
 # Increase the font size of axis labels marginally
 plt.xlabel('Scaled Undercoverage', fontsize=14)
 plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=14)
-plt.title('Pareto-Frontier', fontsize=18)
+#plt.title('Pareto-Frontier', fontsize=18)
 plt.grid(True)
 
 # Add Pareto frontier to legend

@@ -6,6 +6,7 @@ from subproblem import *
 from compactsolver import Problem
 from demand import *
 from plots import *
+from depth_boxplot import *
 
 # **** Prerequisites ****
 # Create Dataframes
@@ -34,7 +35,7 @@ max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 5e-5
-eps = 0.1
+eps = 0
 
 # Demand Dict
 demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
@@ -149,7 +150,7 @@ while True:
         print("*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
 
         # Build SP
-        subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i)
+        subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, 5)
         subproblem.buildModel()
 
         # Save time to solve SP
@@ -221,7 +222,6 @@ while True:
         print("*{:^{output_len}}*".format(f"End Column Generation Iteration {itr}", output_len=output_len))
 
         if not modelImprovable:
-            master.model.write("Final_LP.sol")
             print("*{:^{output_len}}*".format("", output_len=output_len))
             print("*{:^{output_len}}*".format("No more improvable columns found.", output_len=output_len))
             print("*{:^{output_len}}*".format("", output_len=output_len))
@@ -271,6 +271,7 @@ print(f"Lagrangian Bound {sum_rc_hist}")
 printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValHistRMP[-2], lagranigan_bound, obj_val_problem, eps)
 
 ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
+
 ls_r = plotPerformanceList( Recovery_schedules, master.printLambdas())
 ls_e = plotPerformanceList( EUp_schedules, master.printLambdas())
 ls_b = plotPerformanceList( ELow_schedules, master.printLambdas())
@@ -281,5 +282,10 @@ master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls
 
 lagrangeprimal(sum_rc_hist, objValHistRMP)
 
-print(sum_rc_hist)
-print(objValHistRMP)
+sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
+
+# Variationskoeffizienten
+variation_coefficients = [master.calculate_variation_coefficient(indices) for indices in indices_list]
+mean_variation_coefficient = np.mean(variation_coefficients)
+print(variation_coefficients)
+print(mean_variation_coefficient)

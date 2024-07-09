@@ -8,8 +8,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025]
-chi_ls = [3]
+eps_ls = [0.025, 0.05, 0.1]
+chi_ls = [3, 5, 7]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]

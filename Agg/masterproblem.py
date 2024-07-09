@@ -160,7 +160,6 @@ class MasterProblem:
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
-        print(f"Length of sum_xWerte: {len(sum_xWerte)}")
 
 
         comparison_result = [
@@ -285,21 +284,18 @@ class MasterProblem:
             u_results, self.sum_all_doctors, consistency, understaffing1_norm, u_results_norm, sum_all_doctors_norm, consistency_norm))
 
         return self.understaffing1, u_results, self.sum_all_doctors, consistency, consistency_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm
+
     def average_nr_of(self, lst, num_sublists):
         total_length = len(lst)
         sublist_size = total_length // num_sublists
 
         sublists = [lst[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
 
-        print(f"LS: {sublists}")
-
         indices_list = []
 
         for sublist in sublists:
             indices = [index + 1 for index, value in enumerate(sublist) if value == 1.0]
             indices_list.append(indices)
-
-        print(indices_list)
 
         sums = [sum(sublist) for sublist in sublists]
 

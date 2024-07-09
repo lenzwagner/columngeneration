@@ -57,6 +57,10 @@ def pareto_frontier(df):
 
 pareto_df = pareto_frontier(df)
 
+# Output Pareto-Frontier points to console
+print("Punkte auf der Pareto-Frontier:")
+print(pareto_df)
+
 # Create plot
 plt.figure(figsize=(12, 8))
 
@@ -113,11 +117,15 @@ plt.legend(title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5),
 # Increase the font size of axis labels marginally
 plt.xlabel('Scaled Undercoverage', fontsize=14)
 plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=14)
-
+plt.title('Pareto-Frontier', fontsize=18)
 plt.grid(True)
 
 # Add Pareto frontier to legend
 plt.legend(handles=list(labels_dict.values()) + [pareto_line], labels=list(labels_dict.keys()) + ['Pareto-Frontier Line'], title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+
+# Set axis limits
+plt.xlim(df['undercoverage'].min() - 1, df['undercoverage'].max() + 1)
+plt.ylim(df['consistency'].min() - 1, df['consistency'].max() + 1)
 
 plt.tight_layout()
 plt.show()

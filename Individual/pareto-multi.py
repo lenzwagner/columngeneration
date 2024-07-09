@@ -132,7 +132,7 @@ for key, grp in mean_df.groupby(['Model', 'Combination']):
 
     base_color = colors[combination]
 
-    if model == 'BAM':
+    if model == 'BAP':
         marker = 'o'
         alpha = 1.0
         linestyle = '-'

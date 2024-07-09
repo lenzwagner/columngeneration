@@ -1,3 +1,5 @@
+import numpy as np
+
 from setup import Min_WD_i, Max_WD_i
 from cg_naive import *
 from cg_behavior import *
@@ -8,8 +10,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025, 0.05, 0.1]
-chi_ls = [3, 5, 7]
+eps_ls = [0.025]
+chi_ls = [3]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -55,36 +57,33 @@ for epsilon in eps_ls:
         })
 
         # Column Generation
-        understaffing_n, u_results_n, sum_all_doctors_n, consistency_n, consistency_norm_n, understaffing_norm_n, u_results_norm_n, sum_all_doctors_norm_n, results_sc_n, results_r_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
+        understaffing_n, u_results_n, sum_all_doctors_n, consistency_n, consistency_norm_n, understaffing_norm_n, u_results_norm_n, sum_all_doctors_norm_n, results_sc_n, results_r_n, gini_sc_n, gini_r_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K, eps)
 
-        print(f"Res: {results_sc_n}")
-        print(f"Res1: {results_sc_n[0]}")
 
-
-        understaffing, u_results, sum_all_doctors, consistency, consistency_norm, understaffing_norm, u_results_norm, sum_all_doctors_norm, results_sc, results_r = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
+        understaffing, u_results, sum_all_doctors, consistency, consistency_norm, understaffing_norm, u_results_norm, sum_all_doctors_norm, results_sc, results_r, gini_sc, gini_r = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K)
 
         # Data frame
         result = pd.DataFrame([{
             'epsilon': epsilon,
             'chi': chi,
-            'mean_r': results_r[0],
-            'min_r': results_r[1],
-            'max_r': results_r[2],
-            'std_r': results_r[3],
-            'mean_sc': results_sc[0],
-            'min_sc': results_sc[1],
-            'max_sc': results_sc[2],
-            'std_sc': results_sc[3],
-            'mean_r_n': results_r_n[0],
-            'min_r_n': results_r_n[1],
-            'max_r_n': results_r_n[2],
-            'std_r_n': results_r_n[3],
-            'mean_sc_n': results_sc_n[0],
-            'min_sc_n': results_sc_n[1],
-            'max_sc_n': results_sc_n[2],
-            'std_sc_n': results_sc_n[3]
+            'mean_r': round(np.mean(gini_r), 3),
+            'min_r': round(np.min(gini_r), 3),
+            'max_r': round(np.max(gini_r), 3),
+            'std_r': round(np.std(gini_r), 3),
+            'mean_sc': round(np.mean(gini_sc), 3),
+            'min_sc': round(np.min(gini_sc), 3),
+            'max_sc': round(np.max(gini_sc), 3),
+            'std_sc': round(np.std(gini_sc), 3),
+            'mean_r_n': round(np.mean(gini_r_n), 3),
+            'min_r_n': round(np.min(gini_r_n), 3),
+            'max_r_n': round(np.max(gini_r_n), 3),
+            'std_r_n': round(np.std(gini_r_n), 3),
+            'mean_sc_n': round(np.mean(gini_sc_n), 3),
+            'min_sc_n': round(np.min(gini_sc_n), 3),
+            'max_sc_n': round(np.max(gini_sc_n), 3),
+            'std_sc_n': round(np.std(gini_sc_n), 3)
         }])
 
         results = pd.concat([results, result], ignore_index=True)

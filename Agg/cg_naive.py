@@ -162,6 +162,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     # Calc Stats
     ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
     ls_p = plotPerformanceList(Perf_schedules, master.printLambdas())
+    print(f"lsc.{ls_sc}")
     ls_r = plotPerformanceList(Recovery_schedules, master.printLambdas())
     ls_e = plotPerformanceList(EUp_schedules, master.printLambdas())
     ls_b = plotPerformanceList(ELow_schedules, master.printLambdas())
@@ -187,4 +188,8 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     results_r = [mean_variation_coefficient_r, min_variation_coefficient_r, max_variation_coefficient_r,
                  std_variation_coefficient_r]
 
-    return round(understaffing1, 3), round(u_results, 3), round(sum_all_doctors, 3), round(consistency2, 3), round(consistency2_norm, 3), round(understaffing1_norm, 3), round(u_results_norm, 3), round(sum_all_doctors_norm, 3), results_sc, results_r
+    # Gini
+    gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
+    gini_r = master.gini_coefficient(ls_r, len(master.nurses))
+
+    return round(understaffing1, 3), round(u_results, 3), round(sum_all_doctors, 3), round(consistency2, 3), round(consistency2_norm, 3), round(understaffing1_norm, 3), round(u_results_norm, 3), round(sum_all_doctors_norm, 3), results_sc, results_r, gini_sc, gini_r

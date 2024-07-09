@@ -291,6 +291,8 @@ class MasterProblem:
 
         sublists = [lst[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
 
+        print(f"ddddf: {sublists}")
+
         indices_list = []
 
         for sublist in sublists:
@@ -316,5 +318,27 @@ class MasterProblem:
         std_dev = np.std(intervals)
 
         variation_coefficient = (std_dev / mean)
+        print(variation_coefficient)
+        print(shift_change_days)
 
         return round(variation_coefficient,3)
+
+    def gini_coefficient2(self, x):
+        x = np.asarray(x)
+        if len(x) <= 1:
+            return 0
+        sorted_x = np.sort(x)
+        index = np.arange(1, len(x) + 1)
+        n = len(x)
+        return ((2 * np.sum(index * sorted_x)) / (n * np.sum(x))) - (n + 1) / n
+    def gini_coefficient(self, ls_sc, num_sublists):
+        total_length = len(ls_sc)
+        sublist_size = total_length // num_sublists
+
+        sublists = [ls_sc[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
+        nested = []
+        for sublist in sublists:
+            cleaned_sublist = [0.0 if x == -0.0 else x for x in sublist]
+            nested.append(cleaned_sublist)
+
+        return [self.gini_coefficient2(indices) for indices in nested]

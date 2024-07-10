@@ -158,7 +158,7 @@ class MasterProblem:
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
 
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
-        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
+        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 5)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
 
 
@@ -167,8 +167,8 @@ class MasterProblem:
             for i in range(len(self.demand))
         ]
 
-        understaffing = round(sum(comparison_result), 3)
-        perf_loss = round(u_results - understaffing, 3)
+        understaffing = round(sum(comparison_result), 5)
+        perf_loss = round(u_results - understaffing, 5)
 
 
         # Noramlized Values
@@ -196,7 +196,7 @@ class MasterProblem:
         e_values2 = [ls_e[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         b_values2 = [ls_b[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
-        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 2)
+        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 5)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
 
 
@@ -301,7 +301,7 @@ class MasterProblem:
 
         sums = [sum(sublist) for sublist in sublists]
 
-        mean_value = round(statistics.mean(sums), 3)
+        mean_value = round(statistics.mean(sums), 5)
         min_value = min(sums)
         max_value = max(sums)
 
@@ -321,7 +321,7 @@ class MasterProblem:
         print(variation_coefficient)
         print(shift_change_days)
 
-        return round(variation_coefficient,3)
+        return round(variation_coefficient, 5)
 
     def gini_coefficient2(self, x):
         x = np.asarray(x)

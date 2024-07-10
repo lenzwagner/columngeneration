@@ -46,9 +46,9 @@ for I_len in I_values:
         print(f"Iteration: {len(I)}-{prob}-{pattern}")
         print(f"")
 
-        seed1 = 123 - math.floor(len(I)*len(T)*prob)
+        seed1 = 133
         random.seed(seed1)
-        demand_dict = demand_dict_fifty(len(T), prob, len(I), pattern, 0.25)
+        demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
 
         max_itr = 200
         output_len = 98

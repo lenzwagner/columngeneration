@@ -40,10 +40,10 @@ for epsilon in eps_ls:
         print(f"Iteration: {epsilon}-{chi}")
         print(f"")
 
-        seed1 = -2678
+        seed1 = 133
         print(seed1)
         random.seed(seed1)
-        demand_dict = demand_dict_fifty(len(T), 1.0, len(I), 2, 0.25)
+        demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
         print(demand_dict)
         max_itr = 200
         output_len = 98

@@ -41,7 +41,7 @@ threshold = 5e-5
 eps = 0
 
 # Demand Dict
-demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.1)
+demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
 print(len(T))
 plot_demand_bar_by_day(demand_dict, 28, 3)
 

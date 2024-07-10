@@ -53,28 +53,28 @@ for epsilon in eps_ls:
         })
 
         # Column Generation
-        understaffing_n, u_results_n, sum_all_doctors_n, consistency_n, consistency_norm_n, understaffing_norm_n, u_results_norm_n, sum_all_doctors_norm_n, results_sc_n, results_r_n, gini_sc_n, gini_r_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
+        undercoverage_n, understaffing_n, perfloss_n, consistency_n, consistency_norm_n, undercoverage_norm_n, understaffing_norm_n, perfloss_norm_n, results_sc_n, results_r_n, gini_sc_n, gini_r_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K, eps)
 
-        understaffing, u_results, sum_all_doctors, consistency, consistency_norm, understaffing_norm, u_results_norm, sum_all_doctors_norm, results_sc, results_r, gini_sc, gini_r = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
+        undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, gini_sc, gini_r = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K)
 
         # Data frame
         result = pd.DataFrame([{
             'epsilon': epsilon,
             'chi': chi,
-            'undercover': understaffing,
-            'undercover_norm': understaffing_norm,
+            'undercover': undercoverage,
+            'undercover_norm': undercoverage_norm,
             'cons': consistency,
             'cons_norm': consistency_norm,
-            'perf': sum_all_doctors,
-            'perf_norm': sum_all_doctors_norm,
-            'undercover_n': understaffing_n,
-            'undercover_norm_n': understaffing_norm_n,
+            'perf': perfloss,
+            'perf_norm': perfloss_norm,
+            'undercover_n': undercoverage_n,
+            'undercover_norm_n': undercoverage_norm_n,
             'cons_n': consistency_n,
             'cons_norm_n': consistency_norm_n,
-            'perf_n': sum_all_doctors_n,
-            'perf_norm_n': sum_all_doctors_norm_n
+            'perf_n': perfloss_n,
+            'perf_norm_n': perfloss_norm_n
         }])
 
         results = pd.concat([results, result], ignore_index=True)

@@ -8,8 +8,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0, 0.02, 0.04, 0.06, 0.08, 0.1]
-chi_ls = [4]
+eps_ls = [0.025, 0.05, 0.1]
+chi_ls = [7]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -21,7 +21,7 @@ results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_cg_init_npm = 10
+time_cg_init_npm = 30
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
@@ -37,10 +37,10 @@ for epsilon in eps_ls:
         print(f"Iteration: {epsilon}-{chi}")
         print(f"")
 
-        seed1 = 133
+        seed1 = 123 - math.floor(len(I)*len(T))
         print(seed1)
         random.seed(seed1)
-        demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
+        demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.25)
         max_itr = 200
         output_len = 98
         mue = 1e-4

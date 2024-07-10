@@ -156,6 +156,9 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         max_itr *= 2
 
     # Solve Master Problem with integrality restored
+    master.model.setParam('PoolSearchMode', 2)
+    master.model.setParam('PoolSolutions', 20)
+    master.model.setParam('PoolGap', 0.01)
     master.finalSolve(time_cg)
     objValHistRMP.append(master.model.objval)
 
@@ -172,33 +175,42 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         master.model.setParam(gu.GRB.Param.SolutionNumber, k)
         vals = master.model.getAttr('Xn', master.lmbda)
         solution = {key: round(value) for key, value in vals.items()}
-
         ls_sc = plotPerformanceList(Cons_schedules, solution)
         ls_p = plotPerformanceList(Perf_schedules, solution)
         ls_r = plotPerformanceList(Recovery_schedules, solution)
         ls_e = plotPerformanceList(EUp_schedules, solution)
         ls_b = plotPerformanceList(ELow_schedules, solution)
+        print(f"x_scedule {X_schedules}")
         ls_x = plotPerformanceList(X_schedules, solution)
-        understaffing1_a, u_results_a, sum_all_doctors_a, consistency2_a, consistency2_norm_a, understaffing1_norm_a, u_results_norm_a, sum_all_doctors_norm_a = master.calc_naive(
-            ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
-        undercoverage_pool.append(understaffing1_a)
-        understaffing_pool.append(u_results_a)
-        perf_pool.append(sum_all_doctors_a)
-        cons_pool.append(consistency2_a)
-        undercoverage_pool_norm.append(understaffing1_norm_a)
-        understaffing_pool_norm.append(u_results_norm_a)
-        perf_pool_norm.append(sum_all_doctors_norm_a)
-        cons_pool_norm.append(consistency2_norm_a)
 
-    understaffing1 = sum(undercoverage_pool) / len(undercoverage_pool)
-    u_results = sum(understaffing_pool) / len(understaffing_pool)
-    sum_all_doctors = sum(perf_pool) / len(perf_pool)
-    consistency2 = sum(cons_pool) / len(cons_pool)
-    understaffing1_norm = sum(undercoverage_pool_norm) / len(undercoverage_pool_norm)
-    u_results_norm = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
-    sum_all_doctors_norm = sum(perf_pool_norm) / len(perf_pool_norm)
-    consistency2_norm = sum(cons_pool_norm) / len(cons_pool_norm)
+        print(f"lsc: {ls_sc}")
+        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
+        undercoverage_pool.append(undercoverage_a)
+        understaffing_pool.append(understaffing_a)
+        perf_pool.append(perfloss_a)
+        cons_pool.append(consistency_a)
+        undercoverage_pool_norm.append(undercoverage_norm_a)
+        understaffing_pool_norm.append(understaffing_norm_a)
+        perf_pool_norm.append(perfloss_norm_a)
+        cons_pool_norm.append(consistency_norm_a)
+        solution.clear()
 
+    print(f"Under-List: {undercoverage_pool}")
+    print(f"Perf-List: {perf_pool}")
+    print(f"Cons-List: {cons_pool}")
+
+
+
+    undercoverage = sum(undercoverage_pool) / len(undercoverage_pool)
+    understaffing = sum(understaffing_pool) / len(understaffing_pool)
+    perfloss = sum(perf_pool) / len(perf_pool)
+    consistency = sum(cons_pool) / len(cons_pool)
+    undercoverage_norm = sum(undercoverage_pool_norm) / len(undercoverage_pool_norm)
+    understaffing_norm = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
+    perfloss_norm = sum(perf_pool_norm) / len(perf_pool_norm)
+    consistency_norm = sum(cons_pool_norm) / len(cons_pool_norm)
+
+    print(undercoverage_norm)
 
     # Coefficients
     sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
@@ -223,4 +235,4 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
     gini_r = master.gini_coefficient(ls_r, len(master.nurses))
 
-    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, gini_sc, gini_r
+    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, gini_sc, gini_r

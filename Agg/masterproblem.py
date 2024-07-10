@@ -167,21 +167,25 @@ class MasterProblem:
             for i in range(len(self.demand))
         ]
 
+        undercoverage = u_results
         understaffing = round(sum(comparison_result), 5)
-        perf_loss = round(u_results - understaffing, 5)
-
+        perfloss = round(undercoverage - understaffing, 5)
 
         # Noramlized Values
-        u_results_norm = u_results / (len(self.nurses))
+        undercoverage_norm = undercoverage / (len(self.nurses))
         understaffing_norm = understaffing / (len(self.nurses))
-        perf_loss_norm = perf_loss / (len(self.nurses))
+        perfloss_norm = perfloss / (len(self.nurses))
 
         # Ausgabe
-        print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(u_results,
-                                                                                                  understaffing,
-                                                                                                  perf_loss, consistency, u_results_norm, understaffing_norm, perf_loss_norm, consistency_norm))
+        print(
+            "\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
+                undercoverage,
+                understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
+                consistency_norm))
 
-        return u_results, understaffing, perf_loss, consistency, consistency_norm, u_results_norm, understaffing_norm, perf_loss_norm
+        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm
+
+
 
     def calc_naive(self, lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue):
         consistency = sum(ls_sc)
@@ -192,6 +196,7 @@ class MasterProblem:
         sublist_length_short = len(ls_sc) // len(self.nurses)
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
         sc_values2 = [ls_sc[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
+        print(f"sc_values2: {sc_values2}")
         r_values2 = [ls_r[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         e_values2 = [ls_e[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         b_values2 = [ls_b[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
@@ -271,28 +276,26 @@ class MasterProblem:
             self.doctors_cumulative_multiplied.append(self.total_sum)
             self.sum_all_doctors += self.total_sum
 
-        self.understaffing1 = u_results + self.sum_all_doctors
-
+        undercoverage = u_results + self.sum_all_doctors
+        understaffing = u_results
+        perfloss = self.sum_all_doctors
         # Noramlized Values
-        understaffing1_norm = self.understaffing1 / (len(self.nurses))
-        u_results_norm = u_results / (len(self.nurses))
-        sum_all_doctors_norm = self.sum_all_doctors / (len(self.nurses))
+        undercoverage_norm = undercoverage / (len(self.nurses))
+        understaffing_norm = understaffing / (len(self.nurses))
+        perfloss_norm =  perfloss / (len(self.nurses))
 
 
         print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
-            self.understaffing1,
-            u_results, self.sum_all_doctors, consistency, understaffing1_norm, u_results_norm, sum_all_doctors_norm, consistency_norm))
+            undercoverage,
+            understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm, consistency_norm))
 
-        return self.understaffing1, u_results, self.sum_all_doctors, consistency, consistency_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm
+        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm
 
     def average_nr_of(self, lst, num_sublists):
         total_length = len(lst)
         sublist_size = total_length // num_sublists
 
         sublists = [lst[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
-
-        print(f"ddddf: {sublists}")
-
         indices_list = []
 
         for sublist in sublists:
@@ -318,8 +321,8 @@ class MasterProblem:
         std_dev = np.std(intervals)
 
         variation_coefficient = (std_dev / mean)
-        print(variation_coefficient)
-        print(shift_change_days)
+        #print(variation_coefficient)
+        #print(shift_change_days)
 
         return round(variation_coefficient, 5)
 

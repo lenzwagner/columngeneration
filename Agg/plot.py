@@ -95,5 +95,5 @@ def plot_data(option, file, metric, x_axis='epsilon'):
     plt.show()
 
 # Example function calls
-plot_data(1, 'data/study.csv', 'undercover', x_axis='epsilon')  # Epsilon on x-axis
-plot_data(2, 'data/study.csv', 'cons', x_axis='epsilon')  # Epsilon on x-axis
+plot_data(1, 'data/study.csv', 'cons', x_axis='chi')  # Epsilon on x-axis
+plot_data(2, 'data/study.csv', 'cons', x_axis='chi')  # Epsilon on x-axis

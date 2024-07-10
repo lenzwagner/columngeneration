@@ -157,7 +157,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     # Solve Master Problem with integrality restored
     master.model.setParam('PoolSearchMode', 2)
-    master.model.setParam('PoolSolutions', 20)
+    master.model.setParam('PoolSolutions', 1000)
     master.model.setParam('PoolGap', 0.01)
     master.finalSolve(time_cg)
     objValHistRMP.append(master.model.objval)
@@ -172,29 +172,35 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     perf_pool_norm = []
     cons_pool_norm = []
     for k in range(master.model.SolCount):
-        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
-        vals = master.model.getAttr('Xn', master.lmbda)
-        solution = {key: round(value) for key, value in vals.items()}
-        ls_sc = plotPerformanceList(Cons_schedules, solution)
-        ls_p = plotPerformanceList(Perf_schedules, solution)
-        ls_r = plotPerformanceList(Recovery_schedules, solution)
-        ls_e = plotPerformanceList(EUp_schedules, solution)
-        ls_b = plotPerformanceList(ELow_schedules, solution)
-        print(f"x_scedule {X_schedules}")
-        ls_x = plotPerformanceList(X_schedules, solution)
+        try:
+            master.model.setParam(gu.GRB.Param.SolutionNumber, k)
+            solution = master.model.getAttr('Xn', master.lmbda)
 
-        print(f"lsc: {ls_sc}")
-        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
-        undercoverage_pool.append(undercoverage_a)
-        understaffing_pool.append(understaffing_a)
-        perf_pool.append(perfloss_a)
-        cons_pool.append(consistency_a)
-        undercoverage_pool_norm.append(undercoverage_norm_a)
-        understaffing_pool_norm.append(understaffing_norm_a)
-        perf_pool_norm.append(perfloss_norm_a)
-        cons_pool_norm.append(consistency_norm_a)
-        solution.clear()
+            ls_sc = plotPerformanceList(Cons_schedules, solution)
+            ls_p = plotPerformanceList(Perf_schedules, solution)
+            ls_r = plotPerformanceList(Recovery_schedules, solution)
+            ls_e = plotPerformanceList(EUp_schedules, solution)
+            ls_b = plotPerformanceList(ELow_schedules, solution)
+            ls_x = plotPerformanceList(X_schedules, solution)
 
+            undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
+                ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
+
+            undercoverage_pool.append(undercoverage_a)
+            understaffing_pool.append(understaffing_a)
+            perf_pool.append(perfloss_a)
+            cons_pool.append(consistency_a)
+            undercoverage_pool_norm.append(undercoverage_norm_a)
+            understaffing_pool_norm.append(understaffing_norm_a)
+            perf_pool_norm.append(perfloss_norm_a)
+            cons_pool_norm.append(consistency_norm_a)
+
+        except Exception as e:
+            print(f"An error occurred while processing solution {k}: {str(e)}. Skipping this solution.")
+            continue
+
+        finally:
+            solution.clear()
     print(f"Under-List: {undercoverage_pool}")
     print(f"Perf-List: {perf_pool}")
     print(f"Cons-List: {cons_pool}")

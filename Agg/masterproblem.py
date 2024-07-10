@@ -201,6 +201,8 @@ class MasterProblem:
         e_values2 = [ls_e[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         b_values2 = [ls_b[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
+
+
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 5)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
 

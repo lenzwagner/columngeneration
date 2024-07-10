@@ -10,8 +10,8 @@ import os
 # Create Dataframes
 eps_ls = [0.025, 0.05, 0.1]
 chi_ls = [7]
-T = list(range(1, 29))
-I = list(range(1, 101))
+T = list(range(1, 14))
+I = list(range(1, 4))
 K = [1, 2, 3]
 
 # DataFrame

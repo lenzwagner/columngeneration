@@ -1,3 +1,5 @@
+import random
+
 from masterproblem import *
 import time
 from setup import *
@@ -10,6 +12,8 @@ from depth_boxplot import *
 
 # **** Prerequisites ****
 # Create Dataframes
+I, T, K = list(range(1,101)), list(range(1,29)), list(range(1,4))
+random.seed(13)
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
     'T': T + [np.nan] * (max(len(I), len(T), len(K)) - len(T)),
@@ -29,7 +33,6 @@ results_cg = pd.DataFrame(columns=["it", "I", "D", "S", "objective_value", "time
 print(results)
 
 # Parameter
-random.seed(1333775588)
 time_Limit = 3600
 max_itr = 200
 output_len = 98
@@ -38,7 +41,10 @@ threshold = 5e-5
 eps = 0
 
 # Demand Dict
-demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
+demand_dict1 = demand_dict_fifty(len(T), 1, len(I), 2, 0.1)
+demand_dict = {(1, 1): 21, (1, 2): 65, (1, 3): 9, (2, 1): 20, (2, 2): 20, (2, 3): 66, (3, 1): 52, (3, 2): 21, (3, 3): 19, (4, 1): 9, (4, 2): 49, (4, 3): 34, (5, 1): 45, (5, 2): 41, (5, 3): 9, (6, 1): 28, (6, 2): 6, (6, 3): 73, (7, 1): 10, (7, 2): 70, (7, 3): 12, (8, 1): 13, (8, 2): 88, (8, 3): 5, (9, 1): 6, (9, 2): 86, (9, 3): 16, (10, 1): 41, (10, 2): 52, (10, 3): 13, (11, 1): 21, (11, 2): 43, (11, 3): 37, (12, 1): 8, (12, 2): 31, (12, 3): 59, (13, 1): 21, (13, 2): 77, (13, 3): 8, (14, 1): 34, (14, 2): 57, (14, 3): 12, (15, 1): 13, (15, 2): 62, (15, 3): 17, (16, 1): 39, (16, 2): 19, (16, 3): 35, (17, 1): 31, (17, 2): 44, (17, 3): 20, (18, 1): 41, (18, 2): 13, (18, 3): 43, (19, 1): 14, (19, 2): 22, (19, 3): 58, (20, 1): 59, (20, 2): 7, (20, 3): 31, (21, 1): 48, (21, 2): 42, (21, 3): 19, (22, 1): 15, (22, 2): 5, (22, 3): 88, (23, 1): 11, (23, 2): 89, (23, 3): 6, (24, 1): 48, (24, 2): 38, (24, 3): 7, (25, 1): 4, (25, 2): 86, (25, 3): 17, (26, 1): 48, (26, 2): 40, (26, 3): 19, (27, 1): 2, (27, 2): 89, (27, 3): 4, (28, 1): 51, (28, 2): 22, (28, 3): 31}
+print(len(T))
+plot_demand_bar_by_day(demand_dict, 28, 3)
 
 
 # **** Compact Solver ****

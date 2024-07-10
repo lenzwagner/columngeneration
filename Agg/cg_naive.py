@@ -160,14 +160,45 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     objValHistRMP.append(master.model.objval)
 
     # Calc Stats
-    ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
-    ls_p = plotPerformanceList(Perf_schedules, master.printLambdas())
-    print(f"lsc.{ls_sc}")
-    ls_r = plotPerformanceList(Recovery_schedules, master.printLambdas())
-    ls_e = plotPerformanceList(EUp_schedules, master.printLambdas())
-    ls_b = plotPerformanceList(ELow_schedules, master.printLambdas())
-    ls_x = plotPerformanceList(X_schedules, master.printLambdas())
-    understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_naive(ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
+    undercoverage_pool = []
+    understaffing_pool = []
+    perf_pool = []
+    cons_pool = []
+    undercoverage_pool_norm = []
+    understaffing_pool_norm = []
+    perf_pool_norm = []
+    cons_pool_norm = []
+    for k in range(master.model.SolCount):
+        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
+        vals = master.model.getAttr('Xn', master.lmbda)
+        solution = {key: round(value) for key, value in vals.items()}
+
+        ls_sc = plotPerformanceList(Cons_schedules, solution)
+        ls_p = plotPerformanceList(Perf_schedules, solution)
+        ls_r = plotPerformanceList(Recovery_schedules, solution)
+        ls_e = plotPerformanceList(EUp_schedules, solution)
+        ls_b = plotPerformanceList(ELow_schedules, solution)
+        ls_x = plotPerformanceList(X_schedules, solution)
+        understaffing1_a, u_results_a, sum_all_doctors_a, consistency2_a, consistency2_norm_a, understaffing1_norm_a, u_results_norm_a, sum_all_doctors_norm_a = master.calc_naive(
+            ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, 0.1)
+        undercoverage_pool.append(understaffing1_a)
+        understaffing_pool.append(u_results_a)
+        perf_pool.append(sum_all_doctors_a)
+        cons_pool.append(consistency2_a)
+        undercoverage_pool_norm.append(understaffing1_norm_a)
+        understaffing_pool_norm.append(u_results_norm_a)
+        perf_pool_norm.append(sum_all_doctors_norm_a)
+        cons_pool_norm.append(consistency2_norm_a)
+
+    understaffing1 = sum(undercoverage_pool) / len(undercoverage_pool)
+    u_results = sum(understaffing_pool) / len(understaffing_pool)
+    sum_all_doctors = sum(perf_pool) / len(perf_pool)
+    consistency2 = sum(cons_pool) / len(cons_pool)
+    understaffing1_norm = sum(undercoverage_pool_norm) / len(undercoverage_pool_norm)
+    u_results_norm = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
+    sum_all_doctors_norm = sum(perf_pool_norm) / len(perf_pool_norm)
+    consistency2_norm = sum(cons_pool_norm) / len(cons_pool_norm)
+
 
     # Coefficients
     sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))

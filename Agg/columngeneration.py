@@ -38,7 +38,7 @@ max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 5e-5
-eps = 0
+eps = 0.1
 
 # Demand Dict
 demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
@@ -73,7 +73,7 @@ problem_start.buildLinModel()
 problem_start.model.Params.MIPFocus = 1
 problem_start.model.Params.Heuristics = 1
 problem_start.model.Params.RINS = 10
-problem_start.model.Params.MIPGap = 0.8
+problem_start.model.Params.TimeLimit = 5
 problem_start.model.update()
 problem_start.model.optimize()
 start_values_perf = {(t, s): problem_start.perf[1, t, s].x for t in T for s in K}

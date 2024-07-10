@@ -158,7 +158,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     # Solve Master Problem with integrality restored
     master.model.setParam('PoolSearchMode', 2)
     master.model.setParam('PoolSolutions', 1000)
-    master.model.setParam('PoolGap', 0.01)
+    master.model.setParam('PoolGap', 0.05)
     master.finalSolve(time_cg)
     objValHistRMP.append(master.model.objval)
 
@@ -171,36 +171,64 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     understaffing_pool_norm = []
     perf_pool_norm = []
     cons_pool_norm = []
+
+    sol = master.printLambdas()
+
+    ls_sc1 = plotPerformanceList(Cons_schedules, sol)
+    ls_p1 = plotPerformanceList(Perf_schedules, sol)
+    ls_r1 = plotPerformanceList(Recovery_schedules, sol)
+    ls_e1 = plotPerformanceList(EUp_schedules, sol)
+    ls_b1 = plotPerformanceList(ELow_schedules, sol)
+    ls_x1 = plotPerformanceList(X_schedules, sol)
+
+    undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_naive(
+        ls_p1, ls_sc1, ls_r1, ls_e1, ls_b1, ls_x1, epsi)
+
+    undercoverage_pool.append(undercoverage_ab)
+    understaffing_pool.append(understaffing_ab)
+    perf_pool.append(perfloss_ab)
+    cons_pool.append(consistency_ab)
+    undercoverage_pool_norm.append(undercoverage_norm_ab)
+    understaffing_pool_norm.append(understaffing_norm_ab)
+    perf_pool_norm.append(perfloss_norm_ab)
+    cons_pool_norm.append(consistency_norm_ab)
+
     for k in range(master.model.SolCount):
-        try:
-            master.model.setParam(gu.GRB.Param.SolutionNumber, k)
-            solution = master.model.getAttr('Xn', master.lmbda)
+        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
+        vals = master.model.getAttr("Xn", master.lmbda)
 
-            ls_sc = plotPerformanceList(Cons_schedules, solution)
-            ls_p = plotPerformanceList(Perf_schedules, solution)
-            ls_r = plotPerformanceList(Recovery_schedules, solution)
-            ls_e = plotPerformanceList(EUp_schedules, solution)
-            ls_b = plotPerformanceList(ELow_schedules, solution)
-            ls_x = plotPerformanceList(X_schedules, solution)
+        solution = {key: round(value) for key, value in vals.items()}
 
-            undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
-                ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
-
-            undercoverage_pool.append(undercoverage_a)
-            understaffing_pool.append(understaffing_a)
-            perf_pool.append(perfloss_a)
-            cons_pool.append(consistency_a)
-            undercoverage_pool_norm.append(undercoverage_norm_a)
-            understaffing_pool_norm.append(understaffing_norm_a)
-            perf_pool_norm.append(perfloss_norm_a)
-            cons_pool_norm.append(consistency_norm_a)
-
-        except Exception as e:
-            print(f"An error occurred while processing solution {k}: {str(e)}. Skipping this solution.")
+        sum_lambda = sum(solution.values())
+        if abs(sum_lambda - 100) > 1e-6:
+            print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
             continue
 
-        finally:
-            solution.clear()
+        print(f"Processing feasible solution {k}")
+        print(f"X_schedule {k}: {X_schedules}")
+        print(f"Sol {k}: {solution}")
+
+        ls_sc = plotPerformanceList(Cons_schedules, solution)
+        ls_p = plotPerformanceList(Perf_schedules, solution)
+        ls_r = plotPerformanceList(Recovery_schedules, solution)
+        ls_e = plotPerformanceList(EUp_schedules, solution)
+        ls_b = plotPerformanceList(ELow_schedules, solution)
+        ls_x = plotPerformanceList(X_schedules, solution)
+
+        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
+            ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
+
+        undercoverage_pool.append(undercoverage_a)
+        understaffing_pool.append(understaffing_a)
+        perf_pool.append(perfloss_a)
+        cons_pool.append(consistency_a)
+        undercoverage_pool_norm.append(undercoverage_norm_a)
+        understaffing_pool_norm.append(understaffing_norm_a)
+        perf_pool_norm.append(perfloss_norm_a)
+        cons_pool_norm.append(consistency_norm_a)
+
+    # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
+    print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
     print(f"Under-List: {undercoverage_pool}")
     print(f"Perf-List: {perf_pool}")
     print(f"Cons-List: {cons_pool}")

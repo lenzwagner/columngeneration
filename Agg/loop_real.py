@@ -10,8 +10,8 @@ import os
 # Create Dataframes
 eps_ls = [0.025, 0.05, 0.1]
 chi_ls = [7]
-T = list(range(1, 14))
-I = list(range(1, 4))
+T = list(range(1, 29))
+I = list(range(1, 101))
 K = [1, 2, 3]
 
 # DataFrame
@@ -21,12 +21,14 @@ results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_cg_init_npm = 30
+time_cg_init_npm = 2
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
 file = f'study_results_mulit_new_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}{file}.xlsx'
+
 
 # Loop
 for epsilon in eps_ls:
@@ -80,3 +82,5 @@ for epsilon in eps_ls:
         results = pd.concat([results, result], ignore_index=True)
 
 results.to_csv(file_name_csv, index=False)
+results.to_excel(file_name_xlsx, index=False)
+

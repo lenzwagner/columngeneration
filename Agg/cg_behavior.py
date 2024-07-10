@@ -186,4 +186,4 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
     gini_r = master.gini_coefficient(ls_r, len(master.nurses))
 
-    return round(understaffing1, 3), round(u_results, 3), round(sum_all_doctors, 3), round(consistency2, 3), round(consistency2_norm, 3), round(understaffing1_norm, 3), round(u_results_norm, 3), round(sum_all_doctors_norm, 3), results_sc, results_r, gini_sc, gini_r, gini_r
+    return round(understaffing1, 3), round(u_results, 3), round(sum_all_doctors, 3), round(consistency2, 3), round(consistency2_norm, 3), round(understaffing1_norm, 3), round(u_results_norm, 3), round(sum_all_doctors_norm, 3), results_sc, results_r, gini_sc, gini_r

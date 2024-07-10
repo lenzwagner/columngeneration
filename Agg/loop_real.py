@@ -8,8 +8,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025, 0.05, 0.1]
-chi_ls = [3, 5, 7]
+eps_ls = [0, 0.02, 0.04, 0.06, 0.09, 0.1]
+chi_ls = [6]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -37,7 +37,7 @@ for epsilon in eps_ls:
         print(f"Iteration: {epsilon}-{chi}")
         print(f"")
 
-        seed1 = 123 - math.floor(len(I)*len(T)*1.0)
+        seed1 = -2678
         print(seed1)
         random.seed(seed1)
         demand_dict = demand_dict_fifty(len(T), 1.0, len(I), 2, 0.25)

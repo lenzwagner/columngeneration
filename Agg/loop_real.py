@@ -21,7 +21,7 @@ results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_cg_init_npm = 2
+time_cg_init_npm = 5
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')

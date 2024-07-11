@@ -157,9 +157,30 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     # Solve Master Problem with integrality restored
     master.model.setParam('PoolSearchMode', 2)
-    master.model.setParam('PoolSolutions', 1000)
+    master.model.setParam('PoolSolutions', 50)
     master.model.setParam('PoolGap', 0.05)
     master.finalSolve(time_cg)
+
+    status = master.model.Status
+    if status in (gu.GRB.INF_OR_UNBD, gu.GRB.INFEASIBLE, gu.GRB.UNBOUNDED):
+        print("The model cannot be solved because it is infeasible or unbounded")
+        gu.sys.exit(1)
+
+    if status != gu.GRB.OPTIMAL:
+        print(f"Optimization was stopped with status {status}")
+        gu.sys.exit(1)
+
+    nSolutions = master.model.SolCount
+    print(f"Number of solutions found: {nSolutions}")
+
+    # Print objective values of solutions
+    for e in range(nSolutions):
+        master.model.setParam(gu.GRB.Param.SolutionNumber, e)
+        print(f"{master.model.PoolObjVal:g} ", end="")
+        if e % 15 == 14:
+            print("")
+    print("")
+
     objValHistRMP.append(master.model.objval)
 
     # Calc Stats
@@ -193,20 +214,18 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     perf_pool_norm.append(perfloss_norm_ab)
     cons_pool_norm.append(consistency_norm_ab)
 
+    print(f"Solcount: {master.model.SolCount}")
     for k in range(master.model.SolCount):
         master.model.setParam(gu.GRB.Param.SolutionNumber, k)
         vals = master.model.getAttr("Xn", master.lmbda)
 
         solution = {key: round(value) for key, value in vals.items()}
-
         sum_lambda = sum(solution.values())
         if abs(sum_lambda - 100) > 1e-6:
             print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
             continue
 
         print(f"Processing feasible solution {k}")
-        print(f"X_schedule {k}: {X_schedules}")
-        print(f"Sol {k}: {solution}")
 
         ls_sc = plotPerformanceList(Cons_schedules, solution)
         ls_p = plotPerformanceList(Perf_schedules, solution)

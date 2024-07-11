@@ -196,7 +196,6 @@ class MasterProblem:
         sublist_length_short = len(ls_sc) // len(self.nurses)
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
         sc_values2 = [ls_sc[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
-        print(f"sc_values2: {sc_values2}")
         r_values2 = [ls_r[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         e_values2 = [ls_e[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         b_values2 = [ls_b[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]

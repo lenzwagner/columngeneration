@@ -9,7 +9,7 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     modelImprovable = True
 
     # Get Starting Solutions
-    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
+    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i, chi)
     problem_start.buildLinModel()
     problem_start.model.Params.MIPFocus = 1
     problem_start.model.Params.Heuristics = 1

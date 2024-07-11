@@ -9,7 +9,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     modelImprovable = True
 
     # Get Starting Solutions
-    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i)
+    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i, chi)
     problem_start.buildLinModel()
     problem_start.model.Params.MIPFocus = 1
     problem_start.model.Params.Heuristics = 1
@@ -24,9 +24,6 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     start_values_p = {(t): problem_start.p[1, t].x for t in T}
     start_values_x = {(t, s): problem_start.x[1, t, s].x for t in T for s in K}
     start_values_c = {(t): problem_start.sc[1, t].x for t in T}
-    start_values_r = {(t): problem_start.r[1, t].x for t in T}
-    start_values_eup = {(t): problem_start.e[1, t].x for t in T}
-    start_values_elow = {(t): problem_start.b[1, t].x for t in T}
 
     # Initialize iterations
     itr = 0
@@ -45,9 +42,6 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     Perf_schedules = create_schedule_dict(start_values_perf, 1, T, K)
     Cons_schedules = create_schedule_dict(start_values_c, 1, T)
-    Recovery_schedules = create_schedule_dict(start_values_r, 1, T)
-    EUp_schedules = create_schedule_dict(start_values_eup, 1, T)
-    ELow_schedules = create_schedule_dict(start_values_elow, 1, T)
     P_schedules = create_schedule_dict(start_values_p, 1, T)
     X1_schedules = create_schedule_dict(start_values_x, 1, T, K)
 
@@ -104,9 +98,9 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         timeHist.append(sub_totaltime)
         index = 1
 
-        keys = ["X", "Perf", "P", "C", "R", "EUp", "Elow", "X1"]
-        methods = ["getOptX", "getOptPerf", "getOptP", "getOptC", "getOptR", "getOptEUp", "getOptElow", "getOptX"]
-        schedules = [X_schedules, Perf_schedules, P_schedules, Cons_schedules, Recovery_schedules, EUp_schedules, ELow_schedules, X1_schedules]
+        keys = ["X", "Perf", "P", "C", "X1"]
+        methods = ["getOptX", "getOptPerf", "getOptP", "getOptC", "getOptX"]
+        schedules = [X_schedules, Perf_schedules, P_schedules, Cons_schedules, X1_schedules]
 
         for key, method, schedule in zip(keys, methods, schedules):
             value = getattr(subproblem, method)()
@@ -157,7 +151,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     # Solve Master Problem with integrality restored
     master.model.setParam('PoolSearchMode', 2)
-    master.model.setParam('PoolSolutions', 50)
+    master.model.setParam('PoolSolutions', 100)
     master.model.setParam('PoolGap', 0.05)
     master.finalSolve(time_cg)
 
@@ -197,13 +191,10 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     ls_sc1 = plotPerformanceList(Cons_schedules, sol)
     ls_p1 = plotPerformanceList(Perf_schedules, sol)
-    ls_r1 = plotPerformanceList(Recovery_schedules, sol)
-    ls_e1 = plotPerformanceList(EUp_schedules, sol)
-    ls_b1 = plotPerformanceList(ELow_schedules, sol)
     ls_x1 = plotPerformanceList(X_schedules, sol)
 
     undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_naive(
-        ls_p1, ls_sc1, ls_r1, ls_e1, ls_b1, ls_x1, epsi)
+        ls_p1, ls_sc1, ls_x1, epsi)
 
     undercoverage_pool.append(undercoverage_ab)
     understaffing_pool.append(understaffing_ab)
@@ -229,13 +220,11 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
         ls_sc = plotPerformanceList(Cons_schedules, solution)
         ls_p = plotPerformanceList(Perf_schedules, solution)
-        ls_r = plotPerformanceList(Recovery_schedules, solution)
-        ls_e = plotPerformanceList(EUp_schedules, solution)
-        ls_b = plotPerformanceList(ELow_schedules, solution)
+        ls_r = process_recovery(ls_sc, chi, len(T))
         ls_x = plotPerformanceList(X_schedules, solution)
 
         undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
-            ls_p, ls_sc, ls_r, ls_e, ls_b, ls_x, epsi)
+            ls_p, ls_sc, ls_r, epsi)
 
         undercoverage_pool.append(undercoverage_a)
         understaffing_pool.append(understaffing_a)

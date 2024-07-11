@@ -422,3 +422,20 @@ def format_LSR_stats(LSR, n=100):
         for stat in stats
     ]
     return formatted_stats
+
+def process_recovery(input_list, chi, length):
+    sublists = [input_list[i:i + length] for i in range(0, len(input_list), length)]
+
+    result = []
+    for sublist in sublists:
+        new_sublist = [0.0] * chi
+
+        for i in range(chi, len(sublist)):
+            if any(sublist[max(0, i - chi):i]):
+                new_sublist.append(0.0)
+            else:
+                new_sublist.append(1.0)
+
+        result.extend(new_sublist)
+
+    return result

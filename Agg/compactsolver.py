@@ -3,7 +3,7 @@ import math
 import time
 
 class Problem:
-    def __init__(self, dfData, DemandDF, eps, Min_WD_i, Max_WD_i):
+    def __init__(self, dfData, DemandDF, eps, Min_WD_i, Max_WD_i, chi):
         self.I = dfData['I'].dropna().astype(int).unique().tolist()
         self.T = dfData['T'].dropna().astype(int).unique().tolist()
         self.K = dfData['K'].dropna().astype(int).unique().tolist()
@@ -16,7 +16,7 @@ class Problem:
         self.epsilon = eps
         self.mue = 0.1
         self.zeta = 0.1
-        self.chi = 5
+        self.chi = chi
         self.omega = math.floor(1 / 1e-6)
         self.M = len(self.T) + self.omega
         self.xi = 1 - self.epsilon * self.omega

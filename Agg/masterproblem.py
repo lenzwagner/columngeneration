@@ -187,7 +187,7 @@ class MasterProblem:
 
 
 
-    def calc_naive(self, lst, ls_sc, ls_r, ls_e, ls_b, ls_x, mue):
+    def calc_naive(self, lst, ls_sc, ls_r, mue):
         consistency = sum(ls_sc)
         consistency_norm = sum(ls_sc) / (len(self.nurses))
 
@@ -197,8 +197,6 @@ class MasterProblem:
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
         sc_values2 = [ls_sc[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         r_values2 = [ls_r[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
-        e_values2 = [ls_e[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
-        b_values2 = [ls_b[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
 
 
@@ -226,8 +224,6 @@ class MasterProblem:
         for i in self.nurses:
             doctor_values = sc_values2[index]
             r_values = r_values2[index]
-            e_values = e_values2[index]
-            b_values = b_values2[index]
             x_i_values = x_values[index]
             index += 1
 
@@ -244,27 +240,8 @@ class MasterProblem:
                 else:
                     self.cumulative_sum.append(self.cumulative_sum[-1] + doctor_values[i])
 
-            self.cumulative_sum2 = self.cumulative_sum.copy()
-            modified_values = self.cumulative_sum.copy()
-            reduction = 0
-            for i in range(len(e_values)):
-                if e_values[i] == 1.0:
-                    if i == 0 or modified_values[i - 1] > 0:
-                        reduction += 1
-
-                modified_values[i] = self.cumulative_sum[i] - reduction
-
-            reduction2 = 0
-            modified_values2 = modified_values.copy()
-            for i in range(len(b_values)):
-                if b_values[i] == 1.0:
-                    if i == 0 or modified_values2[i - 1] > 0:
-                        reduction2 += 1
-
-                modified_values2[i] = modified_values[i] + reduction2
-
             self.cumulative_sum1 = []
-            for element in modified_values2:
+            for element in self.cumulative_sum:
                 for _ in range(len(self.shifts)):
                     self.cumulative_sum1.append(element)
 

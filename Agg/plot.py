@@ -3,6 +3,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
+
 def plot_data(option, file, metric, x_axis='epsilon'):
     data = pd.read_csv(file)
 
@@ -43,7 +44,7 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
         plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"Epsilon" if x_axis == 'epsilon' else "χ"}',
+            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\\varepsilon$" if x_axis == "epsilon" else "χ"}',
             fontsize=15)
 
     elif option == 2:
@@ -58,15 +59,19 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
         plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"Epsilon" if x_axis == 'epsilon' else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
+            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"Epsilon" if x_axis == "epsilon" else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
             fontsize=15)
 
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'
         for i, val in enumerate(sorted(data[other_axis].unique())):
             val_data = data[data[other_axis] == val].sort_values(x_axis)
-            bap_label = f'BAP ({r"$\chi$" if other_axis == "chi" else r"$\varepsilon$"}={val:.2f})'
-            npp_label = f'NPP ({r"$\chi$" if other_axis == "chi" else r"$\varepsilon$"}={val:.2f})'
+            if other_axis == 'chi':
+                bap_label = f'BAP ({r"$\chi$"}={int(val)})'
+                npp_label = f'NPP ({r"$\chi$"}={int(val)})'
+            else:
+                bap_label = f'BAP ({r"$\varepsilon$"}={val:.2f})'
+                npp_label = f'NPP ({r"$\varepsilon$"}={val:.2f})'
 
             # Use the same color for BAP and NPP with the same value
             color = palette[(i + 2) % len(palette)]
@@ -95,6 +100,18 @@ def plot_data(option, file, metric, x_axis='epsilon'):
 
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
+
+    # Funktion zum Formatieren der Labels
+    def format_label(label):
+        if 'χ=' in label:
+            parts = label.split('χ=')
+            value = float(parts[1])
+            return f"{parts[0]}χ={int(value)}"
+        return label
+
+    # Formatiere die Labels
+    labels = [format_label(label) for label in labels]
+
     sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('Trend' not in x[1], 'NPP' in x[1], x[1]))
     handles, labels = zip(*sorted_handles_labels)
 

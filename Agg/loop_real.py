@@ -8,14 +8,14 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.025, 0.05, 0.1]
-chi_ls = [3 ,5 ,7]
+eps_ls = [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+chi_ls = [3, 4, 5, 6, 7, 8, 9, 10]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
 
 # DataFrame
-results = pd.DataFrame(columns=['epsilon', 'chi', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n'])
+results = pd.DataFrame(columns=['I', 'pattern', 'epsilon', 'chi', 'obj', 'lb', 'itr', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n'])
 
 # Times and Parameter
 time_Limit = 7200
@@ -58,13 +58,18 @@ for epsilon in eps_ls:
         undercoverage_n, understaffing_n, perfloss_n, consistency_n, consistency_norm_n, undercoverage_norm_n, understaffing_norm_n, perfloss_norm_n, results_sc_n, results_r_n, gini_sc_n, gini_r_n = column_generation_naive(data, demand_dict, 0, Min_WD_i, Max_WD_i, time_cg_init_npm, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K, eps)
 
-        undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, gini_sc, gini_r = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
+        undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, gini_sc, gini_r, final_obj, final_lb, itr = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K)
 
         # Data frame
         result = pd.DataFrame([{
+            'I': len(I),
+            'pattern': "Medium",
             'epsilon': epsilon,
             'chi': chi,
+            'obj': final_obj,
+            'lb': final_lb,
+            'itr': itr,
             'undercover': undercoverage,
             'undercover_norm': undercoverage_norm,
             'cons': consistency,

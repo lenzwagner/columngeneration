@@ -158,6 +158,8 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     # Solve Master Problem with integrality restored
     master.finalSolve(time_cg)
     objValHistRMP.append(master.model.objval)
+    final_obj = master.model.objval
+    final_lb = objValHistRMP[-2]
 
     # Calc Stats
     ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
@@ -186,4 +188,4 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
     gini_r = master.gini_coefficient(ls_r, len(master.nurses))
 
-    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, gini_sc, gini_r
+    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, gini_sc, gini_r, round(final_obj, 5), round(final_lb, 5), itr

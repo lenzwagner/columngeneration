@@ -16,8 +16,8 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         return
 
     # Set column names based on the chosen metric
-    y_col = f'{metric}_norm'
-    y_col_n = f'{metric}_norm_n'
+    y_col = f'{metric}'
+    y_col_n = f'{metric}_n'
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid")
@@ -41,11 +41,11 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o')
         sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s')
 
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
         plt.title(
             f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\\varepsilon$" if x_axis == "epsilon" else "χ"}',
-            fontsize=15)
+            fontsize=16)
 
     elif option == 2:
         # Plot scatter plots for overall trend
@@ -56,11 +56,11 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0])
         sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1])
 
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
         plt.title(
             f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"Epsilon" if x_axis == "epsilon" else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
-            fontsize=15)
+            fontsize=16)
 
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'

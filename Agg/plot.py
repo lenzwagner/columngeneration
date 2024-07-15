@@ -15,8 +15,8 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         return
 
     # Set column names based on the chosen metric
-    y_col = f'{metric}'
-    y_col_n = f'{metric}_n'
+    y_col = f'{metric}_norm'
+    y_col_n = f'{metric}_norm_n'
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid")
@@ -40,9 +40,11 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o')
         sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s')
 
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
-        plt.title(f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\varepsilon$" if x_axis == "epsilon" else "χ"}', fontsize=16)
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
+        plt.title(
+            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\\varepsilon$" if x_axis == "epsilon" else "χ"}',
+            fontsize=15)
 
     elif option == 2:
         # Plot scatter plots for overall trend
@@ -53,11 +55,11 @@ def plot_data(option, file, metric, x_axis='epsilon'):
         sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0])
         sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1])
 
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
         plt.title(
             f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"Epsilon" if x_axis == "epsilon" else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
-            fontsize=16)
+            fontsize=15)
 
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'
@@ -112,14 +114,17 @@ def plot_data(option, file, metric, x_axis='epsilon'):
     sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('Trend' not in x[1], 'NPP' in x[1], x[1]))
     handles, labels = zip(*sorted_handles_labels)
 
-    plt.legend(handles=handles, labels=labels, bbox_to_anchor=(1.005, 1), loc='upper left')
+    # Place the legend in the upper left corner if the combination is 'undercover' and 'epsilon'
+    if metric == 'undercover' and x_axis == 'epsilon':
+        plt.legend(handles=handles, labels=labels, loc='upper left')
+    else:
+        plt.legend(handles=handles, labels=labels, bbox_to_anchor=(1.005, 1), loc='upper left')
 
     # Adjust layout
     plt.tight_layout()
 
     # Display the plot
     plt.show()
-
 
 # Example function calls
 plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon') # Epsilon on x-axis

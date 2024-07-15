@@ -3,7 +3,6 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
-
 def plot_data(option, file, metric, x_axis='epsilon'):
     data = pd.read_csv(file)
 
@@ -43,9 +42,7 @@ def plot_data(option, file, metric, x_axis='epsilon'):
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
-        plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\\varepsilon$" if x_axis == "epsilon" else "χ"}',
-            fontsize=16)
+        plt.title(f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {"$\varepsilon$" if x_axis == "epsilon" else "χ"}', fontsize=16)
 
     elif option == 2:
         # Plot scatter plots for overall trend
@@ -125,11 +122,11 @@ def plot_data(option, file, metric, x_axis='epsilon'):
 
 
 # Example function calls
-plot_data(1, 'data/study.csv', 'undercover', x_axis='epsilon')  # Epsilon on x-axis
-plot_data(2, 'data/data_2.csv', 'undercover', x_axis='epsilon')  # Epsilon on x-axis
-plot_data(1, 'data/study.csv', 'cons', x_axis='epsilon')  # Epsilon on x-axis
-plot_data(2, 'data/data_2.csv', 'cons', x_axis='epsilon')  # Epsilon on x-axis
-plot_data(1, 'data/study2.csv', 'undercover', x_axis='chi')  # Chi on x-axis
-plot_data(2, 'data/data_2.csv', 'undercover', x_axis='chi')  # Chi on x-axis
-plot_data(1, 'data/study2.csv', 'cons', x_axis='chi')  # Chi on x-axis
-plot_data(2, 'data/data_2.csv', 'cons', x_axis='chi')  # Chi on x-axis
+plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon') # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'undercover', x_axis='epsilon') # Epsilon on x-axis
+plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon') # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'cons', x_axis='epsilon') # Epsilon on x-axis
+plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
+plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
+plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis
+plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis

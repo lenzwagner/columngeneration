@@ -2,6 +2,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import csv
 import numpy as np
+from matplotlib.lines import Line2D
+from matplotlib.legend_handler import HandlerBase
+
+
+# Custom legend handler for short thick lines
+class ShortThickLineHandler(HandlerBase):
+    def create_artists(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans):
+        line = plt.Line2D([width * 0.2, width * 0.8], [height / 2, height / 2], lw=4, color=orig_handle.get_color())
+        return [line]
+
+
+# Custom legend handler for Pareto line
+class ParetoLineHandler(HandlerBase):
+    def create_artists(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans):
+        line = plt.Line2D([width * 0.2, width * 0.8], [height / 2, height / 2], lw=2, linestyle='--', color='red')
+        return [line]
+
 
 # Data initialization
 data = {
@@ -17,8 +34,8 @@ with open('data/data_new.csv', 'r') as file:
         data['undercoverage2'].append(float(row['undercover_norm_n']))
         data['consistency1'].append(float(row['cons_norm']))
         data['consistency2'].append(float(row['cons_norm_n']))
-        data['chi1'].append(int(float(row['chi'])))  # Convert chi to int
-        data['chi2'].append(int(float(row['chi'])))  # Convert chi to int
+        data['chi1'].append(int(float(row['chi'])))
+        data['chi2'].append(int(float(row['chi'])))
         data['epsilon1'].append(float(row['epsilon']))
         data['epsilon2'].append(float(row['epsilon']))
 
@@ -39,6 +56,7 @@ df2 = pd.DataFrame({
 
 df = pd.concat([df1, df2], ignore_index=True)
 
+
 # Calculate Pareto Frontier
 def pareto_frontier(df):
     pareto_front = []
@@ -55,36 +73,77 @@ def pareto_frontier(df):
     pareto_front_df = pareto_front_df.sort_values(by=['undercoverage'])
     return pareto_front_df
 
+
 pareto_df = pareto_frontier(df)
 
 # Output Pareto-Frontier points to console
 print("Punkte auf der Pareto-Frontier:")
 print(pareto_df)
 
+
+# Determine the best position for the legend
+def determine_legend_position(df):
+    x_min, x_max = df['undercoverage'].min(), df['undercoverage'].max()
+    y_min, y_max = df['consistency'].min(), df['consistency'].max()
+
+    # Define quadrants
+    quadrants = {
+        'upper right': (x_min + (x_max - x_min) * 0.5, y_min + (y_max - y_min) * 0.5, x_max, y_max),
+        'upper left': (x_min, y_min + (y_max - y_min) * 0.5, x_min + (x_max - x_min) * 0.5, y_max),
+        'lower right': (x_min + (x_max - x_min) * 0.5, y_min, x_max, y_min + (y_max - y_min) * 0.5),
+        'lower left': (x_min, y_min, x_min + (x_max - x_min) * 0.5, y_min + (y_max - y_min) * 0.5)
+    }
+
+    # Count points in each quadrant
+    counts = {q: 0 for q in quadrants}
+    for _, row in df.iterrows():
+        for q, (x1, y1, x2, y2) in quadrants.items():
+            if x1 <= row['undercoverage'] <= x2 and y1 <= row['consistency'] <= y2:
+                counts[q] += 1
+
+    # Find the quadrant with the least points
+    best_quadrant = min(counts, key=counts.get)
+
+    # Map quadrant to legend position
+    position_map = {
+        'upper right': 'upper right',
+        'upper left': 'upper left',
+        'lower right': 'lower right',
+        'lower left': 'lower left'
+    }
+
+    return position_map[best_quadrant]
+
+
+# Determine the best legend position
+legend_position = determine_legend_position(df)
+
 # Create plot
 plt.figure(figsize=(12, 8))
 
 # Adjusting the color range to focus on the brighter part of the magma palette
-colors = plt.cm.magma(np.linspace(0.2, 0.8, max(len(df1), len(df2))))  # Using a subset of magma color palette
+colors = plt.cm.magma(np.linspace(0.2, 0.8, max(len(df1), len(df2))))
 
 # Dictionary to store the labels to avoid duplication in the legend
 labels_dict = {}
 
 # Points from the first list (Circles)
 for i, row in df1.iterrows():
-    label = f"BAP $\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
+    label = f"$\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
     color_index = i % len(colors)
     if label not in labels_dict:
-        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='o', s=100, label=label)
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index],
+                                         marker='o', s=100)
     else:
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='o', s=100)
 
 # Points from the second list (Squares)
 for i, row in df2.iterrows():
-    label = f"NPP $\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
+    label = f"$\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"
     color_index = i % len(colors)
     if label not in labels_dict:
-        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='s', s=100, alpha=0.8, label=label)
+        labels_dict[label] = plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index],
+                                         marker='s', s=100, alpha=0.8)
     else:
         plt.scatter(row['undercoverage'], row['consistency'], color=colors[color_index], marker='s', s=100, alpha=0.8)
 
@@ -109,19 +168,27 @@ for i, row in pareto_df.iterrows():
                     linewidths=2, alpha=0.6, s=150, marker='s')
 
 # Connect Pareto-optimal points with dashed line
-pareto_line, = plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='--', color='red', linewidth=2, alpha=0.7)
+pareto_line, = plt.plot(pareto_df['undercoverage'], pareto_df['consistency'], linestyle='--', color='red', linewidth=2,
+                        alpha=0.7)
 
-# Position the legend outside the plot
-#plt.legend(title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
+# Create legend
+legend_elements = [Line2D([0], [0], color=handle.get_facecolor()[0], label=label, lw=4)
+                   for label, handle in labels_dict.items()]
+pareto_line_legend = Line2D([0], [0], color='red', label='Pareto-Frontier Line', lw=2, linestyle='--')
+legend_elements.append(pareto_line_legend)
+
+# Position the legend based on the determined position
+plt.legend(handles=legend_elements,
+           title='Combinations:',
+           loc=legend_position,
+           ncol=1,
+           handler_map={Line2D: ShortThickLineHandler(), pareto_line_legend: ParetoLineHandler()},
+           fontsize='small')
 
 # Increase the font size of axis labels marginally
 plt.xlabel('Scaled Undercoverage', fontsize=14)
 plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=14)
-#plt.title('Pareto-Frontier', fontsize=18)
 plt.grid(True)
-
-# Add Pareto frontier to legend
-#plt.legend(handles=list(labels_dict.values()) + [pareto_line], labels=list(labels_dict.keys()) + ['Pareto-Frontier Line'], title='Combinations:', loc='center left', bbox_to_anchor=(1.02, 0.5), ncol=1)
 
 # Set axis limits
 plt.xlim(df['undercoverage'].min() - 1, df['undercoverage'].max() + 1)

@@ -1,9 +1,7 @@
 from itertools import chain
 import random
 import math
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+import numpy as np
 
 # **** Print Results Table ****
 def printResults(itr, total_time, time_problem, nr, optimal_ip, optimal_lp, lagranigan_bound, compact_obj, step):

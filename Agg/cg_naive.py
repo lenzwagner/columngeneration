@@ -60,6 +60,8 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     # Start time count
     t0 = time.time()
+    reducedCost = -10000
+
 
     while modelImprovable and itr < max_itr:
         print("*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
@@ -90,7 +92,13 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
         # Save time to solve SP
         sub_start_time = time.time()
-        subproblem.solveModel(time_cg)
+        if reducedCost < 1e-3:
+            print(f"")
+            print("*{:^{output_len}}*".format(f"Use MIP-Gap > 0 in Iteration {itr}", output_len=output_len))
+            subproblem.solveModelNOpt(time_cg)
+        else:
+            print("*{:^{output_len}}*".format(f"Use MIP-Gap = 0 in Iteration {itr}", output_len=output_len))
+            subproblem.solveModelOpt(time_cg)
         sub_end_time = time.time()
         sp_time_hist.append(sub_end_time - sub_start_time)
 
@@ -176,6 +184,8 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     print("")
 
     objValHistRMP.append(master.model.objval)
+
+    lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
 
     # Calc Stats
     undercoverage_pool = []
@@ -274,7 +284,6 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
                  std_variation_coefficient_r]
 
     # Gini
-    gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
-    gini_r = master.gini_coefficient(ls_r, len(master.nurses))
+    autocorrel = master.autoccorrel(ls_sc, len(master.nurses), 2)
 
-    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, gini_sc, gini_r
+    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, autocorrel, lagranigan_bound

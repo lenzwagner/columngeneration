@@ -192,12 +192,22 @@ class Subproblem:
     def getStatus(self):
         return self.model.status
 
-    def solveModel(self, timeLimit):
+    def solveModelOpt(self, timeLimit):
         try:
             self.model.setParam('TimeLimit', timeLimit)
             self.model.Params.OutputFlag = 0
             self.model.Params.IntegralityFocus = 0
-            self.model.Params.MIPGap = 1e-4
+            self.model.Params.MIPGap = 1e-5
+            self.model.optimize()
+        except gu.GurobiError as e:
+            print('Error code ' + str(e.errno) + ': ' + str(e))
+
+    def solveModelNOpt(self, timeLimit):
+        try:
+            self.model.setParam('TimeLimit', timeLimit)
+            self.model.Params.OutputFlag = 0
+            self.model.Params.IntegralityFocus = 0
+            self.model.Params.MIPGap = 0.05
             self.model.optimize()
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))

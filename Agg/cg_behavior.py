@@ -66,6 +66,7 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     # Start time count
     t0 = time.time()
+    reducedCost = -100000
 
     while modelImprovable and itr < max_itr:
         print("*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
@@ -96,7 +97,13 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
         # Save time to solve SP
         sub_start_time = time.time()
-        subproblem.solveModel(time_cg)
+        if reducedCost < 1e-3:
+            print(f"")
+            print("*{:^{output_len}}*".format(f"Use MIP-Gap > 0 in Iteration {itr}", output_len=output_len))
+            subproblem.solveModelNOpt(time_cg)
+        else:
+            print("*{:^{output_len}}*".format(f"Use MIP-Gap = 0 in Iteration {itr}", output_len=output_len))
+            subproblem.solveModelOpt(time_cg)
         sub_end_time = time.time()
         sp_time_hist.append(sub_end_time - sub_start_time)
 
@@ -161,6 +168,8 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     final_obj = master.model.objval
     final_lb = objValHistRMP[-2]
 
+    lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
+
     # Calc Stats
     ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
     ls_r = plotPerformanceList(Recovery_schedules, master.printLambdas())
@@ -185,7 +194,9 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     results_r = [mean_variation_coefficient_r, min_variation_coefficient_r, max_variation_coefficient_r, std_variation_coefficient_r]
 
     # Gini
-    gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
-    gini_r = master.gini_coefficient(ls_r, len(master.nurses))
+    #gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
+    #gini_r = master.gini_coefficient(ls_r, len(master.nurses))
 
-    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, gini_sc, gini_r, round(final_obj, 5), round(final_lb, 5), itr
+    autocorrel = master.autoccorrel(ls_sc, len(master.nurses), 2)
+
+    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, autocorrel, round(final_obj, 5), round(final_lb, 5), itr, lagranigan_bound

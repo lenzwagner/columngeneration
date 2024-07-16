@@ -323,3 +323,37 @@ class MasterProblem:
             nested.append(cleaned_sublist)
 
         return [self.gini_coefficient2(indices) for indices in nested]
+
+
+    def compute_autocorrelation_at_lag(self, series, lag):
+        """
+
+        Args:
+        series (list or np.array): Row.
+        lag (int): Lag.
+
+        Returns:
+        float: Der Autokorrelationswert für den angegebenen Lag.
+        """
+        n = len(series)
+        if lag >= n:
+            raise ValueError("Lag is too large for the length of the series.")
+
+        mean = np.mean(series)
+        var = np.var(series)
+        cov = np.sum((series[:n - lag] - mean) * (series[lag:] - mean)) / n
+        autocorrelation = cov / var
+
+        return autocorrelation
+
+    def autoccorrel(self, ls, num_sublists, lags):
+        total_length = len(ls)
+        sublist_size = total_length // num_sublists
+
+        sublists = [ls[i:i + sublist_size] for i in range(0, total_length, sublist_size)]
+        nested = []
+        for sublist in sublists:
+            cleaned_sublist = [0.0 if x == -0.0 else x for x in sublist]
+            nested.append(cleaned_sublist)
+
+        return [self.compute_autocorrelation_at_lag(indices, lags) for indices in nested]

@@ -60,8 +60,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     # Start time count
     t0 = time.time()
-    reducedCost = -10000
-
+    previous_reduced_cost = float('inf')
 
     while modelImprovable and itr < max_itr:
         print("*{:^{output_len}}*".format(f"Begin Column Generation Iteration {itr}", output_len=output_len))
@@ -92,8 +91,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
         # Save time to solve SP
         sub_start_time = time.time()
-        if reducedCost < 1e-3:
-            print(f"")
+        if previous_reduced_cost < -0.001:
             print("*{:^{output_len}}*".format(f"Use MIP-Gap > 0 in Iteration {itr}", output_len=output_len))
             subproblem.solveModelNOpt(time_cg)
         else:
@@ -122,6 +120,9 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         # Save ObjVal History
         reducedCost = subproblem.model.objval
         objValHistSP.append(reducedCost)
+
+        # Update previous_reduced_cost for the next iteration
+        previous_reduced_cost = reducedCost
         print("*{:^{output_len}}*".format(f"Reduced Costs in Iteration {itr}: {reducedCost}", output_len=output_len))
 
         # Increase latest used iteration

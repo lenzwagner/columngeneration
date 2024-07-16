@@ -16,7 +16,7 @@ I = list(range(1, 101))
 K = [1, 2, 3]
 
 # DataFrame
-results = pd.DataFrame(columns=['I', 'pattern', 'epsilon', 'chi', 'obj', 'lb', 'itr', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'max_auto', 'min_auto', 'mean_auto', 'lagrange', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n', 'max_auto_n', 'min_auto_n', 'mean_auto_n', 'lagrange'])
+results = pd.DataFrame(columns=['I', 'pattern', 'epsilon', 'chi', 'objval', 'lbound', 'iteration', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'max_auto', 'min_auto', 'mean_auto', 'lagrange', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n', 'max_auto_n', 'min_auto_n', 'mean_auto_n', 'lagrange_n'])
 
 # Times and Parameter
 time_Limit = 7200
@@ -68,16 +68,16 @@ for epsilon in eps_ls:
             'pattern': "Medium",
             'epsilon': epsilon,
             'chi': chi,
-            'obj': final_obj,
-            'lb': final_lb,
-            'itr': itr,
+            'objval': final_obj,
+            'lbound': final_lb,
+            'iteration': itr,
             'undercover': undercoverage,
             'undercover_norm': undercoverage_norm,
             'cons': consistency,
             'cons_norm': consistency_norm,
             'perf': perfloss,
             'perf_norm': perfloss_norm,
-            'max_auto' : round(max(autocorell), 5),
+            'max_auto': round(max(autocorell), 5),
             'min_auto': round(min(autocorell), 5),
             'mean_auto': round(np.mean(autocorell), 5),
             'lagrange': lagrangeB,

@@ -263,8 +263,11 @@ def lagrangeprimal(sum_rc_hist, objValHistRMP):
     plt.plot(iterations_objValHistRMP, objValHistRMP_without_last, label='PrimalMasterObj', linestyle='-', color='green')
 
     plt.xlabel('Iteration')
+    plt.ylabel('Objective values')
     plt.legend()
     plt.grid(True)
+
+    plt.tight_layout()
 
     plt.show()
 

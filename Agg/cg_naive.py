@@ -223,13 +223,14 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
         solution = {key: round(value) for key, value in vals.items()}
         sum_lambda = sum(solution.values())
-        if abs(sum_lambda - 100) > 1e-6:
+        if abs(sum_lambda - len(I)) > 1e-6:
             print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
             continue
 
         print(f"Processing feasible solution {k}")
 
         ls_sc = plotPerformanceList(Cons_schedules, solution)
+        print(f"LsSc {ls_sc}")
         ls_p = plotPerformanceList(Perf_schedules, solution)
         ls_r = process_recovery(ls_sc, chi, len(T))
         ls_x = plotPerformanceList(X_schedules, solution)

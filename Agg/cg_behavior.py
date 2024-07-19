@@ -165,19 +165,109 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         max_itr *= 2
 
     # Solve Master Problem with integrality restored
+    master.model.setParam('PoolSearchMode', 2)
+    master.model.setParam('PoolSolutions', 100)
+    master.model.setParam('PoolGap', 0.05)
     master.finalSolve(time_cg)
     objValHistRMP.append(master.model.objval)
     final_obj = master.model.objval
     final_lb = objValHistRMP[-2]
 
+    status = master.model.Status
+    if status in (gu.GRB.INF_OR_UNBD, gu.GRB.INFEASIBLE, gu.GRB.UNBOUNDED):
+        print("The model cannot be solved because it is infeasible or unbounded")
+        gu.sys.exit(1)
+
+    if status != gu.GRB.OPTIMAL:
+        print(f"Optimization was stopped with status {status}")
+        gu.sys.exit(1)
+
+    nSolutions = master.model.SolCount
+    print(f"Number of solutions found: {nSolutions}")
+
+    # Print objective values of solutions
+    for e in range(nSolutions):
+        master.model.setParam(gu.GRB.Param.SolutionNumber, e)
+        print(f"{master.model.PoolObjVal:g} ", end="")
+        if e % 15 == 14:
+            print("")
+    print("")
+
+    objValHistRMP.append(master.model.objval)
+
     lagranigan_bound = round((objValHistRMP[-2] + sum_rc_hist[-1]), 3)
 
     # Calc Stats
-    ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
-    ls_r = plotPerformanceList(Recovery_schedules, master.printLambdas())
-    ls_p = plotPerformanceList(Perf_schedules, master.printLambdas())
-    understaffing1, u_results, sum_all_doctors, consistency2, consistency2_norm, understaffing1_norm, u_results_norm, sum_all_doctors_norm = master.calc_behavior(ls_p, ls_sc)
+    undercoverage_pool = []
+    understaffing_pool = []
+    perf_pool = []
+    cons_pool = []
+    undercoverage_pool_norm = []
+    understaffing_pool_norm = []
+    perf_pool_norm = []
+    cons_pool_norm = []
 
+    sol = master.printLambdas()
+
+    ls_sc1 = plotPerformanceList(Cons_schedules, sol)
+    ls_p1 = plotPerformanceList(Perf_schedules, sol)
+
+    undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_behavior(
+        ls_p1, ls_sc1)
+
+    undercoverage_pool.append(undercoverage_ab)
+    understaffing_pool.append(understaffing_ab)
+    perf_pool.append(perfloss_ab)
+    cons_pool.append(consistency_ab)
+    undercoverage_pool_norm.append(undercoverage_norm_ab)
+    understaffing_pool_norm.append(understaffing_norm_ab)
+    perf_pool_norm.append(perfloss_norm_ab)
+    cons_pool_norm.append(consistency_norm_ab)
+
+    print(f"Solcount: {master.model.SolCount}")
+    for k in range(master.model.SolCount):
+        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
+        vals = master.model.getAttr("Xn", master.lmbda)
+
+        solution = {key: round(value) for key, value in vals.items()}
+        sum_lambda = sum(solution.values())
+        if abs(sum_lambda - len(I)) > 1e-6:
+            print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
+            continue
+
+        print(f"Processing feasible solution {k}")
+
+        ls_sc = plotPerformanceList(Cons_schedules, solution)
+        print(f"LsSc {ls_sc}")
+        ls_p = plotPerformanceList(Perf_schedules, solution)
+        ls_r = process_recovery(ls_sc, chi, len(T))
+
+        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_behavior(
+            ls_p, ls_sc)
+
+        undercoverage_pool.append(undercoverage_a)
+        understaffing_pool.append(understaffing_a)
+        perf_pool.append(perfloss_a)
+        cons_pool.append(consistency_a)
+        undercoverage_pool_norm.append(undercoverage_norm_a)
+        understaffing_pool_norm.append(understaffing_norm_a)
+        perf_pool_norm.append(perfloss_norm_a)
+        cons_pool_norm.append(consistency_norm_a)
+
+    # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
+    print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
+    print(f"Under-List: {undercoverage_pool}")
+    print(f"Perf-List: {perf_pool}")
+    print(f"Cons-List: {cons_pool}")
+
+    undercoverage = sum(undercoverage_pool) / len(undercoverage_pool)
+    understaffing = sum(understaffing_pool) / len(understaffing_pool)
+    perfloss = sum(perf_pool) / len(perf_pool)
+    consistency = sum(cons_pool) / len(cons_pool)
+    undercoverage_norm = sum(undercoverage_pool_norm) / len(undercoverage_pool_norm)
+    understaffing_norm = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
+    perfloss_norm = sum(perf_pool_norm) / len(perf_pool_norm)
+    consistency_norm = sum(cons_pool_norm) / len(cons_pool_norm)
     # Coefficients
     sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
     variation_coefficients = [master.calculate_variation_coefficient(indices) for indices in indices_list]
@@ -201,4 +291,4 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     autocorrel = master.autoccorrel(ls_sc, len(master.nurses), 2)
 
-    return round(understaffing1, 5), round(u_results, 5), round(sum_all_doctors, 5), round(consistency2, 5), round(consistency2_norm, 5), round(understaffing1_norm, 5), round(u_results_norm, 5), round(sum_all_doctors_norm, 5), results_sc, results_r, autocorrel, round(final_obj, 5), round(final_lb, 5), itr, lagranigan_bound
+    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, autocorrel, round(final_obj, 5), round(final_lb, 5), itr, lagranigan_bound

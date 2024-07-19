@@ -9,10 +9,10 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
-chi_ls = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+eps_ls = [0.01, 0.02, 0.03, 0.04, 0.05]
+chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
-I = list(range(1, 101))
+I = list(range(1, 51))
 K = [1, 2, 3]
 
 # DataFrame
@@ -25,7 +25,7 @@ time_cg_init = 60
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'study_results_mulit_bam_{current_time}'
+file = f'study_results_mulit_bam-0.5_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
 file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}{file}.xlsx'
 

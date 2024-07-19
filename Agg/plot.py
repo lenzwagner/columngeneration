@@ -297,3 +297,4 @@ plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
 plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis
 plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis
 plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='epsilon', x_axis2='epsilon', grid=True)
+plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='chi', x_axis2='chi', grid=True)

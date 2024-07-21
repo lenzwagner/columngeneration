@@ -10,9 +10,9 @@ import pandas as pd
 # **** Prerequisites ****
 # Create Dataframes
 eps_ls = [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
-chi_ls = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
-I = list(range(1, 101))
+I = list(range(1, 151))
 K = [1, 2, 3]
 
 
@@ -20,7 +20,7 @@ K = [1, 2, 3]
 seed1 = 123 - math.floor(len(I)*len(T))
 print(seed1)
 random.seed(seed1)
-demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.25)
+demand_dict = demand_dict_fifty(len(T), 0.9, len(I), 2, 0.25)
 max_itr = 200
 output_len = 98
 mue = 1e-4
@@ -35,6 +35,7 @@ data = pd.DataFrame({
 
 # DataFrame
 results = pd.DataFrame(columns=['I', 'pattern', 'epsilon', 'chi', 'undercover_n', 'undercover_norm_n', 'cons_n', 'cons_norm_n', 'perf_n', 'perf_norm_n', 'max_auto_n', 'min_auto_n', 'mean_auto_n', 'lagrange_n'])
+results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons_norm', 'understaffing_norm', 'perf_norm'])
 
 # Times and Parameter
 time_Limit = 7200
@@ -44,9 +45,12 @@ time_cg_init_npm = 30
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'study_results_mulit_npm_{current_time}'
-file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}{file}.xlsx'
+file = f'npm_150_Low_{current_time}'
+file2 = f'npm_condens_150_Low_{current_time}'
+file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file}.xlsx'
+file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file2}.csv'
+file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file2}.xlsx'
 
 
 # **** Column Generation ****
@@ -359,7 +363,21 @@ for epsilon in eps_ls:
 
         results = pd.concat([results, result], ignore_index=True)
 
+        result2 = pd.DataFrame([{
+            'I': len(I),
+            'epsilon': epsilon,
+            'chi': chi,
+            'undercover_norm': undercoverage_norm,
+            'cons_norm': consistency_norm,
+            'understaffing_norm': round(undercoverage_norm - perfloss_norm, 4),
+            'perf_norm': perfloss_norm
+        }])
+
+        results2 = pd.concat([results2, result2], ignore_index=True)
+
 
 results.to_csv(file_name_csv, index=False)
 results.to_excel(file_name_xlsx, index=False)
+results2.to_csv(file_name_csv2, index=False)
+results2.to_excel(file_name_xlsx2, index=False)
 

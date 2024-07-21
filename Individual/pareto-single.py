@@ -186,8 +186,8 @@ def create_plot(show_pareto=True):
                fontsize='small')
 
     # Increase the font size of axis labels marginally
-    plt.xlabel('Scaled Undercoverage', fontsize=14)
-    plt.ylabel('Scaled Consistency (ø Shift Changes)', fontsize=14)
+    plt.xlabel('Undercoverage', fontsize=14)
+    plt.ylabel('Consistency (ø Shift Changes)', fontsize=14)
     plt.grid(True)
 
     # Set axis limits

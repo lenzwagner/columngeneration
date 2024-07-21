@@ -9,14 +9,15 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.01, 0.02, 0.03, 0.04, 0.05]
+eps_ls = [0.03, 0.04]
 chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
-I = list(range(1, 51))
+I = list(range(1, 101))
 K = [1, 2, 3]
 
 # DataFrame
 results = pd.DataFrame(columns=['I', 'pattern', 'epsilon', 'chi', 'objval', 'lbound', 'iteration', 'undercover', 'undercover_norm', 'cons', 'cons_norm', 'perf', 'perf_norm', 'max_auto', 'min_auto', 'mean_auto', 'lagrange'])
+results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons_norm', 'understaffing_norm', 'perf_norm'])
 
 # Times and Parameter
 time_Limit = 7200
@@ -25,10 +26,12 @@ time_cg_init = 60
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'study_results_mulit_bam-0.5_{current_time}'
-file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}{file}.xlsx'
-
+file = f'bam_0-0.04-100-Medium_{current_time}'
+file2 = f'bam_condens_0-0.04_100-Medium_{current_time}'
+file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.xlsx'
+file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file2}.csv'
+file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file2}.xlsx'
 
 # Loop
 for epsilon in eps_ls:
@@ -81,5 +84,20 @@ for epsilon in eps_ls:
 
         results = pd.concat([results, result], ignore_index=True)
 
+
+        result2 = pd.DataFrame([{
+            'I': len(I),
+            'epsilon': epsilon,
+            'chi': chi,
+            'undercover_norm': undercoverage_norm,
+            'cons_norm': consistency_norm,
+            'understaffing_norm': round(undercoverage_norm - perfloss_norm, 4),
+            'perf_norm': perfloss_norm
+        }])
+
+        results2 = pd.concat([results2, result2], ignore_index=True)
+
 results.to_csv(file_name_csv, index=False)
 results.to_excel(file_name_xlsx, index=False)
+results2.to_csv(file_name_csv2, index=False)
+results2.to_excel(file_name_xlsx2, index=False)

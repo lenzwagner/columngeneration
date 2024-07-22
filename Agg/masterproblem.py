@@ -107,7 +107,7 @@ class MasterProblem:
             self.model.Params.IntegralityFocus = 1
             self.model.Params.FeasibilityTol = 1e-9
             self.model.Params.BarConvTol = 0.0
-            self.model.Params.MIPGap = 1e-4
+            self.model.Params.MIPGap = 1e-2
             self.model.Params.OutputFlag = 1
             self.model.setAttr("vType", self.lmbda, gu.GRB.INTEGER)
             self.model.update()
@@ -151,9 +151,9 @@ class MasterProblem:
         except gu.GurobiError as e:
             print('Error code ' + str(e.errno) + ': ' + str(e))
 
-    def calc_behavior(self, lst, ls_sc):
+    def calc_behavior(self, lst, ls_sc, scale):
         consistency = sum(ls_sc)
-        consistency_norm = sum(ls_sc) / (len(self.nurses))
+        consistency_norm = sum(ls_sc) / (len(self.nurses)*scale)
         sublist_length = len(lst) // len(self.nurses)
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
 
@@ -172,9 +172,9 @@ class MasterProblem:
         perfloss = round(undercoverage - understaffing, 5)
 
         # Noramlized Values
-        undercoverage_norm = undercoverage / (len(self.nurses))
-        understaffing_norm = understaffing / (len(self.nurses))
-        perfloss_norm = perfloss / (len(self.nurses))
+        undercoverage_norm = undercoverage / (len(self.nurses)*scale)
+        understaffing_norm = understaffing / (len(self.nurses)*scale)
+        perfloss_norm = perfloss / (len(self.nurses)*scale)
 
         # Ausgabe
         print(
@@ -187,9 +187,9 @@ class MasterProblem:
 
 
 
-    def calc_naive(self, lst, ls_sc, ls_r, mue):
+    def calc_naive(self, lst, ls_sc, ls_r, mue, scale):
         consistency = sum(ls_sc)
-        consistency_norm = sum(ls_sc) / (len(self.nurses))
+        consistency_norm = sum(ls_sc) / (len(self.nurses)*scale)
 
         self.sum_all_doctors = 0
         sublist_length = len(lst) // len(self.nurses)
@@ -258,9 +258,9 @@ class MasterProblem:
         understaffing = u_results
         perfloss = self.sum_all_doctors
         # Noramlized Values
-        undercoverage_norm = undercoverage / (len(self.nurses))
-        understaffing_norm = understaffing / (len(self.nurses))
-        perfloss_norm =  perfloss / (len(self.nurses))
+        undercoverage_norm = undercoverage / (len(self.nurses)*scale)
+        understaffing_norm = understaffing / (len(self.nurses)*scale)
+        perfloss_norm =  perfloss / (len(self.nurses)*scale)
 
 
         print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(

@@ -14,17 +14,19 @@ chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
 I = list(range(1, 151))
 K = [1, 2, 3]
+prob = 1
 
 
 
 seed1 = 123 - math.floor(len(I)*len(T))
 print(seed1)
 random.seed(seed1)
-demand_dict = demand_dict_fifty(len(T), 0.9, len(I), 2, 0.25)
+demand_dict = demand_dict_fifty(len(T), prob, len(I), 2, 0.25)
 max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 4e-5
+
 
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -261,7 +263,7 @@ for epsilon in eps_ls:
         ls_r1 = process_recovery(ls_sc1, chi, len(T))
 
         undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_naive(
-            ls_p1, ls_sc1, ls_r1, eps)
+            ls_p1, ls_sc1, ls_r1, eps, prob)
 
         undercoverage_pool.append(undercoverage_ab)
         understaffing_pool.append(understaffing_ab)
@@ -292,7 +294,7 @@ for epsilon in eps_ls:
             ls_x = plotPerformanceList(X_schedules, solution)
 
             undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
-                ls_p, ls_sc, ls_r, eps)
+                ls_p, ls_sc, ls_r, eps, prob)
 
             undercoverage_pool.append(undercoverage_a)
             understaffing_pool.append(understaffing_a)

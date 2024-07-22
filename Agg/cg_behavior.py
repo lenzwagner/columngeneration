@@ -3,7 +3,7 @@ from subproblem import *
 from gcutil import *
 from compactsolver import *
 
-def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi, threshold, time_cg, I, T, K):
+def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi, threshold, time_cg, I, T, K, scale):
     # **** Column Generation ****
     # Prerequisites
     modelImprovable = True
@@ -168,8 +168,7 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     master.model.setParam('PoolSearchMode', 2)
     master.model.setParam('PoolSolutions', 100)
     master.model.setParam('PoolGap', 0.01)
-    master.model.setParam('TimeLimit', 300)
-    master.finalSolve(time_cg)
+    master.finalSolve(300)
     objValHistRMP.append(master.model.objval)
     final_obj = master.model.objval
     final_lb = objValHistRMP[-2]
@@ -214,7 +213,7 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     ls_p1 = plotPerformanceList(Perf_schedules, sol)
 
     undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_behavior(
-        ls_p1, ls_sc1)
+        ls_p1, ls_sc1, scale)
 
     undercoverage_pool.append(undercoverage_ab)
     understaffing_pool.append(understaffing_ab)
@@ -244,7 +243,7 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         ls_r = process_recovery(ls_sc, chi, len(T))
 
         undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_behavior(
-            ls_p, ls_sc)
+            ls_p, ls_sc, scale)
 
         undercoverage_pool.append(undercoverage_a)
         understaffing_pool.append(understaffing_a)

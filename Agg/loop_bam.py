@@ -9,10 +9,10 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.03, 0.04]
+eps_ls = [0, 0.01, 0.02, 0.03]
 chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
-I = list(range(1, 101))
+I = list(range(1, 51))
 K = [1, 2, 3]
 
 # DataFrame
@@ -23,11 +23,12 @@ results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
+prob = 1
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'bam_0-0.04-100-Medium_{current_time}'
-file2 = f'bam_condens_0-0.04_100-Medium_{current_time}'
+file = f'bam_0-0.03-50-Medium_{current_time}'
+file2 = f'bam_condens_0-0.03_50-Medium_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.csv'
 file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.xlsx'
 file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file2}.csv'
@@ -45,7 +46,7 @@ for epsilon in eps_ls:
         seed1 = 123 - math.floor(len(I)*len(T))
         print(seed1)
         random.seed(seed1)
-        demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.25)
+        demand_dict = demand_dict_fifty(len(T), prob, len(I), 2, 0.25)
         max_itr = 200
         output_len = 98
         mue = 1e-4
@@ -59,7 +60,7 @@ for epsilon in eps_ls:
 
         # Column Generation
         undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, autocorell, final_obj, final_lb, itr, lagrangeB = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
-                                    threshold, time_cg, I, T, K)
+                                    threshold, time_cg, I, T, K, prob)
 
         # Data frame
         result = pd.DataFrame([{

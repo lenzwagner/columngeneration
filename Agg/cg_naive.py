@@ -3,7 +3,7 @@ from subproblem import *
 from gcutil import *
 from compactsolver import *
 
-def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi, threshold, time_cg, I, T, K, epsi):
+def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi, threshold, time_cg, I, T, K, epsi, scale):
     # **** Column Generation ****
     # Prerequisites
     modelImprovable = True
@@ -206,7 +206,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     ls_r1 = process_recovery(ls_sc1, chi, len(T))
 
     undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_naive(
-        ls_p1, ls_sc1, ls_r1, epsi)
+        ls_p1, ls_sc1, ls_r1, epsi, scale)
 
     undercoverage_pool.append(undercoverage_ab)
     understaffing_pool.append(understaffing_ab)
@@ -237,7 +237,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         ls_x = plotPerformanceList(X_schedules, solution)
 
         undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
-            ls_p, ls_sc, ls_r, epsi)
+            ls_p, ls_sc, ls_r, epsi, scale)
 
         undercoverage_pool.append(undercoverage_a)
         understaffing_pool.append(understaffing_a)

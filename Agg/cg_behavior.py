@@ -254,6 +254,8 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
             understaffing_pool_norm.append(understaffing_norm_a)
             perf_pool_norm.append(perfloss_norm_a)
             cons_pool_norm.append(consistency_norm_a)
+        else:
+            pass
 
     # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
     print(f"Total feasible solutions processed: {len(undercoverage_pool)}")

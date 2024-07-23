@@ -9,7 +9,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     modelImprovable = True
 
     # Get Starting Solutions
-    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i, chi)
+    problem_start = Problem(data, demand_dict, eps, Min_WD_i, Max_WD_i, 0)
     problem_start.buildLinModel()
     problem_start.model.Params.MIPFocus = 1
     problem_start.model.Params.Heuristics = 1
@@ -86,7 +86,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         modelImprovable = False
 
         # Build SP
-        subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, chi)
+        subproblem = Subproblem(duals_i, duals_ts, data, 1, itr, eps, Min_WD_i, Max_WD_i, 0)
         subproblem.buildModel()
 
         # Save time to solve SP

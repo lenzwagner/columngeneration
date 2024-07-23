@@ -3,6 +3,9 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
+colors = plt.cm.magma(np.linspace(0, 0.9, 6))
+
+
 def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     data = pd.read_csv(file)
 
@@ -25,7 +28,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     plt.figure(figsize=(12, 8))
 
     # Use a Seaborn color palette
-    palette = sns.color_palette("deep")
+    palette = colors
 
     if option == 1:
         # Sort data by the x_axis
@@ -47,13 +50,16 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
             fontsize=15)
 
     elif option == 2:
-        # Plot scatter plots for overall trend
-        sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', label='Trend-BAP')
-        sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label='Trend-NPP')
+        # Use the same color for both trend lines
+        trend_color = palette[0]
 
-        # Add trend lines
-        sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0])
-        sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1])
+        # Plot scatter plots for overall trend
+        sns.scatterplot(data=data, x=x_axis, y=y_col, color=trend_color, marker='o', label='Trend-BAP')
+        sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=trend_color, marker='s', label='Trend-NPP')
+
+        # Add trend lines with the same color
+        sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=trend_color)
+        sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=trend_color)
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
@@ -70,7 +76,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
                 npp_label = f'NPP ({r"$\varepsilon$"}={val:.2f})'
 
             # Use the same color for BAP and NPP with the same value
-            color = palette[(i + 2) % len(palette)]
+            color = palette[(i + 1) % len(palette)]  # Start from the second color in the palette
 
             sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=bap_label)
             sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=npp_label)
@@ -286,13 +292,13 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 
 # Example function call with grid option
 # Example function calls
-plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
+#plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
 plot_data(2, 'data/data.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
+#plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
 plot_data(2, 'data/data.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
-plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
-plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis
-plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis
-plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='epsilon', x_axis2='epsilon', grid=True)
-plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='chi', x_axis2='chi', grid=True)
+#plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
+#plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
+#plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis
+#plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis
+#plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='epsilon', x_axis2='epsilon', grid=True)
+#plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='chi', x_axis2='chi', grid=True)

@@ -14,7 +14,7 @@ chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
 I = list(range(1, 151))
 K = [1, 2, 3]
-prob = 1
+prob = 1.1
 
 
 
@@ -43,16 +43,16 @@ results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 60
-time_cg_init_npm = 30
+time_cg_init_npm = 60
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'npm_150_Low_{current_time}'
-file2 = f'npm_condens_150_Low_{current_time}'
-file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file}.xlsx'
-file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file2}.csv'
-file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}{file2}.xlsx'
+file = f'npm_150_High_{current_time}'
+file2 = f'npm_condens_150_High_{current_time}'
+file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}150-High{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}150-High{os.sep}{file}.xlsx'
+file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}150-High{os.sep}{file2}.csv'
+file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}npm{os.sep}150-High{os.sep}{file2}.xlsx'
 
 
 # **** Column Generation ****
@@ -65,7 +65,7 @@ problem_start.buildLinModel()
 problem_start.model.Params.MIPFocus = 1
 problem_start.model.Params.Heuristics = 1
 problem_start.model.Params.RINS = 10
-problem_start.model.Params.TimeLimit = time_cg_init
+problem_start.model.Params.TimeLimit = time_cg_init_npm
 problem_start.model.update()
 problem_start.model.optimize()
 
@@ -348,7 +348,7 @@ for epsilon in eps_ls:
 
         result = pd.DataFrame([{
             'I': len(I),
-            'pattern': "Medium",
+            'pattern': "High",
             'epsilon': epsilon,
             'chi': chi,
             'undercover_n': undercoverage,

@@ -9,7 +9,7 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0, 0.01, 0.02, 0.03]
+eps_ls = [0]
 chi_ls = [3, 4, 5, 6, 7, 8]
 T = list(range(1, 29))
 I = list(range(1, 51))

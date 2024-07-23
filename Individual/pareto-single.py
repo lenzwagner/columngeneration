@@ -118,7 +118,7 @@ def create_plot(show_pareto=True):
     plt.figure(figsize=(12, 8))
 
     # Adjusting the color range to focus on the brighter part of the magma palette
-    colors = plt.cm.magma(np.linspace(0.2, 0.8, max(len(df1), len(df2))))
+    colors = plt.cm.magma(np.linspace(0, 0.95, max(len(df1), len(df2))))
 
     # Dictionary to store the labels to avoid duplication in the legend
     labels_dict = {}

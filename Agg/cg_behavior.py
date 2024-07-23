@@ -245,14 +245,15 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_behavior(
             ls_p, ls_sc, scale)
 
-        undercoverage_pool.append(undercoverage_a)
-        understaffing_pool.append(understaffing_a)
-        perf_pool.append(perfloss_a)
-        cons_pool.append(consistency_a)
-        undercoverage_pool_norm.append(undercoverage_norm_a)
-        understaffing_pool_norm.append(understaffing_norm_a)
-        perf_pool_norm.append(perfloss_norm_a)
-        cons_pool_norm.append(consistency_norm_a)
+        if perfloss_norm_a >= 0:
+            undercoverage_pool.append(undercoverage_a)
+            understaffing_pool.append(understaffing_a)
+            perf_pool.append(perfloss_a)
+            cons_pool.append(consistency_a)
+            undercoverage_pool_norm.append(undercoverage_norm_a)
+            understaffing_pool_norm.append(understaffing_norm_a)
+            perf_pool_norm.append(perfloss_norm_a)
+            cons_pool_norm.append(consistency_norm_a)
 
     # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
     print(f"Total feasible solutions processed: {len(undercoverage_pool)}")

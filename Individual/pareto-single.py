@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np
 from matplotlib.lines import Line2D
+import seaborn as sns
 from matplotlib.legend_handler import HandlerBase
 
 # Custom legend handler for short thick lines
@@ -176,14 +177,18 @@ def create_plot(show_pareto=True):
         pareto_line_legend = Line2D([0], [0], color='red', label='Pareto-Frontier Line', lw=2, linestyle='--')
         legend_elements.append(pareto_line_legend)
 
+    legend_position1 = 'center right'
+
+
+
     # Position the legend based on the determined position
     plt.legend(handles=legend_elements,
                title='Combinations:',
-               loc=legend_position,
+               loc=legend_position1,
                ncol=1,
                handler_map={Line2D: ShortThickLineHandler(), pareto_line_legend: ParetoLineHandler()} if show_pareto else {
                    Line2D: ShortThickLineHandler()},
-               fontsize='small')
+               fontsize=8.5)
 
     # Increase the font size of axis labels marginally
     plt.xlabel('Undercoverage', fontsize=14)

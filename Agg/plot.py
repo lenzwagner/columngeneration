@@ -19,6 +19,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     y_col_n = f'{metric}_norm_n'
 
     # Set Seaborn style
+    sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
     plt.figure(figsize=(12, 8))
@@ -56,9 +57,6 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
-        plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == "epsilon" else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
-            fontsize=15)
 
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'
@@ -86,7 +84,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
         return
 
     # Adjust x-axis from 0 to max(x_axis)*1.2
-    plt.xlim(data[x_axis].min() * 0.95, data[x_axis].max() * 1.02)
+    plt.xlim(-0.0015, data[x_axis].max() * 1.02)
 
     # Adjust y-axis to start from min*0.9
     y_min = min(data[y_col].min(), data[y_col_n].min())
@@ -96,14 +94,10 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     if x_axis == 'chi':
         plt.xticks(np.arange(data[x_axis].min(), data[x_axis].max() + 1, 1))
 
-    # Add grid if requested
-    sns.set_theme(style="darkgrid" if grid else "whitegrid")
-
-
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
 
-    # Funktion zum Formatieren der Labels
+    # Function to format labels
     def format_label(label):
         if 'χ=' in label:
             parts = label.split('χ=')
@@ -111,17 +105,21 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
             return f"{parts[0]}χ={int(value)}"
         return label
 
-    # Formatiere die Labels
+    # Format the labels
     labels = [format_label(label) for label in labels]
 
     sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('Trend' not in x[1], 'NPP' in x[1], x[1]))
     handles, labels = zip(*sorted_handles_labels)
 
-    # Place the legend in the upper left corner if the combination is 'undercover' and 'epsilon'
-    if metric == 'undercover' and x_axis == 'epsilon':
-        plt.legend(handles=handles, labels=labels, loc='upper left')
+    # Place the legend inside the plot for the specific case
+    if option == 2 and metric == 'cons' and x_axis == 'epsilon':
+        plt.legend(handles=handles, labels=labels, loc='center right', bbox_to_anchor=(0.98, 0.55))
     else:
-        plt.legend(handles=handles, labels=labels, bbox_to_anchor=(1.005, 1), loc='upper left')
+        # Use the previous logic for other cases
+        if metric == 'undercover' and x_axis == 'epsilon':
+            plt.legend(handles=handles, labels=labels, loc='upper left')
+        else:
+            plt.legend(handles=handles, labels=labels, bbox_to_anchor=(1.005, 1), loc='upper left')
 
     # Adjust layout
     plt.tight_layout()
@@ -288,10 +286,10 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 
 # Example function call with grid option
 # Example function calls
-plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=True) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'undercover', x_axis='epsilon') # Epsilon on x-axis
-plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon') # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'cons', x_axis='epsilon') # Epsilon on x-axis
+plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
 plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
 plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
 plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis

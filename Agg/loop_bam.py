@@ -9,8 +9,8 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0]
-chi_ls = [3, 4, 5, 6, 7, 8]
+eps_ls = [0.06, 0.08, 0.1]
+chi_ls = [3, 4, 5, 6, 7]
 T = list(range(1, 29))
 I = list(range(1, 51))
 K = [1, 2, 3]
@@ -29,10 +29,10 @@ prob = 1
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
 file = f'bam_0-0.03-50-Medium_{current_time}'
 file2 = f'bam_condens_0-0.03_50-Medium_{current_time}'
-file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.csv'
-file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file}.xlsx'
-file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file2}.csv'
-file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}{file2}.xlsx'
+file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}100-Medium{os.sep}{file}.csv'
+file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}100-Medium{os.sep}{file}.xlsx'
+file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}100-Medium{os.sep}{file2}.csv'
+file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}bam{os.sep}100-Medium{os.sep}{file2}.xlsx'
 
 # Loop
 for epsilon in eps_ls:

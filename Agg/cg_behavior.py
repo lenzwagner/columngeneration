@@ -166,8 +166,8 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     # Solve Master Problem with integrality restored
     master.model.setParam('PoolSearchMode', 2)
-    master.model.setParam('PoolSolutions', 100)
-    master.model.setParam('PoolGap', 0.01)
+    master.model.setParam('PoolSolutions', 20)
+    master.model.setParam('PoolGap', 0.0001)
     master.finalSolve(300)
     objValHistRMP.append(master.model.objval)
     final_obj = master.model.objval

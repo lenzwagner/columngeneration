@@ -164,13 +164,14 @@ class MasterProblem:
 
         comparison_result = [
             max(0, self.demand_values[i] - sum_xWerte[i])
-            for i in range(len(self.demand))
+            for i in range(len(self.demand_values))
         ]
 
-        print(f"Xwer: {comparison_result}")
-        print(f"Demd: {comparison_result}")
+        print(f"Xwer: {sum_xWerte}")
+        print(f"Demd: {self.demand_values}")
 
         print(f"Comp: {comparison_result}")
+        print(f"URes: {[(self.u[t, k].x) for t in self.days for k in self.shifts]}")
 
         undercoverage = u_results
         understaffing = round(sum(comparison_result), 5)

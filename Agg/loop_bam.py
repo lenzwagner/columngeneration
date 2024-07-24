@@ -10,9 +10,9 @@ import pandas as pd
 # **** Prerequisites ****
 # Create Dataframes
 eps_ls = [0]
-chi_ls = [4]
+chi_ls = [4,5,6,7]
 T = list(range(1, 29))
-I = list(range(1, 51))
+I = list(range(1, 101))
 K = [1, 2, 3]
 
 # DataFrame
@@ -22,7 +22,7 @@ results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons
 # Times and Parameter
 time_Limit = 7200
 time_cg = 7200
-time_cg_init = 60
+time_cg_init = 10
 prob = 1
 
 # Datanames

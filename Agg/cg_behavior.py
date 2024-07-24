@@ -212,15 +212,24 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_behavior(
         ls_p, ls_sc, scale)
-
-    undercoverage_pool.append(undercoverage_ab)
-    understaffing_pool.append(understaffing_ab)
-    perf_pool.append(perfloss_ab)
-    cons_pool.append(consistency_ab)
-    undercoverage_pool_norm.append(undercoverage_norm_ab)
-    understaffing_pool_norm.append(understaffing_norm_ab)
-    perf_pool_norm.append(perfloss_norm_ab)
-    cons_pool_norm.append(consistency_norm_ab)
+    if eps == 0:
+        undercoverage_pool.append(undercoverage_ab-perfloss_ab)
+        understaffing_pool.append(understaffing_ab)
+        perf_pool.append(0)
+        cons_pool.append(consistency_ab)
+        undercoverage_pool_norm.append(undercoverage_norm_ab-perfloss_norm_ab)
+        understaffing_pool_norm.append(understaffing_norm_ab)
+        perf_pool_norm.append(0)
+        cons_pool_norm.append(consistency_norm_ab)
+    else:
+        undercoverage_pool.append(undercoverage_ab)
+        understaffing_pool.append(understaffing_ab)
+        perf_pool.append(perfloss_ab)
+        cons_pool.append(consistency_ab)
+        undercoverage_pool_norm.append(undercoverage_norm_ab)
+        understaffing_pool_norm.append(understaffing_norm_ab)
+        perf_pool_norm.append(perfloss_norm_ab)
+        cons_pool_norm.append(consistency_norm_ab)
 
     print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
     print(f"Under-List: {undercoverage_pool}")

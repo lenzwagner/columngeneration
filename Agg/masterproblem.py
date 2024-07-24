@@ -167,9 +167,19 @@ class MasterProblem:
             for i in range(len(self.demand))
         ]
 
+        print(f"Xwer: {comparison_result}")
+        print(f"Demd: {comparison_result}")
+
+        print(f"Comp: {comparison_result}")
+
         undercoverage = u_results
         understaffing = round(sum(comparison_result), 5)
         perfloss = round(undercoverage - understaffing, 5)
+
+        print(f"Undercoverage before: {undercoverage}")
+        print(f"Understaffing before: {understaffing}")
+        print(f"PerformanceLo before: {perfloss}")
+
 
         # Noramlized Values
         undercoverage_norm = undercoverage / (len(self.nurses)*scale)

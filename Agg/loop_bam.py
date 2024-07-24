@@ -9,8 +9,8 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0, 0.02, 0.04, 0.06, 0.08, 0.1]
-chi_ls = [3, 4, 5, 6, 7]
+eps_ls = [0]
+chi_ls = [4]
 T = list(range(1, 29))
 I = list(range(1, 51))
 K = [1, 2, 3]
@@ -50,7 +50,7 @@ for epsilon in eps_ls:
         max_itr = 200
         output_len = 98
         mue = 1e-4
-        threshold = 4e-5
+        threshold = 5e-5
 
         data = pd.DataFrame({
             'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -98,7 +98,10 @@ for epsilon in eps_ls:
 
         results2 = pd.concat([results2, result2], ignore_index=True)
 
-results.to_csv(file_name_csv, index=False)
-results.to_excel(file_name_xlsx, index=False)
-results2.to_csv(file_name_csv2, index=False)
-results2.to_excel(file_name_xlsx2, index=False)
+#results.to_csv(file_name_csv, index=False)
+#results.to_excel(file_name_xlsx, index=False)
+#results2.to_csv(file_name_csv2, index=False)
+#results2.to_excel(file_name_xlsx2, index=False)
+
+
+print(results2)

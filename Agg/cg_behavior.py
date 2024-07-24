@@ -165,9 +165,6 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         max_itr *= 2
 
     # Solve Master Problem with integrality restored
-    master.model.setParam('PoolSearchMode', 2)
-    master.model.setParam('PoolSolutions', 20)
-    master.model.setParam('PoolGap', 0.0001)
     master.finalSolve(300)
     objValHistRMP.append(master.model.objval)
     final_obj = master.model.objval
@@ -209,11 +206,12 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     sol = master.printLambdas()
 
-    ls_sc1 = plotPerformanceList(Cons_schedules, sol)
-    ls_p1 = plotPerformanceList(Perf_schedules, sol)
+    ls_sc = plotPerformanceList(Cons_schedules, sol)
+    ls_p = plotPerformanceList(Perf_schedules, sol)
+    ls_r = process_recovery(ls_sc, chi, len(T))
 
     undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_behavior(
-        ls_p1, ls_sc1, scale)
+        ls_p, ls_sc, scale)
 
     undercoverage_pool.append(undercoverage_ab)
     understaffing_pool.append(understaffing_ab)
@@ -224,40 +222,6 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     perf_pool_norm.append(perfloss_norm_ab)
     cons_pool_norm.append(consistency_norm_ab)
 
-    print(f"Solcount: {master.model.SolCount}")
-    for k in range(master.model.SolCount):
-        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
-        vals = master.model.getAttr("Xn", master.lmbda)
-
-        solution = {key: round(value) for key, value in vals.items()}
-        sum_lambda = sum(solution.values())
-        if abs(sum_lambda - len(I)) > 1e-6:
-            print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
-            continue
-
-        print(f"Processing feasible solution {k}")
-
-        ls_sc = plotPerformanceList(Cons_schedules, solution)
-        print(f"LsSc {ls_sc}")
-        ls_p = plotPerformanceList(Perf_schedules, solution)
-        ls_r = process_recovery(ls_sc, chi, len(T))
-
-        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_behavior(
-            ls_p, ls_sc, scale)
-
-        if perfloss_norm_a >= 0:
-            undercoverage_pool.append(undercoverage_a)
-            understaffing_pool.append(understaffing_a)
-            perf_pool.append(perfloss_a)
-            cons_pool.append(consistency_a)
-            undercoverage_pool_norm.append(undercoverage_norm_a)
-            understaffing_pool_norm.append(understaffing_norm_a)
-            perf_pool_norm.append(perfloss_norm_a)
-            cons_pool_norm.append(consistency_norm_a)
-        else:
-            pass
-
-    # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
     print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
     print(f"Under-List: {undercoverage_pool}")
     print(f"Perf-List: {perf_pool}")

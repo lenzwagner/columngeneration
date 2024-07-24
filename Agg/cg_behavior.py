@@ -165,6 +165,9 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         max_itr *= 2
 
     # Solve Master Problem with integrality restored
+    master.model.setParam('PoolSearchMode', 2)
+    master.model.setParam('PoolSolutions', 100)
+    master.model.setParam('PoolGap', 0.01)
     master.finalSolve(300)
     objValHistRMP.append(master.model.objval)
     final_obj = master.model.objval
@@ -231,19 +234,60 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
         perf_pool_norm.append(perfloss_norm_ab)
         cons_pool_norm.append(consistency_norm_ab)
 
+    print(f"Solcount: {master.model.SolCount}")
+    for k in range(master.model.SolCount):
+        master.model.setParam(gu.GRB.Param.SolutionNumber, k)
+        vals = master.model.getAttr("Xn", master.lmbda)
+
+        solution = {key: round(value) for key, value in vals.items()}
+        sum_lambda = sum(solution.values())
+        if abs(sum_lambda - len(I)) > 1e-6:
+            print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
+            continue
+
+        print(f"Processing feasible solution {k}")
+
+        ls_sc = plotPerformanceList(Cons_schedules, solution)
+        print(f"LsSc {ls_sc}")
+        ls_p = plotPerformanceList(Perf_schedules, solution)
+        ls_r = process_recovery(ls_sc, chi, len(T))
+        ls_x = plotPerformanceList(X_schedules, solution)
+
+        undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
+            ls_p, ls_sc, ls_r, eps, scale)
+        if eps == 0:
+            undercoverage_pool.append(undercoverage_a-perfloss_a)
+            understaffing_pool.append(understaffing_a)
+            perf_pool.append(0)
+            cons_pool.append(consistency_a)
+            undercoverage_pool_norm.append(undercoverage_norm_a-perfloss_norm_a)
+            understaffing_pool_norm.append(understaffing_norm_a)
+            perf_pool_norm.append(0)
+            cons_pool_norm.append(consistency_norm_a)
+        else:
+            undercoverage_pool.append(undercoverage_a)
+            understaffing_pool.append(understaffing_a)
+            perf_pool.append(perfloss_a)
+            cons_pool.append(consistency_a)
+            undercoverage_pool_norm.append(undercoverage_norm_a)
+            understaffing_pool_norm.append(understaffing_norm_a)
+            perf_pool_norm.append(perfloss_norm_a)
+            cons_pool_norm.append(consistency_norm_a)
+
+
     print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
     print(f"Under-List: {undercoverage_pool}")
     print(f"Perf-List: {perf_pool}")
     print(f"Cons-List: {cons_pool}")
 
-    undercoverage = sum(undercoverage_pool) / len(undercoverage_pool)
-    understaffing = sum(understaffing_pool) / len(understaffing_pool)
-    perfloss = sum(perf_pool) / len(perf_pool)
-    consistency = sum(cons_pool) / len(cons_pool)
-    undercoverage_norm = sum(undercoverage_pool_norm) / len(undercoverage_pool_norm)
-    understaffing_norm = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
-    perfloss_norm = sum(perf_pool_norm) / len(perf_pool_norm)
-    consistency_norm = sum(cons_pool_norm) / len(cons_pool_norm)
+    undercoverage = min(undercoverage_pool)
+    understaffing = min(understaffing_pool)
+    perfloss = min(perf_pool)
+    consistency = min(cons_pool)
+    undercoverage_norm = min(undercoverage_pool_norm)
+    understaffing_norm = min(understaffing_pool_norm)
+    perfloss_norm = min(perf_pool_norm)
+    consistency_norm = min(cons_pool_norm)
     # Coefficients
     sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
     variation_coefficients = [master.calculate_variation_coefficient(indices) for indices in indices_list]

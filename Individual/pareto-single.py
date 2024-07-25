@@ -115,7 +115,7 @@ def create_plot(show_pareto=True):
     legend_position = determine_legend_position(df)
 
     # Create plot
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(11, 6))
 
     # Adjusting the color range to focus on the brighter part of the magma palette
     colors = plt.cm.magma(np.linspace(0, 0.95, max(len(df1), len(df2))))
@@ -170,36 +170,37 @@ def create_plot(show_pareto=True):
                                 linewidth=2, alpha=0.7)
 
     # Create legend
-    legend_elements = [Line2D([0], [0], color=handle.get_facecolor()[0], label=label, lw=4)
+    legend_elements = [Line2D([0], [0], color=handle.get_facecolor()[0], label=label, lw=3)
                        for label, handle in labels_dict.items()]
 
     if show_pareto:
-        pareto_line_legend = Line2D([0], [0], color='red', label='Pareto-Frontier Line', lw=2, linestyle='--')
+        pareto_line_legend = Line2D([0], [0], color='red', label='Pareto-Frontier', lw=2, linestyle='--')
         legend_elements.append(pareto_line_legend)
-
-    legend_position1 = 'center right'
-
-
 
     # Position the legend based on the determined position
     plt.legend(handles=legend_elements,
-               title='Combinations:',
-               loc=legend_position1,
-               ncol=1,
+               title='Combinations',
+               loc='center left',
+               bbox_to_anchor=(1, 0.5),
+               ncol=2,
                handler_map={Line2D: ShortThickLineHandler(), pareto_line_legend: ParetoLineHandler()} if show_pareto else {
                    Line2D: ShortThickLineHandler()},
-               fontsize=8.5)
+               fontsize=10)
 
     # Increase the font size of axis labels marginally
-    plt.xlabel('Undercoverage', fontsize=14)
-    plt.ylabel('Consistency (ø Shift Changes)', fontsize=14)
+    plt.xlabel('Undercoverage', fontsize=12)
+    plt.ylabel('Consistency (ø Shift Changes)', fontsize=12)
     plt.grid(True)
 
     # Set axis limits
     plt.xlim(df['undercoverage'].min() - 1, df['undercoverage'].max() + 1)
     plt.ylim(df['consistency'].min() - 1, df['consistency'].max() + 1)
 
+    # Anpassen des Layouts
     plt.tight_layout()
+    plt.subplots_adjust(right=0.75)  # Platz für die Legende rechts lassen
+
+    plt.savefig('pareto.svg', bbox_inches='tight')
     plt.show()
 
 # Aufruf der Funktion

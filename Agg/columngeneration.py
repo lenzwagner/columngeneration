@@ -10,7 +10,7 @@ from depth_boxplot import *
 
 # **** Prerequisites ****
 # Create Dataframes
-I, T, K = list(range(1,5)), list(range(1,14)), list(range(1,4))
+I, T, K = list(range(1,101)), list(range(1,29)), list(range(1,4))
 random.seed(133)
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -43,8 +43,7 @@ chi = 5
 # Demand Dict
 demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
 print(len(T))
-#plot_demand_bar_by_day(demand_dict, 28, 3)
-
+plot_demand_bar_by_day(demand_dict, 28, 3)
 
 # **** Compact Solver ****
 problem_t0 = time.time()

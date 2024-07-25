@@ -109,6 +109,8 @@ def plot_demand_pattern(demands, days, shifts):
     plt.xticks(range(1, shifts + 1), shift_labels)
     plt.legend()
     plt.grid(True)
+    plt.savefig('demand.svg', bbox_inches='tight')
+
     plt.show()
 
 def plot_demand_bar(demands, days, shifts):
@@ -184,6 +186,8 @@ def plot_demand_bar_by_day(demands, days, shifts):
     plt.title('Demand Pattern', fontsize= 20)
     plt.grid(axis='y')
     plt.tight_layout()
+    plt.savefig('demand.svg', bbox_inches='tight')
+
     plt.show()
 
 def demand_dict_fifty_min(num_days, prob, demand, middle_shift, fluctuation=0.25, seed=None):

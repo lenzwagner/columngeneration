@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 import numpy as np
 import pandas as pd
 
 colors = plt.cm.magma(np.linspace(0, 0.9, 6))
 
 
-def plot_data(option, file, metric, x_axis='epsilon', grid=True):
+def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
+    file1 = str(name)
+    file_name = f'.{os.sep}images{os.sep}{file1}.svg'
     data = pd.read_csv(file)
 
     if metric not in ['cons', 'undercover']:
@@ -25,7 +28,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(11, 6))
 
     # Use a Seaborn color palette
     palette = colors
@@ -131,7 +134,10 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True):
     plt.tight_layout()
 
     # Display the plot
+
+    plt.savefig(file_name, bbox_inches='tight')
     plt.show()
+
 
 def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='epsilon', x_axis2='epsilon', grid=True):
     data1 = pd.read_csv(file1)
@@ -293,11 +299,11 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 # Example function call with grid option
 # Example function calls
 #plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'varunder', 'undercover',  x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'varcons', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
-plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
+#plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
 #plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis
 #plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis
 #plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='epsilon', x_axis2='epsilon', grid=True)

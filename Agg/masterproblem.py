@@ -129,9 +129,9 @@ class MasterProblem:
             self.model.Params.QCPDual = 1
             self.model.Params.OutputFlag = 0
             self.model.Params.IntegralityFocus = 1
-            self.model.Params.FeasibilityTol = 1e-9
+            self.model.Params.FeasibilityTol = 1e-7
             self.model.Params.BarConvTol = 0.0
-            self.model.Params.MIPGap = 1e-4
+            self.model.Params.MIPGap = 1e-5
             self.model.setParam('ConcurrentMIP', 2)
             self.model.optimize()
         except gu.GurobiError as e:
@@ -166,12 +166,6 @@ class MasterProblem:
             max(0, self.demand_values[i] - sum_xWerte[i])
             for i in range(len(self.demand_values))
         ]
-
-        print(f"Xwer: {sum_xWerte}")
-        print(f"Demd: {self.demand_values}")
-
-        print(f"Comp: {comparison_result}")
-        print(f"URes: {[(self.u[t, k].x) for t in self.days for k in self.shifts]}")
 
         undercoverage = u_results
         understaffing = round(sum(comparison_result), 5)

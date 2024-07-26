@@ -50,12 +50,14 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
                      linestyle='--', label=f'NPP (χ={int(chi)})')
 
             # Add error bars
-            plt.errorbar(bap_mean.index, bap_mean.values,
-                         yerr=[bap_mean.values - bap_min.values, bap_max.values - bap_mean.values],
-                         fmt='none', capsize=5, color=colors[i % len(colors)])
-            plt.errorbar(npp_mean.index, npp_mean.values,
-                         yerr=[npp_mean.values - npp_min.values, npp_max.values - npp_mean.values],
-                         fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
+            bap_error = plt.errorbar(bap_mean.index, bap_mean.values,
+                                     yerr=[bap_mean.values - bap_min.values, bap_max.values - bap_mean.values],
+                                     fmt='none', capsize=5, color=colors[i % len(colors)])
+            npp_error = plt.errorbar(npp_mean.index, npp_mean.values,
+                                     yerr=[npp_mean.values - npp_min.values, npp_max.values - npp_mean.values],
+                                     fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
+            # Set linestyle for NPP error bars
+            npp_error[-1][0].set_linestyle('--')
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
@@ -83,7 +85,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
 
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
-    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('NPP' in x[1], x[1]))
+    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'NPP' in x[1]))
     handles, labels = zip(*sorted_handles_labels)
 
     # Different legend placement options
@@ -147,16 +149,18 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
             # Plot BAP on the subplot
             ax.plot(bap_mean.index, bap_mean.values, color=colors[i % len(colors)], marker='o',
                     label=f'BAP (χ={int(chi)})')
-            ax.errorbar(bap_mean.index, bap_mean.values,
-                        yerr=[bap_mean.values - bap_min.values, bap_max.values - bap_mean.values],
-                        fmt='none', capsize=5, color=colors[i % len(colors)])
+            bap_error = ax.errorbar(bap_mean.index, bap_mean.values,
+                                    yerr=[bap_mean.values - bap_min.values, bap_max.values - bap_mean.values],
+                                    fmt='none', capsize=5, color=colors[i % len(colors)])
 
             # Plot NPP on the subplot
             ax.plot(npp_mean.index, npp_mean.values, color=colors[i % len(colors)], marker='s',
                     linestyle='--', label=f'NPP (χ={int(chi)})')
-            ax.errorbar(npp_mean.index, npp_mean.values,
-                        yerr=[npp_mean.values - npp_min.values, npp_max.values - npp_mean.values],
-                        fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
+            npp_error = ax.errorbar(npp_mean.index, npp_mean.values,
+                                    yerr=[npp_mean.values - npp_min.values, npp_max.values - npp_mean.values],
+                                    fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
+            # Set linestyle for NPP error bars
+            npp_error[-1][0].set_linestyle('--')
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -164,13 +168,13 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
-        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('NPP' in x[1], x[1]))
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'NPP' in x[1]))
         handles, labels = zip(*sorted_handles_labels)
 
         if ax == axs[0]:
             # Left plot legend
             if legend_option_left == 1:
-                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize = 8)
+                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=8)
             elif legend_option_left == 2:
                 ax.legend(handles=handles, labels=labels, loc='upper right')
             elif legend_option_left == 3:
@@ -180,7 +184,7 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
                 return
         else:
             # Right plot legend with custom position
-            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize = 8, loc='upper left')
+            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=8, loc='upper left')
 
     # Adjust x-axis to start from a negative value and end at max(x_axis)*1.02
     x_min = data[x_axis].min()
@@ -207,7 +211,6 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
     plt.savefig('sens_nr.svg', bbox_inches='tight')
     # Display the plot
     plt.show()
-
 
 # Example function call
 plot_data_both('data/data_sens.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))

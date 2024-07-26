@@ -1,11 +1,17 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
-import numpy as np
 import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-colors = plt.cm.magma(np.linspace(0, 0.9, 6))
+palett = plt.cm.magma(np.linspace(0, 0.9, 6))
 
+
+import os
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     file1 = str(name)
@@ -31,7 +37,7 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     plt.figure(figsize=(11, 5.5))
 
     # Use a Seaborn color palette
-    palette = colors
+    palette = palett
 
     if option == 1:
         # Sort data by the x_axis
@@ -49,7 +55,7 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
         plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == "epsilon" else "χ"}',
+            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == 'epsilon' else "χ"}',
             fontsize=15)
 
     elif option == 2:
@@ -57,8 +63,8 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
         trend_color = palette[0]
 
         # Plot scatter plots for overall trend
-        sns.scatterplot(data=data, x=x_axis, y=y_col, color=trend_color, marker='o', label='Trend-BAP')
-        sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=trend_color, marker='s', label='Trend-NPP')
+        trend_bap = sns.scatterplot(data=data, x=x_axis, y=y_col, color=trend_color, marker='o', label='Trend-BAP')
+        trend_npp = sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=trend_color, marker='s', label='Trend-NPP')
 
         # Add trend lines with the same color
         sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=trend_color)
@@ -106,37 +112,38 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
 
-    # Function to format labels
-    def format_label(label):
-        if 'χ=' in label:
-            parts = label.split('χ=')
-            value = float(parts[1])
-            return f"{parts[0]}χ={int(value)}"
-        return label
+    # Separate trend labels and other labels
+    trend_labels = [(handle, label) for handle, label in zip(handles, labels) if 'Trend' in label]
+    other_labels = [(handle, label) for handle, label in zip(handles, labels) if 'Trend' not in label]
 
-    # Format the labels
-    labels = [format_label(label) for label in labels]
+    # Sort other labels for alternation
+    unique_vals = sorted(set(label.split('=')[-1].strip(')') for _, label in other_labels))
+    sorted_other_labels = []
+    for val in unique_vals:
+        for handle, label in other_labels:
+            if val in label:
+                sorted_other_labels.append((handle, label))
 
-    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: ('Trend' not in x[1], 'NPP' in x[1], x[1]))
-    handles, labels = zip(*sorted_handles_labels)
+    # Combine trend labels and sorted other labels
+    new_handles, new_labels = zip(*(trend_labels + sorted_other_labels))
 
     # Place the legend inside the plot for the specific case
     if option == 2 and metric == 'cons' and x_axis == 'epsilon':
-        plt.legend(handles=handles, labels=labels, loc='center right', bbox_to_anchor=(0.98, 0.55))
+        plt.legend(new_handles, new_labels, loc='center right', bbox_to_anchor=(0.98, 0.55))
     else:
         # Use the previous logic for other cases
         if metric == 'undercover' and x_axis == 'epsilon':
-            plt.legend(handles=handles, labels=labels, loc='upper left')
+            plt.legend(new_handles, new_labels, loc='upper left')
         else:
-            plt.legend(handles=handles, labels=labels, bbox_to_anchor=(1.005, 1), loc='upper left')
+            plt.legend(new_handles, new_labels, bbox_to_anchor=(1.005, 1), loc='upper left')
 
     # Adjust layout
     plt.tight_layout()
 
     # Display the plot
-
     plt.savefig(file_name, bbox_inches='tight')
     plt.show()
+
 
 
 def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='epsilon', x_axis2='epsilon', grid=True):
@@ -308,3 +315,6 @@ plot_data(2, 'data/data.csv', 'varcons', 'cons', x_axis='epsilon', grid=False) #
 #plot_data(2, 'data/data.csv', 'cons', x_axis='chi') # Chi on x-axis
 #plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='epsilon', x_axis2='epsilon', grid=True)
 #plot_two_plots(2, 2, 'data/data.csv', 'data/data.csv', 'undercover', 'cons', x_axis1='chi', x_axis2='chi', grid=True)
+
+
+

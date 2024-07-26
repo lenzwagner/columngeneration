@@ -28,7 +28,7 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
-    plt.figure(figsize=(11, 6))
+    plt.figure(figsize=(11, 5.5))
 
     # Use a Seaborn color palette
     palette = colors

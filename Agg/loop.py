@@ -23,12 +23,12 @@ results2 = pd.DataFrame(columns=['I', 'epsilon', 'chi', 'undercover_norm', 'cons
 time_Limit = 7200
 time_cg = 7200
 time_cg_init = 10
-prob = 1.1
+prob = 1
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'comb_150-High_{current_time}'
-file2 = f'comb_condens_150-High_{current_time}'
+file = f'comb_150-Medium_{current_time}'
+file2 = f'comb_condens_150-Medium_{current_time}'
 file_name_csv = f'.{os.sep}results{os.sep}study{os.sep}comb{os.sep}{file}.csv'
 file_name_xlsx = f'.{os.sep}results{os.sep}study{os.sep}comb{os.sep}{file}.xlsx'
 file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}comb{os.sep}{file2}.csv'

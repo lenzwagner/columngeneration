@@ -167,7 +167,7 @@ def plot_demand_bar_by_day(demands, days, shifts):
         for shift in range(1, shifts + 1):
             demands_list.append(demands[(day, shift)])
 
-    plt.figure(figsize=(14, 8))
+    plt.figure(figsize=(12, 5))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):
@@ -181,9 +181,9 @@ def plot_demand_bar_by_day(demands, days, shifts):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
 
-    plt.xlabel('Day', fontsize= 18)
-    plt.ylabel('Demand', fontsize= 18)
-    plt.title('Demand Pattern', fontsize= 20)
+    plt.xlabel('Day', fontsize= 12)
+    plt.ylabel('Demand', fontsize= 12)
+    #plt.title('Demand Pattern', fontsize= 20)
     plt.grid(axis='y')
     plt.tight_layout()
     plt.savefig('demand.svg', bbox_inches='tight')

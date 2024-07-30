@@ -123,6 +123,7 @@ def create_plot(show_pareto=True):
     # Dictionary to store the labels to avoid duplication in the legend
     labels_dict = {}
 
+
     # Points from the first list (Circles)
     for i, row in df1.iterrows():
         label = f"$\\epsilon={row['epsilon']} / \\chi={int(row['chi'])}$"

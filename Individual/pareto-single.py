@@ -115,10 +115,10 @@ def create_plot(show_pareto=True):
     legend_position = determine_legend_position(df)
 
     # Create plot
-    plt.figure(figsize=(11, 4.6))
+    plt.figure(figsize=(12, 6))
 
     # Adjusting the color range to focus on the brighter part of the magma palette
-    colors = plt.cm.magma(np.linspace(0, 0.95, max(len(df1), len(df2))))
+    colors = plt.cm.magma(np.linspace(0.15, 0.95, max(len(df1), len(df2))))
 
     # Dictionary to store the labels to avoid duplication in the legend
     labels_dict = {}

@@ -161,13 +161,13 @@ def plot_demand_bar_by_day(demands, days, shifts):
     - shifts: int, number of shifts per day.
     """
     demands_list = []
-    colors = plt.cm.viridis(np.linspace(0, 1, days))
+    colors = plt.cm.magma(np.linspace(0.15, 0.95, days))
 
     for day in range(1, days + 1):
         for shift in range(1, shifts + 1):
             demands_list.append(demands[(day, shift)])
 
-    plt.figure(figsize=(12, 5))
+    plt.figure(figsize=(12, 6))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):
@@ -186,7 +186,7 @@ def plot_demand_bar_by_day(demands, days, shifts):
     #plt.title('Demand Pattern', fontsize= 20)
     plt.grid(axis='y')
     plt.tight_layout()
-    plt.savefig('demand.svg', bbox_inches='tight')
+    plt.savefig('images/demand.svg', bbox_inches='tight')
 
     plt.show()
 

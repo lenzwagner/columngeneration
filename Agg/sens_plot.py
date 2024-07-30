@@ -22,10 +22,10 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(13, 8))
 
     # Use the specified color palette
-    colors = plt.cm.magma(np.linspace(0, 0.9, 6))
+    colors = plt.cm.magma(np.linspace(0.15, 0.95, 6))
 
     if option == 2:
         # Group data by chi
@@ -109,8 +109,8 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
     plt.show()
 
 # Example function calls with different legend options
-plot_data(2, 'data/data_sens.csv', 'undercover', x_axis='epsilon', grid=False, legend_option=1)
-plot_data(2, 'data/data_sens.csv', 'cons', x_axis='epsilon', grid=False, legend_option=2)
+#plot_data(2, 'data/data_sens.csv', 'undercover', x_axis='epsilon', grid=False, legend_option=1)
+#plot_data(2, 'data/data_sens.csv', 'cons', x_axis='epsilon', grid=False, legend_option=2)
 
 
 def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
@@ -120,7 +120,7 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create subplots
-    fig, axs = plt.subplots(1, 2, figsize=(13, 5.5), sharex=True)
+    fig, axs = plt.subplots(1, 2, figsize=(15, 6.5), sharex=True)
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0, 0.9, 6))
@@ -208,9 +208,114 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
     fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=11)
 
     plt.tight_layout()
-    plt.savefig('sens_nr.svg', bbox_inches='tight')
+    plt.savefig('images/sens_nr.svg', bbox_inches='tight')
+    # Display the plot
+    plt.show()
+
+
+def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
+    data = pd.read_csv(file)
+
+    # Set Seaborn style
+    sns.set_theme(style="darkgrid" if grid else "whitegrid")
+
+    # Create subplots
+    fig, axs = plt.subplots(1, 2, figsize=(15, 6.5), sharex=True)
+
+    # Use the specified color palette
+    colors = plt.cm.magma(np.linspace(0, 0.9, len(data['chi'].unique())))
+
+    metrics = ['undercover', 'cons']
+
+    for ax, metric in zip(axs, metrics):
+        y_col = f'{metric}_norm'
+        y_col_n = f'{metric}_norm_n'
+
+        # Group data by chi
+        grouped = data.groupby('chi')
+
+        for i, (chi, group) in enumerate(grouped):
+            # Sort the group by epsilon
+            group = group.sort_values('epsilon')
+
+            # Calculate mean, min, and max for BAP and NPP, grouped by epsilon and pattern
+            bap_stats = group.groupby(['epsilon', 'pattern'])[y_col].agg(['mean', 'min', 'max'])
+            npp_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
+
+            # Calculate overall mean for each epsilon
+            bap_mean = bap_stats['mean'].groupby(level=0).mean()
+            npp_mean = npp_stats['mean'].groupby(level=0).mean()
+
+            # Calculate error bars
+            bap_yerr = [bap_mean - bap_stats['min'].groupby(level=0).min(),
+                        bap_stats['max'].groupby(level=0).max() - bap_mean]
+            npp_yerr = [npp_mean - npp_stats['min'].groupby(level=0).min(),
+                        npp_stats['max'].groupby(level=0).max() - npp_mean]
+
+            # Plot BAP on the subplot
+            ax.plot(bap_mean.index, bap_mean.values, color=colors[i % len(colors)], marker='o',
+                    label=f'BAP (χ={int(chi)})')
+            bap_error = ax.errorbar(bap_mean.index, bap_mean.values, yerr=bap_yerr,
+                                    fmt='none', capsize=5, color=colors[i % len(colors)])
+
+            # Plot NPP on the subplot
+            ax.plot(npp_mean.index, npp_mean.values, color=colors[i % len(colors)], marker='s',
+                    linestyle='--', label=f'NPP (χ={int(chi)})')
+            npp_error = ax.errorbar(npp_mean.index, npp_mean.values, yerr=npp_yerr,
+                                    fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
+            # Set linestyle for NPP error bars
+            npp_error[-1][0].set_linestyle('--')
+
+        # Set y-axis label
+        ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
+                      fontsize=11)
+
+        # Legend settings
+        handles, labels = ax.get_legend_handles_labels()
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'NPP' in x[1]))
+        handles, labels = zip(*sorted_handles_labels)
+
+        if ax == axs[0]:
+            # Left plot legend
+            if legend_option_left == 1:
+                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=8)
+            elif legend_option_left == 2:
+                ax.legend(handles=handles, labels=labels, loc='upper right')
+            elif legend_option_left == 3:
+                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.5, -0.15), loc='upper center', ncol=4)
+            else:
+                print("Invalid legend_option_left. Please choose 1, 2, or 3.")
+                return
+        else:
+            # Right plot legend with custom position
+            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=8, loc='upper left')
+
+    # Adjust x-axis to start from a negative value and end at max(x_axis)*1.02
+    x_min = data[x_axis].min()
+    x_max = data[x_axis].max()
+    for ax in axs:
+        ax.set_xlim(-0.002, x_max * 1.02)  # Start from -0.002 to give space on the left
+
+    # Adjust y-axes individually
+    y_min_undercover = data['undercover_norm'].min()
+    y_min_cons = data['cons_norm'].min()
+
+    axs[0].set_ylim(y_min_undercover * 0.95, None)  # Left plot
+    axs[1].set_ylim(y_min_cons * 0.95, None)  # Right plot
+
+    # Ensure epsilon values include 0 in the ticks
+    ticks = [0] + list(data[x_axis].unique())
+    for ax in axs:
+        ax.set_xticks(ticks)
+
+    # Set a common xlabel for the figure
+    fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=11)
+
+    plt.tight_layout()
+    plt.savefig('images/sens_nr_pattern.svg', bbox_inches='tight')
     # Display the plot
     plt.show()
 
 # Example function call
 plot_data_both('data/data_sens.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))
+plot_data_both_pattern('data/Relevant/sens_pat.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.66))

@@ -4,7 +4,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-palett = plt.cm.magma(np.linspace(0, 0.9, 6))
+palett = plt.cm.magma(np.linspace(0.15, 0.95, 6))
 
 
 import os
@@ -34,7 +34,7 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
-    plt.figure(figsize=(11, 5.5))
+    plt.figure(figsize=(12, 6))
 
     # Use a Seaborn color palette
     palette = palett

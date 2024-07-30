@@ -157,8 +157,8 @@ class MasterProblem:
         sublist_length = len(lst) // len(self.nurses)
         p_values = [lst[i * sublist_length:(i + 1) * sublist_length] for i in range(len(self.nurses))]
 
-        x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
-        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 5)
+        x_values = [[1.0 if value > 0.0 else 0.0 for value in sublist] for sublist in p_values]
+        u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 3)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
 
 

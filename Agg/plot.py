@@ -13,7 +13,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
+def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     file1 = str(name)
     file_name = f'.{os.sep}images{os.sep}{file1}.svg'
     data = pd.read_csv(file)
@@ -34,7 +34,10 @@ def plot_data(option, file, name, metric, x_axis='epsilon', grid=True):
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create plot
-    plt.figure(figsize=(12, 6))
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+    plt.figure(figsize=(width_plt, height_plt))
 
     # Use a Seaborn color palette
     palette = palett
@@ -306,9 +309,9 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 # Example function call with grid option
 # Example function calls
 #plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'varunder', 'undercover',  x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv',  'varunder', 'undercover', 468,  x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'varcons', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data.csv', 'varcons', 'cons', 468, x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
 #plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
 #plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis

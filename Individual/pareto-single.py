@@ -18,7 +18,7 @@ class ParetoLineHandler(HandlerBase):
         line = plt.Line2D([width * 0.2, width * 0.8], [height / 2, height / 2], lw=2, linestyle='--', color='red')
         return [line]
 
-def create_plot(show_pareto=True):
+def create_plot(pt, show_pareto=True):
     # Data initialization
     data = {
         'undercoverage1': [], 'consistency1': [], 'chi1': [], 'epsilon1': [],
@@ -115,7 +115,10 @@ def create_plot(show_pareto=True):
     legend_position = determine_legend_position(df)
 
     # Create plot
-    plt.figure(figsize=(12, 6))
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+    plt.figure(figsize=(width_plt, height_plt))
 
     # Adjusting the color range to focus on the brighter part of the magma palette
     colors = plt.cm.magma(np.linspace(0.15, 0.95, max(len(df1), len(df2))))
@@ -189,8 +192,8 @@ def create_plot(show_pareto=True):
                fontsize=10)
 
     # Increase the font size of axis labels marginally
-    plt.xlabel('Undercoverage', fontsize=12)
-    plt.ylabel('Consistency (ø Shift Changes)', fontsize=12)
+    plt.xlabel('Undercoverage', fontsize=11)
+    plt.ylabel('Consistency (ø Shift Changes)', fontsize=11)
     plt.grid(True)
 
     # Set axis limits
@@ -205,4 +208,4 @@ def create_plot(show_pareto=True):
     plt.show()
 
 # Aufruf der Funktion
-create_plot(show_pareto=False)
+create_plot(468, show_pareto=False)

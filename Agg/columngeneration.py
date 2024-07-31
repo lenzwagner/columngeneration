@@ -43,7 +43,7 @@ chi = 5
 # Demand Dict
 demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
 print(len(T))
-plot_demand_bar_by_day(demand_dict, 28, 3)
+plot_demand_bar_by_day(demand_dict, 28, 3, 468)
 
 # **** Compact Solver ****
 problem_t0 = time.time()

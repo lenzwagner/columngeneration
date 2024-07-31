@@ -3,7 +3,7 @@ import seaborn as sns
 import numpy as np
 import pandas as pd
 
-def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1):
+def plot_data(option, file, metric, pt, x_axis='epsilon', grid=True, legend_option=1):
     data = pd.read_csv(file)
 
     if metric not in ['cons', 'undercover']:
@@ -21,8 +21,12 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt/16)*9)
+
     # Create plot
-    plt.figure(figsize=(13, 8))
+    plt.figure(figsize=(width_plt, height_plt))
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0.15, 0.95, 6))
@@ -113,14 +117,18 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
 #plot_data(2, 'data/data_sens.csv', 'cons', x_axis='epsilon', grid=False, legend_option=2)
 
 
-def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
+def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
     data = pd.read_csv(file)
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+
     # Create subplots
-    fig, axs = plt.subplots(1, 2, figsize=(15, 6.5), sharex=True)
+    fig, axs = plt.subplots(1, 2, figsize=(width_plt, height_plt), sharex=True)
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0, 0.9, 6))
@@ -213,14 +221,17 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
     plt.show()
 
 
-def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
+def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
     data = pd.read_csv(file)
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create subplots
-    fig, axs = plt.subplots(1, 2, figsize=(15, 6.5), sharex=True)
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+    fig, axs = plt.subplots(1, 2, figsize=(width_plt, height_plt), sharex=True)
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0, 0.9, len(data['chi'].unique())))
@@ -317,5 +328,5 @@ def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left
     plt.show()
 
 # Example function call
-plot_data_both('data/data_sens.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))
-plot_data_both_pattern('data/Relevant/sens_pat.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.66))
+plot_data_both('data/data_sens.csv', 468, x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))
+plot_data_both_pattern('data/Relevant/sens_pat.csv', 468, x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.66))

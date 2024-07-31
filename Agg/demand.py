@@ -151,7 +151,7 @@ def plot_demand_bar(demands, days, shifts):
     plt.show()
 
 
-def plot_demand_bar_by_day(demands, days, shifts):
+def plot_demand_bar_by_day(demands, days, shifts, pt):
     """
     Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
 
@@ -167,7 +167,10 @@ def plot_demand_bar_by_day(demands, days, shifts):
         for shift in range(1, shifts + 1):
             demands_list.append(demands[(day, shift)])
 
-    plt.figure(figsize=(12, 6))
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+    plt.figure(figsize=(width_plt, height_plt))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):
@@ -179,10 +182,10 @@ def plot_demand_bar_by_day(demands, days, shifts):
 
     for bar in bars:
         yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=10)
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=9)
 
-    plt.xlabel('Day', fontsize= 12)
-    plt.ylabel('Demand', fontsize= 12)
+    plt.xlabel('Day', fontsize= 11)
+    plt.ylabel('Demand', fontsize= 11)
     #plt.title('Demand Pattern', fontsize= 20)
     plt.grid(axis='y')
     plt.tight_layout()

@@ -37,7 +37,7 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize=(width_plt, height_plt))
+    plt.figure(figsize=(12, 6))
 
     # Use a Seaborn color palette
     palette = palett

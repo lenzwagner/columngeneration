@@ -1,10 +1,15 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
-def plot_data(option, file, metric, pt, x_axis='epsilon', grid=True, legend_option=1):
+def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1):
     data = pd.read_csv(file)
+
+    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+
 
     if metric not in ['cons', 'undercover']:
         print("Invalid metric. Please choose 'cons' or 'undercover'.")
@@ -21,12 +26,8 @@ def plot_data(option, file, metric, pt, x_axis='epsilon', grid=True, legend_opti
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
-    pt_in = pt / 72
-    width_plt = round(pt_in)
-    height_plt = round((width_plt/16)*9)
-
     # Create plot
-    plt.figure(figsize=(width_plt, height_plt))
+    plt.figure(figsize=(14, 6))
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0.15, 0.95, 6))
@@ -63,8 +64,8 @@ def plot_data(option, file, metric, pt, x_axis='epsilon', grid=True, legend_opti
             # Set linestyle for NPP error bars
             npp_error[-1][0].set_linestyle('--')
 
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
 
     else:
         print("Only option 2 is supported for this plot type.")
@@ -117,18 +118,14 @@ def plot_data(option, file, metric, pt, x_axis='epsilon', grid=True, legend_opti
 #plot_data(2, 'data/data_sens.csv', 'cons', x_axis='epsilon', grid=False, legend_option=2)
 
 
-def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
+def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
     data = pd.read_csv(file)
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
-    pt_in = pt / 72
-    width_plt = round(pt_in)
-    height_plt = round((width_plt / 16) * 9)
-
     # Create subplots
-    fig, axs = plt.subplots(1, 2, figsize=(width_plt, height_plt), sharex=True)
+    fig, axs = plt.subplots(1, 2, figsize=(14, 6), sharex=True)
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0, 0.9, 6))
@@ -172,7 +169,7 @@ def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, 
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
-                      fontsize=11)
+                      fontsize=13)
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
@@ -182,7 +179,7 @@ def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, 
         if ax == axs[0]:
             # Left plot legend
             if legend_option_left == 1:
-                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=8)
+                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=9)
             elif legend_option_left == 2:
                 ax.legend(handles=handles, labels=labels, loc='upper right')
             elif legend_option_left == 3:
@@ -192,7 +189,7 @@ def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, 
                 return
         else:
             # Right plot legend with custom position
-            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=8, loc='upper left')
+            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=9, loc='upper left')
 
     # Adjust x-axis to start from a negative value and end at max(x_axis)*1.02
     x_min = data[x_axis].min()
@@ -213,7 +210,7 @@ def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, 
         ax.set_xticks(ticks)
 
     # Set a common xlabel for the figure
-    fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=11)
+    fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=14)
 
     plt.tight_layout()
     plt.savefig('images/sens_nr.svg', bbox_inches='tight')
@@ -221,17 +218,18 @@ def plot_data_both(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, 
     plt.show()
 
 
-def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
+def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left=1, legend_position_right=(1.02, 1)):
     data = pd.read_csv(file)
+
+    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    mpl.rcParams['mathtext.fontset'] = 'cm'
 
     # Set Seaborn style
     sns.set_theme(style="darkgrid" if grid else "whitegrid")
 
     # Create subplots
-    pt_in = pt / 72
-    width_plt = round(pt_in)
-    height_plt = round((width_plt / 16) * 9)
-    fig, axs = plt.subplots(1, 2, figsize=(width_plt, height_plt), sharex=True)
+
+    fig, axs = plt.subplots(1, 2, figsize=(14, 6), sharex=True)
 
     # Use the specified color palette
     colors = plt.cm.magma(np.linspace(0, 0.9, len(data['chi'].unique())))
@@ -279,7 +277,7 @@ def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
-                      fontsize=11)
+                      fontsize=13)
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
@@ -289,7 +287,7 @@ def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_
         if ax == axs[0]:
             # Left plot legend
             if legend_option_left == 1:
-                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=8)
+                ax.legend(handles=handles, labels=labels, bbox_to_anchor=(0.02, 0.98), loc='upper left', fontsize=9)
             elif legend_option_left == 2:
                 ax.legend(handles=handles, labels=labels, loc='upper right')
             elif legend_option_left == 3:
@@ -299,7 +297,7 @@ def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_
                 return
         else:
             # Right plot legend with custom position
-            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=8, loc='upper left')
+            ax.legend(handles=handles, labels=labels, bbox_to_anchor=legend_position_right, fontsize=9, loc='upper left')
 
     # Adjust x-axis to start from a negative value and end at max(x_axis)*1.02
     x_min = data[x_axis].min()
@@ -320,7 +318,7 @@ def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_
         ax.set_xticks(ticks)
 
     # Set a common xlabel for the figure
-    fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=11)
+    fig.supxlabel(r'Epsilon $\varepsilon$', fontsize=14)
 
     plt.tight_layout()
     plt.savefig('images/sens_nr_pattern.svg', bbox_inches='tight')
@@ -328,5 +326,5 @@ def plot_data_both_pattern(file, pt, x_axis='epsilon', grid=True, legend_option_
     plt.show()
 
 # Example function call
-plot_data_both('data/data_sens.csv', 468, x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))
-plot_data_both_pattern('data/Relevant/sens_pat.csv', 468, x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.66))
+plot_data_both('data/data_sens.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.8, 0.76))
+plot_data_both_pattern('data/Relevant/sens_pat.csv', x_axis='epsilon', grid=False, legend_option_left=1, legend_position_right=(0.79, 0.68))

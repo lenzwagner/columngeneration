@@ -103,8 +103,8 @@ class Subproblem:
                 self.model.addLConstr(self.x[t, k1] + self.x[t + 1, k2] <= 1)
         for t in range(1 + self.chi, len(self.days) + 1):
             self.model.addLConstr(1 <= gu.quicksum(
-                self.sc[j] for j in range(t - self.chi, t)) + self.r[t])
-            for k in range(t - self.chi, t):
+                self.sc[j] for j in range(t - self.chi, t+1)) + self.r[t])
+            for k in range(t - self.chi, t + 1):
                 self.model.addLConstr(self.sc[k] + self.r[t] <= 1)
         for t in range(1, 1 + self.chi):
             self.model.addLConstr(0 == self.r[t])

@@ -151,6 +151,9 @@ def plot_demand_bar(demands, days, shifts):
     plt.show()
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 def plot_demand_bar_by_day(demands, days, shifts, pt):
     """
     Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
@@ -161,7 +164,7 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
     - shifts: int, number of shifts per day.
     """
     demands_list = []
-    colors = plt.cm.magma(np.linspace(0.15, 0.95, days))
+    colors = plt.cm.magma(np.linspace(0, 0.8, shifts))
 
     for day in range(1, days + 1):
         for shift in range(1, shifts + 1):
@@ -170,12 +173,12 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize=(width_plt, height_plt))
+    plt.figure(figsize=(12,6))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):
-        day_index = i // shifts
-        bar.set_color(colors[day_index])
+        shift_index = i % shifts
+        bar.set_color(colors[shift_index])
 
     plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)],
                labels=[f"{i + 1}" for i in range(days)], rotation=0)
@@ -184,9 +187,9 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=9)
 
-    plt.xlabel('Day', fontsize= 11)
-    plt.ylabel('Demand', fontsize= 11)
-    #plt.title('Demand Pattern', fontsize= 20)
+    plt.xlabel('Day', fontsize=11)
+    plt.ylabel('Demand', fontsize=11)
+    #plt.title('Demand Pattern', fontsize=20)
     plt.grid(axis='y')
     plt.tight_layout()
     plt.savefig('images/demand.svg', bbox_inches='tight')

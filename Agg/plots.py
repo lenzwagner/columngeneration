@@ -131,7 +131,7 @@ def performancePlot(ls, days, phys_nr, name, anzahl_ls):
 
         plt.xlabel('Day')
         plt.ylabel('Performance')
-        plt.title(f'Performance for Worker {start_physician} to {end_physician}')
+        plt.title(f'Performance of Worker {start_physician} to {end_physician}')
         plt.xticks(range(1, days + 1))
 
         plt.savefig(file_name, format='png')

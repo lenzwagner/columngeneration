@@ -248,14 +248,6 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         perf_pool_norm.append(perfloss_norm_a)
         cons_pool_norm.append(consistency_norm_a)
 
-    # Nach der Schleife, geben Sie die Anzahl der zulässigen Lösungen aus
-    print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
-    print(f"Under-List: {undercoverage_pool}")
-    print(f"Perf-List: {perf_pool}")
-    print(f"Cons-List: {cons_pool}")
-
-
-
     undercoverage = sum(undercoverage_pool) / len(undercoverage_pool)
     understaffing = sum(understaffing_pool) / len(understaffing_pool)
     perfloss = sum(perf_pool) / len(perf_pool)

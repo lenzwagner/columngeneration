@@ -153,7 +153,7 @@ while True:
 
         # Save time to solve SP
         sub_t0 = time.time()
-        subproblem.solveModel(time_Limit)
+        subproblem.solveModelOpt(time_Limit)
         sub_totaltime = time.time() - sub_t0
         timeHist.append(sub_totaltime)
         index = 1
@@ -269,24 +269,27 @@ printResults(itr, total_time_cg, time_problem, output_len, final_obj_cg, objValH
 
 ls_sc = plotPerformanceList(Cons_schedules, master.printLambdas())
 ls_x = plotPerformanceList(X_schedules, master.printLambdas())
+ls_p = plotPerformanceList(P_schedules, master.printLambdas())
 
 ls_r = process_recovery(ls_sc, 5, len(T))
 
 print(f"LS_SC: {ls_sc}")
-print(f"LS_R: {ls_r}")
+print(f"LS_R: {ls_p}")
 
 
-master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
-master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, 0.1)
+#master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
+#master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, 0.1)
 
-lagrangeprimal(sum_rc_hist, objValHistRMP)
+#lagrangeprimal(sum_rc_hist, objValHistRMP)
 
-sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
+#sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))
 
 # Variationskoeffizienten
-variation_coefficients = [master.calculate_variation_coefficient(indices) for indices in indices_list]
-mean_variation_coefficient = np.mean(variation_coefficients)
-print(variation_coefficients)
-print(mean_variation_coefficient)
+#variation_coefficients = [master.calculate_variation_coefficient(indices) for indices in indices_list]
+#mean_variation_coefficient = np.mean(variation_coefficients)
+#print(variation_coefficients)
+##print(mean_variation_coefficient)
 
-print(f"Obj: {master.model.objval}")
+#print(f"Obj: {master.model.objval}")
+
+performancePlot(ls_p, len(T), 10, 'perfPlot', 5)

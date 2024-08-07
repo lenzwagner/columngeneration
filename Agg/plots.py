@@ -99,37 +99,43 @@ def medianplots(list_cg, list_compact, name):
     plt.savefig(file_name, format='png')
     plt.show()
 
-def performancePlot(ls, days, phys_nr, name):
+
+def performancePlot(ls, days, phys_nr, name, anzahl_ls):
     sns.set(style='darkgrid')
 
-    file = str(name)
-    file_name = f'.{os.sep}images{os.sep}{file}.png'
+    total_physicians = len(ls) // days
+    sublists = [ls[i:i + days * anzahl_ls] for i in range(0, len(ls), days * anzahl_ls)]
 
+    for idx, sublist in enumerate(sublists):
+        start_physician = idx * anzahl_ls + 1
+        end_physician = start_physician + anzahl_ls - 1
+        file = f"{name}_Physician_{start_physician}_to_{end_physician}"
+        file_name = f".{os.sep}images{os.sep}perfplots{os.sep}{file}.png"
 
-    grid = list(range(1, days + 1))
-    graphs = [ls[i:i+days] for i in range(0, len(ls), 14)]
+        grid = list(range(1, days + 1))
+        graphs = [sublist[i:i + days] for i in range(0, len(sublist), days)]
 
-    fig, ax = plt.subplots()
+        fig, ax = plt.subplots()
 
-    lw = 1.5
-    palette = sns.color_palette("rocket", phys_nr)
-    for gg, graph in enumerate(graphs, start=1):
-        trans_offset = offset_copy(ax.transData, fig=fig, x=lw * gg, y=lw * gg, units='dots')
-        ax.plot(grid, graph, lw=lw, transform=trans_offset, label=gg, color=palette[gg-1], alpha = 0.6)
+        lw = 1.5
+        palette = sns.color_palette("rocket", len(graphs))
 
-    ax.legend(loc='upper left', bbox_to_anchor=(0.01, 0.35), title='Physician')
-    # manually set the axes limits, because the transform doesn't set them automatically
-    ax.set_xlim(grid[0] - .5, grid[-1] + .5)
-    ax.set_ylim(min([min(g) for g in graphs]) - .02, max([max(g) for g in graphs]) + .02)
+        for gg, graph in enumerate(graphs, start=start_physician):
+            trans_offset = offset_copy(ax.transData, fig=fig, x=lw * gg, y=lw * gg, units='dots')
+            ax.plot(grid, graph, lw=lw, transform=trans_offset, label=gg, color=palette[gg - start_physician],
+                    alpha=0.6)
 
-    plt.xlabel('Day')
-    plt.ylabel('Performance')
-    plt.title('Physician Performance over Time')
-    plt.xticks(range(1, days + 1))
+        ax.legend(loc='upper left', bbox_to_anchor=(0.01, 0.5), title='Worker')
+        ax.set_xlim(grid[0] - .5, grid[-1] + .5)
+        ax.set_ylim(min([min(g) for g in graphs]) - .02, max([max(g) for g in graphs]) + .01)
 
-    plt.savefig(file_name, format='png')
+        plt.xlabel('Day')
+        plt.ylabel('Performance')
+        plt.title(f'Performance for Worker {start_physician} to {end_physician}')
+        plt.xticks(range(1, days + 1))
 
-    plt.show()
+        plt.savefig(file_name, format='png')
+        plt.show()
 
 
 def plot_obj_val(objValHistRMP, name):

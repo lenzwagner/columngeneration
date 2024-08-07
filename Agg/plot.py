@@ -4,14 +4,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-palett = plt.cm.magma(np.linspace(0.15, 0.95, 6))
+palett = plt.cm.magma(np.linspace(0.15, 0.85, 3))
 
-
-import os
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     file1 = str(name)
@@ -44,12 +38,12 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
 
     if option == 1:
         # Sort data by the x_axis
-        data_bap = data.sort_values(x_axis)
-        data_npp = data.sort_values(x_axis)
+        data_HSA = data.sort_values(x_axis)
+        data_MSA = data.sort_values(x_axis)
 
         # Plot lines
-        plt.plot(data_bap[x_axis], data_bap[y_col], color=palette[0], label='BAP', linestyle='-')
-        plt.plot(data_npp[x_axis], data_npp[y_col_n], color=palette[1], label='NPP', linestyle='--')
+        plt.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
+        plt.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='--', alpha=0.8)
 
         # Add scatter plots
         sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o')
@@ -58,44 +52,33 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
         plt.title(
-            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == 'epsilon' else "χ"}',
+            f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == "epsilon" else "χ"}',
             fontsize=15)
 
     elif option == 2:
-        # Use the same color for both trend lines
-        trend_color = palette[0]
-
-        # Plot scatter plots for overall trend
-        trend_bap = sns.scatterplot(data=data, x=x_axis, y=y_col, color=trend_color, marker='o', label='Trend-BAP')
-        trend_npp = sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=trend_color, marker='s', label='Trend-NPP')
-
-        # Add trend lines with the same color
-        sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=trend_color)
-        sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=trend_color)
-
-        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
-        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
-
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'
         for i, val in enumerate(sorted(data[other_axis].unique())):
             val_data = data[data[other_axis] == val].sort_values(x_axis)
             if other_axis == 'chi':
-                bap_label = f'BAP ({r"$\chi$"}={int(val)})'
-                npp_label = f'NPP ({r"$\chi$"}={int(val)})'
+                HSA_label = f'HSA ({r"$\chi$"}={int(val)})'
+                MSA_label = f'MSA ({r"$\chi$"}={int(val)})'
             else:
-                bap_label = f'BAP ({r"$\varepsilon$"}={val:.2f})'
-                npp_label = f'NPP ({r"$\varepsilon$"}={val:.2f})'
+                HSA_label = f'HSA ({r"$\varepsilon$"}={val:.2f})'
+                MSA_label = f'MSA ({r"$\varepsilon$"}={val:.2f})'
 
-            # Use the same color for BAP and NPP with the same value
-            color = palette[(i + 1) % len(palette)]  # Start from the second color in the palette
+            # Use the same color for HSA and MSA with the same value
+            color = palette[(i + 2) % len(palette)]  # Start from the third color in the palette
 
-            sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=bap_label)
-            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=npp_label)
+            sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=HSA_label)
+            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=MSA_label)
 
-            # Add connecting lines
-            plt.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=0.7)
-            plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.7)
+            # Add connecting lines with different styles
+            plt.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=1)
+            plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.8)
+
+        plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
+        plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
 
     else:
         print("Invalid option. Please choose 1 or 2.")
@@ -115,20 +98,16 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
 
-    # Separate trend labels and other labels
-    trend_labels = [(handle, label) for handle, label in zip(handles, labels) if 'Trend' in label]
-    other_labels = [(handle, label) for handle, label in zip(handles, labels) if 'Trend' not in label]
-
-    # Sort other labels for alternation
-    unique_vals = sorted(set(label.split('=')[-1].strip(')') for _, label in other_labels))
-    sorted_other_labels = []
+    # Sort labels for alternation
+    unique_vals = sorted(set(label.split('=')[-1].strip(')') for label in labels))
+    sorted_labels = []
     for val in unique_vals:
-        for handle, label in other_labels:
+        for handle, label in zip(handles, labels):
             if val in label:
-                sorted_other_labels.append((handle, label))
+                sorted_labels.append((handle, label))
 
-    # Combine trend labels and sorted other labels
-    new_handles, new_labels = zip(*(trend_labels + sorted_other_labels))
+    # Unpack the sorted labels
+    new_handles, new_labels = zip(*sorted_labels)
 
     # Place the legend inside the plot for the specific case
     if option == 2 and metric == 'cons' and x_axis == 'epsilon':
@@ -146,8 +125,6 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     # Display the plot
     plt.savefig(file_name, bbox_inches='tight')
     plt.show()
-
-
 
 def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='epsilon', x_axis2='epsilon', grid=True):
     data1 = pd.read_csv(file1)
@@ -182,12 +159,12 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
     def plot_single(ax, option, data, x_axis, y_col, y_col_n, metric):
         if option == 1:
             # Sort data by the x_axis
-            data_bap = data.sort_values(x_axis)
-            data_npp = data.sort_values(x_axis)
+            data_HSA = data.sort_values(x_axis)
+            data_MSA = data.sort_values(x_axis)
 
             # Plot lines
-            ax.plot(data_bap[x_axis], data_bap[y_col], color=palette[0], label='BAP', linestyle='-')
-            ax.plot(data_npp[x_axis], data_npp[y_col_n], color=palette[1], label='NPP', linestyle='--')
+            ax.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
+            ax.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='-', alpha = 0.8)
 
             # Add scatter plots
             sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', ax=ax, legend=False)
@@ -199,14 +176,14 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 
         elif option == 2:
             # Plot scatter plots for overall trend
-            sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', label='Trend-BAP', ax=ax,
+            sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', label='Trend-HSA', ax=ax,
                             legend=False)
-            sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label='Trend-NPP', ax=ax,
+            sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label='Trend-MSA', ax=ax,
                             legend=False)
 
             # Add trend lines
-            sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0], ax=ax)
-            sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1], ax=ax)
+            sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0], ax=ax, ci=None)
+            sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1], ax=ax, ci=None)
 
             ax.set_title(
                 f'{"Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"} vs {r"$\varepsilon$" if x_axis == "epsilon" else "χ"} for different {r"$\chi$" if x_axis == "epsilon" else r"$\varepsilon$"} values',
@@ -217,18 +194,18 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
             for j, val in enumerate(sorted(data[other_axis].unique())):
                 val_data = data[data[other_axis] == val].sort_values(x_axis)
                 if other_axis == 'chi':
-                    bap_label = f'BAP ({r"$\chi$"}={int(val)})'
-                    npp_label = f'NPP ({r"$\chi$"}={int(val)})'
+                    HSA_label = f'HSA ({r"$\chi$"}={int(val)})'
+                    MSA_label = f'MSA ({r"$\chi$"}={int(val)})'
                 else:
-                    bap_label = f'BAP ({r"$\varepsilon$"}={val:.2f})'
-                    npp_label = f'NPP ({r"$\varepsilon$"}={val:.2f})'
+                    HSA_label = f'HSA ({r"$\varepsilon$"}={val:.2f})'
+                    MSA_label = f'MSA ({r"$\varepsilon$"}={val:.2f})'
 
-                # Use the same color for BAP and NPP with the same value
+                # Use the same color for HSA and MSA with the same value
                 color = palette[(j + 2) % len(palette)]
 
-                sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=bap_label, ax=ax,
+                sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=HSA_label, ax=ax,
                                 legend=False)
-                sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=npp_label, ax=ax,
+                sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=MSA_label, ax=ax,
                                 legend=False)
 
                 # Add connecting lines
@@ -309,9 +286,9 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 # Example function call with grid option
 # Example function calls
 #plot_data(1, 'data/data3.csv', 'undercover', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv',  'varunder', 'undercover', 468,  x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data_all.csv',  'varunder', 'undercover', 468,  x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data3.csv', 'cons', x_axis='epsilon', grid=False) # Epsilon on x-axis
-plot_data(2, 'data/data.csv', 'varcons', 'cons', 468, x_axis='epsilon', grid=False) # Epsilon on x-axis
+plot_data(2, 'data/data_all.csv', 'varcons', 'cons', 468, x_axis='epsilon', grid=False) # Epsilon on x-axis
 #plot_data(1, 'data/data2.csv', 'undercover', x_axis='chi') # Chi on x-axis
 #plot_data(2, 'data/data.csv', 'undercover', x_axis='chi') # Chi on x-axis
 #plot_data(1, 'data/data2.csv', 'cons', x_axis='chi') # Chi on x-axis

@@ -36,7 +36,7 @@ max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 5e-5
-eps = 0.1
+eps = 0.05
 chi = 5
 
 
@@ -292,4 +292,4 @@ print(f"LS_R: {ls_p}")
 
 #print(f"Obj: {master.model.objval}")
 
-performancePlot(ls_p, len(T), 10, 'perfPlot', 5)
+performancePlot(ls_p, len(T), 'perfPlot', 5)

@@ -99,13 +99,11 @@ def medianplots(list_cg, list_compact, name):
     plt.savefig(file_name, format='png')
     plt.show()
 
-
-def performancePlot(ls, days, name, anzahl_ls):
+def performancePlot(ls, days, name, anzahl_ls, eps, chi):
     sns.set(style='darkgrid')
 
     # Data validation and preprocessing
     ls = np.clip(ls, 0, 1)  # Clip values between 0 and 1
-    overall_min, overall_max = 0.85, 1.05  # Set fixed y-axis limits
 
     sublists = [ls[i:i + days * anzahl_ls] for i in range(0, len(ls), days * anzahl_ls)]
 
@@ -122,12 +120,12 @@ def performancePlot(ls, days, name, anzahl_ls):
     for idx, sublist in enumerate(sublists):
         start_physician = idx * anzahl_ls + 1
         end_physician = start_physician + anzahl_ls - 1
-        file = f"{name}_Physician_{start_physician}_to_{end_physician}"
+        file = f"{name}_Physician_{start_physician}_to_{end_physician}_{eps}_{chi}"
         file_name = f".{os.sep}images{os.sep}perfplots{os.sep}{file}.png"
 
         graphs = [sublist[i:i + days] for i in range(0, len(sublist), days)]
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16))
+        fig, ax = plt.subplots(figsize=(12, 8))
 
         lw = 1.5
 
@@ -135,39 +133,21 @@ def performancePlot(ls, days, name, anzahl_ls):
         for gg, graph in enumerate(graphs):
             try:
                 worker_index = gg % anzahl_ls
-                trans_offset = offset_copy(ax1.transData, fig=fig, x=lw * worker_index, y=lw * worker_index,
+                trans_offset = offset_copy(ax.transData, fig=fig, x=lw * worker_index, y=lw * worker_index,
                                            units='dots')
-                ax1.plot(grid, graph, lw=lw, transform=trans_offset, label=gg + start_physician,
-                         color=worker_palette[worker_index], alpha=0.8)
+                ax.plot(grid, graph, lw=lw, transform=trans_offset, label=gg + start_physician,
+                        color=worker_palette[worker_index], alpha=0.8)
                 print(f"Plotting data for Worker {gg + start_physician}: {graph}")  # Debugging output
             except Exception as e:
                 print(f"Error plotting Worker {gg + start_physician}: {e}")
 
-        ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Worker')
-        ax1.set_xlim(grid[0] - .5, grid[-1] + .5)
-        ax1.set_ylim(overall_min, overall_max)
-        ax1.set_xlabel('Day')
-        ax1.set_ylabel('Performance')
-        ax1.set_title(f'Individual Performance of Workers {start_physician} to {end_physician}')
-        ax1.set_xticks(range(1, days + 1))
-
-        # Plot average performance for this group
-        group_avg = np.mean(graphs, axis=0)
-        group_std = np.std(graphs, axis=0)
-        ax2.plot(grid, group_avg, lw=2, color=mean_palette[0], label='Group Average')
-
-        # Correct the standard deviation boundaries
-        lower_bound = np.maximum(group_avg - group_std, 0)  # Ensure lower bound is not negative
-        upper_bound = np.minimum(group_avg + group_std, 1)  # Ensure upper bound does not exceed 1
-
-        ax2.fill_between(grid, lower_bound, upper_bound, alpha=0.2, color=mean_palette[0])
-        ax2.set_xlim(grid[0] - .5, grid[-1] + .5)
-        ax2.set_ylim(overall_min, overall_max)
-        ax2.set_xlabel('Day')
-        ax2.set_ylabel('Average Performance')
-        ax2.set_title('Average Performance for This Group')
-        ax2.set_xticks(range(1, days + 1))
-        ax2.legend()
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Worker')
+        ax.set_xlim(grid[0] - .5, grid[-1] + .5)
+        ax.set_ylim(min(sublist) - 0.05, 1.05)
+        ax.set_xlabel('Day')
+        ax.set_ylabel('Performance')
+        ax.set_title(f'Individual Performance of Workers {start_physician} to {end_physician}')
+        ax.set_xticks(range(1, days + 1))
 
         plt.tight_layout()
         plt.savefig(file_name, format='png', dpi=300, bbox_inches='tight')
@@ -179,7 +159,7 @@ def performancePlot(ls, days, name, anzahl_ls):
     fig, ax = plt.subplots(figsize=(12, 8))
     overall_avg = np.mean(avg_performance, axis=0)
     overall_std = np.std(avg_performance, axis=0)
-    ax.plot(grid, overall_avg, lw=2, color=mean_palette[0], label='Overall Average')
+    ax.plot(grid, overall_avg, lw=2, color=mean_palette[0], label='Average Performance')
 
     # Correct the standard deviation boundaries for overall plot
     overall_lower_bound = np.maximum(overall_avg - overall_std, 0)
@@ -187,7 +167,7 @@ def performancePlot(ls, days, name, anzahl_ls):
 
     ax.fill_between(grid, overall_lower_bound, overall_upper_bound, alpha=0.2, color=mean_palette[0])
     ax.set_xlim(grid[0] - .5, grid[-1] + .5)
-    ax.set_ylim(overall_min, overall_max)
+    ax.set_ylim(min(overall_lower_bound) - 0.05, 1.05)
     ax.set_xlabel('Day')
     ax.set_ylabel('Average Performance')
     ax.set_title('Overall Average Performance Across All Workers')
@@ -195,7 +175,7 @@ def performancePlot(ls, days, name, anzahl_ls):
     ax.legend()
 
     plt.tight_layout()
-    overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}{name}_Overall_Average.png"
+    overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}{name}_Overall_Average__{eps}_{chi}"
     plt.savefig(overall_avg_file, format='png', dpi=300, bbox_inches='tight')
     plt.close(fig)
 
@@ -407,3 +387,126 @@ def generate_and_plot_boxplots(instances, profiles, overstaffing):
     plt.legend(title='Profile')
     plt.title('Runtime by Instance and Profile')
     plt.show()
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import numpy as np
+from matplotlib.transforms import offset_copy
+import xml.etree.ElementTree as ET
+
+
+def read_xml_data(file_path):
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    data_lists = []
+    for list_elem in root.findall('list'):
+        data = [float(item.text) for item in list_elem.findall('item')]
+        data_lists.append(data)
+    return data_lists
+
+
+def performancePlotxml(xml_file_path, days, name, anzahl_ls):
+    sns.set(style='darkgrid')
+
+    data_lists = read_xml_data(xml_file_path)
+
+    overall_min, overall_max = 0.85, 1.05  # Set fixed y-axis limits
+    grid = list(range(1, days + 1))
+
+    # Define color palettes
+    worker_palette = plt.cm.magma(np.linspace(0.15, 0.85, anzahl_ls))
+    mean_palette = plt.cm.magma(np.linspace(0.5, 0.5, 1))
+
+    for iteration, ls in enumerate(data_lists, 1):
+        ls = np.clip(ls, 0, 1)  # Clip values between 0 and 1
+        sublists = [ls[i:i + days * anzahl_ls] for i in range(0, len(ls), days * anzahl_ls)]
+        all_workers_data = np.array(sublists).reshape(-1, anzahl_ls, days)
+        avg_performance = np.mean(all_workers_data, axis=1)
+
+        for idx, sublist in enumerate(sublists):
+            start_physician = idx * anzahl_ls + 1
+            end_physician = start_physician + anzahl_ls - 1
+            file = f"{name}_Iteration{iteration}_Physician_{start_physician}_to_{end_physician}"
+            file_name = f".{os.sep}images{os.sep}perfplots{os.sep}{file}.png"
+
+            graphs = [sublist[i:i + days] for i in range(0, len(sublist), days)]
+
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 16))
+
+            lw = 1.5
+
+            # Plot individual worker performances
+            for gg, graph in enumerate(graphs):
+                try:
+                    worker_index = gg % anzahl_ls
+                    trans_offset = offset_copy(ax1.transData, fig=fig, x=lw * worker_index, y=lw * worker_index,
+                                               units='dots')
+                    ax1.plot(grid, graph, lw=lw, transform=trans_offset, label=gg + start_physician,
+                             color=worker_palette[worker_index], alpha=0.8)
+                except Exception as e:
+                    print(f"Error plotting Worker {gg + start_physician}: {e}")
+
+            ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), title='Worker')
+            ax1.set_xlim(grid[0] - .5, grid[-1] + .5)
+            ax1.set_ylim(overall_min, overall_max)
+            ax1.set_xlabel('Day')
+            ax1.set_ylabel('Performance')
+            ax1.set_title(
+                f'Individual Performance of Workers {start_physician} to {end_physician} (Iteration {iteration})')
+            ax1.set_xticks(range(1, days + 1))
+
+            # Plot average performance for this group
+            group_avg = np.mean(graphs, axis=0)
+            group_std = np.std(graphs, axis=0)
+            ax2.plot(grid, group_avg, lw=2, color=mean_palette[0], label='Group Average')
+
+            lower_bound = np.maximum(group_avg - group_std, 0)
+            upper_bound = np.minimum(group_avg + group_std, 1)
+
+            ax2.fill_between(grid, lower_bound, upper_bound, alpha=0.2, color=mean_palette[0])
+            ax2.set_xlim(grid[0] - .5, grid[-1] + .5)
+            ax2.set_ylim(overall_min, overall_max)
+            ax2.set_xlabel('Day')
+            ax2.set_ylabel('Average Performance')
+            ax2.set_title(f'Average Performance for This Group (Iteration {iteration})')
+            ax2.set_xticks(range(1, days + 1))
+            ax2.legend()
+
+            plt.tight_layout()
+            plt.savefig(file_name, format='png', dpi=300, bbox_inches='tight')
+            plt.close(fig)
+
+        print(f"Group plots for iteration {iteration} generated successfully.")
+
+        # Create a separate plot for overall average performance
+        fig, ax = plt.subplots(figsize=(12, 8))
+        overall_avg = np.mean(avg_performance, axis=0)
+        overall_std = np.std(avg_performance, axis=0)
+        ax.plot(grid, overall_avg, lw=2, color=mean_palette[0], label='Overall Average')
+
+        overall_lower_bound = np.maximum(overall_avg - overall_std, 0)
+        overall_upper_bound = np.minimum(overall_avg + overall_std, 1)
+
+        ax.fill_between(grid, overall_lower_bound, overall_upper_bound, alpha=0.2, color=mean_palette[0])
+        ax.set_xlim(grid[0] - .5, grid[-1] + .5)
+        ax.set_ylim(overall_min, overall_max)
+        ax.set_xlabel('Day')
+        ax.set_ylabel('Average Performance')
+        ax.set_title(f'Overall Average Performance Across All Workers (Iteration {iteration})')
+        ax.set_xticks(range(1, days + 1))
+        ax.legend()
+
+        plt.tight_layout()
+        overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}{name}_Iteration{iteration}_Overall_Average.png"
+        try:
+            plt.savefig(overall_avg_file, dpi=300, bbox_inches='tight')
+        except Exception as e:
+            print(f"Error saving file {overall_avg_file}: {e}")
+
+        print(f"Overall average plot for iteration {iteration} generated successfully.")
+
+    print("All plots for all iterations generated successfully.")
+
+

@@ -7,10 +7,12 @@ from compactsolver import Problem
 from demand import *
 from plots import *
 from depth_boxplot import *
+import xml.etree.ElementTree as ET
+
 
 # **** Prerequisites ****
 # Create Dataframes
-I, T, K = list(range(1,101)), list(range(1,29)), list(range(1,4))
+I, T, K = list(range(1,11)), list(range(1,15)), list(range(1,4))
 random.seed(133)
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -36,7 +38,7 @@ max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 5e-5
-eps = 0.05
+eps = 0
 chi = 5
 
 
@@ -278,7 +280,7 @@ print(f"LS_R: {ls_p}")
 
 
 #master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
-#master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, 0.1)
+undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls = master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, 0.1, 1.0)
 
 #lagrangeprimal(sum_rc_hist, objValHistRMP)
 
@@ -292,4 +294,23 @@ print(f"LS_R: {ls_p}")
 
 #print(f"Obj: {master.model.objval}")
 
-performancePlot(ls_p, len(T), 'perfPlot', 5)
+performancePlot(perf_ls, len(T), 'perfPlot', 5, chi, eps)
+
+
+data = [[1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.95, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]]
+
+
+# Wurzelelement erstellen
+root = ET.Element("Iterations")
+
+# Iterationen hinzufügen
+for i, iteration in enumerate(data):
+    iteration_element = ET.SubElement(root, "Iteration", id=str(i))
+    for value in iteration:
+        ET.SubElement(iteration_element, "Value").text = str(value)
+
+# Baum erstellen und speichern
+tree = ET.ElementTree(root)
+tree.write("iterations.xml", encoding='utf-8', xml_declaration=True)
+
+performancePlotxml("iterations.xml", len(T), 'perfPlot', 5)

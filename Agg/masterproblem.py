@@ -194,6 +194,7 @@ class MasterProblem:
 
     def calc_naive(self, lst, ls_sc, ls_r, mue, scale):
         consistency = sum(ls_sc)
+        perf_ls = []
         consistency_norm = sum(ls_sc) / (len(self.nurses)*scale)
 
         self.sum_all_doctors = 0
@@ -250,7 +251,12 @@ class MasterProblem:
                 for _ in range(len(self.shifts)):
                     self.cumulative_sum1.append(element)
 
+
+
             self.cumulative_values = [x * mue for x in self.cumulative_sum1]
+            for val in [x * mue for x in self.cumulative_sum]:
+                perf_ls.append(round(1-val,2))
+
             self.multiplied_values = [self.cumulative_values[j] * x_i_values[j] for j in
                                       range(len(self.cumulative_values))]
             self.multiplied_values1 = [self.multiplied_values[j] * self.comp_result[j] for j in
@@ -266,13 +272,14 @@ class MasterProblem:
         undercoverage_norm = undercoverage / (len(self.nurses)*scale)
         understaffing_norm = understaffing / (len(self.nurses)*scale)
         perfloss_norm =  perfloss / (len(self.nurses)*scale)
+        print(f"Perf_Ls: {perf_ls}")
 
 
         print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
             undercoverage,
             understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm, consistency_norm))
 
-        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm
+        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls
 
     def average_nr_of(self, lst, num_sublists):
         total_length = len(lst)

@@ -251,8 +251,6 @@ class MasterProblem:
                 for _ in range(len(self.shifts)):
                     self.cumulative_sum1.append(element)
 
-
-
             self.cumulative_values = [x * mue for x in self.cumulative_sum1]
             for val in [x * mue for x in self.cumulative_sum]:
                 perf_ls.append(round(1-val,2))
@@ -369,3 +367,6 @@ class MasterProblem:
             nested.append(cleaned_sublist)
 
         return [self.compute_autocorrelation_at_lag(indices, lags) for indices in nested]
+
+    def getUndercoverage(self):
+        return [self.u[t, k].x for t in self.days for k in self.shifts]

@@ -42,8 +42,9 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
         data_MSA = data.sort_values(x_axis)
 
         # Plot lines
-        plt.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
-        plt.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='--', alpha=0.8)
+        hsa_line, = plt.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
+        msa_line, = plt.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='--',
+                             alpha=0.8)
 
         # Add scatter plots
         sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o')
@@ -58,10 +59,11 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     elif option == 2:
         # Additional points and lines for each value
         other_axis = 'chi' if x_axis == 'epsilon' else 'epsilon'
+        lines = []
         for i, val in enumerate(sorted(data[other_axis].unique())):
             val_data = data[data[other_axis] == val].sort_values(x_axis)
             if other_axis == 'chi':
-                HSA_label = f'HSA ({r"$\chi$"}={int(val)})'
+                HSA_label = f'HSA ({r'$\chi$'}={int(val)})'
                 MSA_label = f'MSA ({r"$\chi$"}={int(val)})'
             else:
                 HSA_label = f'HSA ({r"$\varepsilon$"}={val:.2f})'
@@ -70,12 +72,14 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
             # Use the same color for HSA and MSA with the same value
             color = palette[(i + 2) % len(palette)]  # Start from the third color in the palette
 
-            sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=HSA_label)
-            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=MSA_label)
+            sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=palette[0], marker='o', label=HSA_label)
+            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label=MSA_label)
 
             # Add connecting lines with different styles
-            plt.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=1)
-            plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.8)
+            hsa_line, = plt.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=1)
+            msa_line, = plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.8)
+
+            lines.extend([hsa_line, msa_line])
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=13)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=13)
@@ -108,6 +112,12 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
 
     # Unpack the sorted labels
     new_handles, new_labels = zip(*sorted_labels)
+
+    # Create a new list of handles that includes the line styles
+    if option == 1:
+        new_handles = [hsa_line, msa_line]
+    else:
+        new_handles = lines
 
     # Place the legend inside the plot for the specific case
     if option == 2 and metric == 'cons' and x_axis == 'epsilon':

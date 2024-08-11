@@ -3,6 +3,7 @@ from cg_naive import *
 from cg_behavior import *
 from subproblem import *
 from demand import *
+from plots import *
 from datetime import datetime
 import os
 import pandas as pd
@@ -268,8 +269,10 @@ for epsilon in eps_ls:
 
         # Naive
         ls_r1 = process_recovery(ls_sc1, chi, len(T))
-        undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab = master.calc_naive(
+        undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab, perf_ls = master.calc_naive(
             ls_p1, ls_sc1, ls_r1, eps, prob)
+
+        performancePlot(perf_ls, len(T), )
 
         undercoverage_pool.append(undercoverage_ab)
         understaffing_pool.append(understaffing_ab)

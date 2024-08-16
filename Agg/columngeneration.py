@@ -39,7 +39,7 @@ max_itr = 200
 output_len = 98
 mue = 1e-4
 threshold = 5e-2
-eps = 0.1
+eps = 0
 epsi = 0.1
 chi = 5
 
@@ -48,7 +48,7 @@ chi = 5
 demand_dict = demand_dict_fifty_min(len(T), 1, len(I), 2, 0.25)
 print(demand_dict)
 demand_dict2 = {(1, 1): 38, (1, 2): 46, (1, 3): 15, (2, 1): 41, (2, 2): 39, (2, 3): 35, (3, 1): 31, (3, 2): 68, (3, 3): 7, (4, 1): 14, (4, 2): 88, (4, 3): 10, (5, 1): 5, (5, 2): 26, (5, 3): 57, (6, 1): 26, (6, 2): 18, (6, 3): 56, (7, 1): 50, (7, 2): 5, (7, 3): 21, (8, 1): 29, (8, 2): 55, (8, 3): 7, (9, 1): 9, (9, 2): 48, (9, 3): 32, (10, 1): 6, (10, 2): 52, (10, 3): 22, (11, 1): 75, (11, 2): 33, (11, 3): 16, (12, 1): 45, (12, 2): 14, (12, 3): 64, (13, 1): 21, (13, 2): 24, (13, 3): 54, (14, 1): 16, (14, 2): 42, (14, 3): 36, (15, 1): 28, (15, 2): 53, (15, 3): 24, (16, 1): 6, (16, 2): 62, (16, 3): 8, (17, 1): 23, (17, 2): 19, (17, 3): 53, (18, 1): 51, (18, 2): 43, (18, 3): 10, (19, 1): 49, (19, 2): 36, (19, 3): 13, (20, 1): 9, (20, 2): 100, (20, 3): 6, (21, 1): 8, (21, 2): 77, (21, 3): 18, (22, 1): 49, (22, 2): 4, (22, 3): 27, (23, 1): 64, (23, 2): 26, (23, 3): 23, (24, 1): 7, (24, 2): 66, (24, 3): 14, (25, 1): 29, (25, 2): 27, (25, 3): 33, (26, 1): 45, (26, 2): 54, (26, 3): 14, (27, 1): 6, (27, 2): 46, (27, 3): 26, (28, 1): 37, (28, 2): 32, (28, 3): 9}
-plot_demand_bar_by_day(demand_dict2, 28, 3, 468)
+#plot_demand_bar_by_day(demand_dict2, 28, 3, 468)
 
 # **** Compact Solver ****
 problem_t0 = time.time()
@@ -324,12 +324,14 @@ tree.write("iterations.xml", encoding='utf-8', xml_declaration=True)
 performancePlotAvg(bap, npp, len(T), 'perf_Plot', 5, eps, chi)
 
 # naive
-#plot_undercover(create_dict_from_list(cumulative_total, len(T), len(K)), 28, 3, 499)
-#plot_undercover(rel_dict(create_dict_from_list(cumulative_total, len(T), len(K)), demand_dict), 28, 3, 499)
+#plot_undercover_d(create_dict_from_list(cumulative_total, len(T), len(K)), 28, 3, 499, '_msa')
+plot_undercover_d(rel_dict(dict_reducer(create_dict_from_list(cumulative_total, len(T), len(K))), dict_reducer(demand_dict)), 28, 3, 499)
+
+print(f"Rel: {create_dict_from_list(cumulative_total, len(T), len(K))}")
 
 # bap
-#plot_undercover(create_dict_from_list(master.getUndercoverage(), len(T), len(K)), 28, 3, 499)
-plot_undercover(rel_dict(create_dict_from_list(master.getUndercoverage(), len(T), len(K)), demand_dict), 28, 3, 499)
+#plot_undercover_d(create_dict_from_list(master.getUndercoverage(), len(T), len(K)), 28, 3, 499, '_hsa')
+#plot_undercover_d(rel_dict(dict_reducer(create_dict_from_list(master.getUndercoverage(), len(T), len(K))), dict_reducer(demand_dict)), 28, 3, 499)
 
 
 print(f"X: {ls_x}")
@@ -337,5 +339,5 @@ print(f"C: {ls_sc}")
 print(f"Sched: {X_schedules}")
 print(f"Lambdas: {master.printLambdas()}")
 
-fig= visualize_schedule(ls_x, len(T), round(final_obj_cg, 3), len(I), len(T), len(K))
-pio.write_image(fig, f'./images/physician_schedules_hsa.png', scale=1, width=1000, height=800, engine='kaleido')
+fig= visualize_schedule2(ls_sc, len(T), round(final_obj_cg, 3), len(I), len(T))
+pio.write_image(fig, f'./images/physician_schedules_msa.png', scale=1, width=1000, height=800, engine='kaleido')

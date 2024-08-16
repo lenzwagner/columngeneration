@@ -55,3 +55,55 @@ def plot_undercover(ls, days, shifts, pt):
 
 def rel_dict(a,b):
     return {key: a[key] / b[key] if key in b and b[key] != 0 else None for key in a}
+
+def dict_reducer(data):
+    result = {}
+
+    for (key1, key2), value in data.items():
+        if key1 in result:
+            result[key1] += value
+        else:
+            result[key1] = value
+
+    return result
+
+def plot_undercover_d(ls, days, shifts, pt, filename_suffix=''):
+    daily_undercover = []
+
+    for day in range(1, days + 1):
+        daily_sum = sum(ls.get((day, shift), 0) for shift in range(1, shifts + 1))
+        daily_undercover.append(daily_sum)
+
+    pt_in = pt / 72
+    width_plt = round(pt_in)
+    height_plt = round((width_plt / 16) * 9)
+
+    plt.figure(figsize=(12, 6))
+    bars = plt.bar(range(1, days + 1), daily_undercover, color='blue', alpha=0.7)
+
+    plt.xlabel('Day', fontsize=11)
+    plt.ylabel('Daily Undercoverage', fontsize=11)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.xticks(range(1, days + 1, 2))  # Show every other day on x-axis
+
+    for bar in bars:
+        yval = bar.get_height()
+        yval_str = f"{int(yval)}" if yval.is_integer() else f"{yval:.2f}"
+        plt.text(bar.get_x() + bar.get_width() / 2, yval, yval_str,
+                 ha='center', va='bottom', fontsize=9)
+
+    total_undercoverage = sum(daily_undercover)
+    plt.text(0.95, 0.95, f'Total Undercoverage: {total_undercoverage:.2f}',
+             transform=plt.gca().transAxes, ha='right', va='top',
+             bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
+
+    plt.tight_layout()
+
+    # Erstellen Sie den Dateinamen mit dem optionalen Suffix
+    base_filename = 'daily_undercover'
+    if filename_suffix:
+        base_filename += f'_{filename_suffix}'
+
+    plt.savefig(f'images/{base_filename}.svg', bbox_inches='tight')
+    plt.savefig(f'images/{base_filename}.png', bbox_inches='tight')
+    plt.show()

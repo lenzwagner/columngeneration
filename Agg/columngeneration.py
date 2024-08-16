@@ -13,7 +13,7 @@ from aggundercover import *
 
 # **** Prerequisites ****
 # Create Dataframes
-I, T, K = list(range(1,6)), list(range(1,29)), list(range(1,4))
+I, T, K = list(range(1,101)), list(range(1,29)), list(range(1,4))
 random.seed(133)
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -38,8 +38,8 @@ time_Limit = 36
 max_itr = 200
 output_len = 98
 mue = 1e-4
-threshold = 5e-5
-eps = 0
+threshold = 5e-2
+eps = 0.1
 epsi = 0.1
 chi = 5
 
@@ -334,7 +334,8 @@ plot_undercover(rel_dict(create_dict_from_list(master.getUndercoverage(), len(T)
 
 print(f"X: {ls_x}")
 print(f"C: {ls_sc}")
+print(f"Sched: {X_schedules}")
+print(f"Lambdas: {master.printLambdas()}")
 
 fig= visualize_schedule(ls_x, len(T), round(final_obj_cg, 3), len(I), len(T), len(K))
-#pio.write_image(fig, f'./images/physician_schedules_hsa.png',
-               # scale=1, width=1000, height=800, engine='kaleido')
+pio.write_image(fig, f'./images/physician_schedules_hsa.png', scale=1, width=1000, height=800, engine='kaleido')

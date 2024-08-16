@@ -13,7 +13,7 @@ from aggundercover import *
 
 # **** Prerequisites ****
 # Create Dataframes
-I, T, K = list(range(1,101)), list(range(1,29)), list(range(1,4))
+I, T, K = list(range(1,6)), list(range(1,29)), list(range(1,4))
 random.seed(133)
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -277,16 +277,16 @@ ls_p = plotPerformanceList(P_schedules, master.printLambdas())
 
 ls_r = process_recovery(ls_sc, 5, len(T))
 
-print(f"LS_P: {ls_p}")
+print(f"LS_P: {sum(ls_sc)}")
 
 
 #master.calc_behavior(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc)
 undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls, undercover_naive = master.calc_naive(plotPerformanceList(Perf_schedules, master.printLambdas()), ls_sc, ls_r, epsi, 1.0)
 
-print(f"Undercover-Naive: {undercover_naive}")
-print(f"Master-Undercover: {master.getUndercoverage()}")
+#print(f"Undercover-Naive: {undercover_naive}")
+#print(f"Master-Undercover: {master.getUndercoverage()}")
 cumulative_total = [undercover_naive[j] + master.getUndercoverage()[j] for j in range(len(undercover_naive))]
-print(f"Cumulative Total: {cumulative_total}")
+#print(f"Cumulative Total: {cumulative_total}")
 
 #lagrangeprimal(sum_rc_hist, objValHistRMP)
 
@@ -323,8 +323,6 @@ tree.write("iterations.xml", encoding='utf-8', xml_declaration=True)
 
 performancePlotAvg(bap, npp, len(T), 'perf_Plot', 5, eps, chi)
 
-print(master.getUndercoverage())
-
 # naive
 #plot_undercover(create_dict_from_list(cumulative_total, len(T), len(K)), 28, 3, 499)
 #plot_undercover(rel_dict(create_dict_from_list(cumulative_total, len(T), len(K)), demand_dict), 28, 3, 499)
@@ -332,3 +330,11 @@ print(master.getUndercoverage())
 # bap
 #plot_undercover(create_dict_from_list(master.getUndercoverage(), len(T), len(K)), 28, 3, 499)
 plot_undercover(rel_dict(create_dict_from_list(master.getUndercoverage(), len(T), len(K)), demand_dict), 28, 3, 499)
+
+
+print(f"X: {ls_x}")
+print(f"C: {ls_sc}")
+
+fig= visualize_schedule(ls_x, len(T), round(final_obj_cg, 3), len(I), len(T), len(K))
+#pio.write_image(fig, f'./images/physician_schedules_hsa.png',
+               # scale=1, width=1000, height=800, engine='kaleido')

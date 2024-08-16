@@ -4,6 +4,8 @@ from matplotlib.transforms import offset_copy
 import seaborn as sns
 from matplotlib.ticker import PercentFormatter, MaxNLocator
 import itertools
+import plotly.express as px
+import plotly.io as pio
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -539,3 +541,68 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     plt.close(fig)
 
     print("Overall average comparison plot generated successfully.")
+
+
+def visualize_schedule(dic, days, undercoverage, I, T, K):
+    result = {}
+    index = 0
+    for i in range(1, I + 1):
+        for t in range(1, T + 1):
+            for k in range(1, K + 1):
+                if index < len(dic):
+                    result[(i, t, k)] = dic[index]
+                    index += 1
+                else:
+                    break
+
+    print(f"Res: {result}")
+
+    s = pd.Series(result)
+
+    data = (s.loc[lambda s: s == 1]
+           .reset_index(-1)['level_2'].unstack(fill_value=0)
+           .reindex(index=s.index.get_level_values(0).unique(),
+                    columns=s.index.get_level_values(1).unique(),
+                    fill_value=0
+                    )
+           )
+
+    data.index = data.index.astype(int)
+    data.columns = data.columns.astype(str)
+
+    title_str = f'Physician Schedules | Total Undercoverage: {undercoverage}'
+    fig = px.imshow(data[[str(i) for i in range(1, days + 1)]],
+                    color_continuous_scale=[ '#E57373' , '#4B8B9F', '#DAA520' ,'#76B041'])
+
+    fig.update(data=[{'hovertemplate': "Day: %{x}<br>"
+                                       "Physician: %{y}<br>"}])
+
+    colors = dict(thickness=35,
+                    tickvals=[0, 1, 2, 3],
+                    ticktext=['Off', 'Morning', 'Noon', 'Evening'],
+                    title = "Shift")
+
+    fig.update(layout_coloraxis_showscale=True, layout_coloraxis_colorbar=colors)
+
+
+    x_ticks = np.arange(1, days + 1)
+    day_labels = ['Day ' + str(i) for i in x_ticks]
+    fig.update_xaxes(tickvals=x_ticks, ticktext=day_labels)
+
+    y_ticks = np.arange(1, data.shape[0] + 1)
+    physician_labels = ['Physician ' + str(i) for i in y_ticks]
+    fig.update_yaxes(tickvals=y_ticks, ticktext=physician_labels)
+
+    fig.update_layout(
+        title={
+            'text': title_str,
+            'y': 0.98,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top',
+            'font': {'size': 24}
+        }
+    )
+
+    fig.show()
+    return fig

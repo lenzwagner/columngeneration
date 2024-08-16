@@ -190,12 +190,10 @@ class MasterProblem:
 
         return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm
 
-
-
     def calc_naive(self, lst, ls_sc, ls_r, mue, scale):
         consistency = sum(ls_sc)
         perf_ls = []
-        consistency_norm = sum(ls_sc) / (len(self.nurses)*scale)
+        consistency_norm = sum(ls_sc) / (len(self.nurses) * scale)
 
         self.sum_all_doctors = 0
         sublist_length = len(lst) // len(self.nurses)
@@ -205,10 +203,8 @@ class MasterProblem:
         r_values2 = [ls_r[i * sublist_length_short:(i + 1) * sublist_length_short] for i in range(len(self.nurses))]
         x_values = [[1.0 if value > 0 else 0.0 for value in sublist] for sublist in p_values]
 
-
         u_results = round(sum(self.u[t, k].x for t in self.days for k in self.shifts), 5)
         sum_xWerte = [sum(row[i] for row in x_values) for i in range(len(x_values[0]))]
-
 
         self.sum_xWerte = sum_xWerte
         self.sum_all_doctors = 0
@@ -227,6 +223,10 @@ class MasterProblem:
 
         index = 0
         self.doctors_cumulative_multiplied = []
+
+        # Initialisiere die Liste mit 28*3 Nullen
+        cumulative_total = [0] * (28 * 3)
+
         for i in self.nurses:
             doctor_values = sc_values2[index]
             r_values = r_values2[index]
@@ -253,7 +253,7 @@ class MasterProblem:
 
             self.cumulative_values = [x * mue for x in self.cumulative_sum1]
             for val in [x * mue for x in self.cumulative_sum]:
-                perf_ls.append(round(1-val,2))
+                perf_ls.append(round(1 - val, 2))
 
             self.multiplied_values = [self.cumulative_values[j] * x_i_values[j] for j in
                                       range(len(self.cumulative_values))]
@@ -263,21 +263,25 @@ class MasterProblem:
             self.doctors_cumulative_multiplied.append(self.total_sum)
             self.sum_all_doctors += self.total_sum
 
+            cumulative_total = [cumulative_total[j] + self.multiplied_values1[j] for j in range(len(cumulative_total))]
+
         undercoverage = u_results + self.sum_all_doctors
         understaffing = u_results
         perfloss = self.sum_all_doctors
-        # Noramlized Values
-        undercoverage_norm = undercoverage / (len(self.nurses)*scale)
-        understaffing_norm = understaffing / (len(self.nurses)*scale)
-        perfloss_norm =  perfloss / (len(self.nurses)*scale)
+
+        # Normalisierte Werte
+        undercoverage_norm = undercoverage / (len(self.nurses) * scale)
+        understaffing_norm = understaffing / (len(self.nurses) * scale)
+        perfloss_norm = perfloss / (len(self.nurses) * scale)
         print(f"Perf_Ls: {perf_ls}")
 
+        print(
+            "\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
+                undercoverage,
+                understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
+                consistency_norm))
 
-        print("\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
-            undercoverage,
-            understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm, consistency_norm))
-
-        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls
+        return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls, cumulative_total
 
     def average_nr_of(self, lst, num_sublists):
         total_length = len(lst)

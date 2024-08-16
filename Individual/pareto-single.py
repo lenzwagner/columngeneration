@@ -118,7 +118,7 @@ def create_plot(pt, show_pareto=True):
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize=(width_plt, height_plt))
+    plt.figure(figsize=(11,5))
 
     # Adjusting the color range to focus on the brighter part of the magma palette
     colors = plt.cm.magma(np.linspace(0.15, 0.95, max(len(df1), len(df2))))

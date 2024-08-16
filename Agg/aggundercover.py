@@ -52,3 +52,6 @@ def plot_undercover(ls, days, shifts, pt):
     plt.savefig('images/undercover.svg', bbox_inches='tight')
 
     plt.show()
+
+def rel_dict(a,b):
+    return {key: a[key] / b[key] if key in b and b[key] != 0 else None for key in a}

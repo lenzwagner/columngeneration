@@ -501,12 +501,12 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     palette2 = plt.cm.magma(np.linspace(0.65, 0.85, 1))
 
     # Create a separate plot for overall average performance
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(11, 5))
 
     # Plot average and std for list 1 (BAP)
     overall_avg1 = np.mean(avg_performance1, axis=0)
     overall_std1 = np.std(avg_performance1, axis=0)
-    ax.plot(grid, overall_avg1, lw=2, color=palette1[0], label='Average Performance (HSA)')
+    ax.plot(grid, overall_avg1, lw=2, color=palette1[0], label='Human-Scheduling Approach (HSA)')
 
     overall_lower_bound1 = np.maximum(overall_avg1 - overall_std1, 0)
     overall_upper_bound1 = np.minimum(overall_avg1 + overall_std1, 1)
@@ -516,7 +516,7 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     # Plot average and std for list 2 (NPP)
     overall_avg2 = np.mean(avg_performance2, axis=0)
     overall_std2 = np.std(avg_performance2, axis=0)
-    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Average Performance (MSA)')
+    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Machine-Scheduling Approach (MSA)')
 
     overall_lower_bound2 = np.maximum(overall_avg2 - overall_std2, 0)
     overall_upper_bound2 = np.minimum(overall_avg2 + overall_std2, 1)
@@ -525,12 +525,13 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     # Configure plot details
     ax.set_xlim(grid[0] - .5, grid[-1] + .5)
-    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - 0.05, 1.05)
+    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - eps, 1 + eps)
     ax.set_xlabel('Day')
     ax.set_ylabel(r'Average Performance $\bar{p}_{id}$')
     ax.set_xticks(range(1, days + 1))
     ax.legend()
 
+    print(f"Avg: {overall_avg1[-1], overall_avg2[-1]}")
     plt.tight_layout()
     overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}{name}_Overall_Average_Comparison__{eps}_{chi}.svg"
     plt.savefig(overall_avg_file, dpi=300, bbox_inches='tight')

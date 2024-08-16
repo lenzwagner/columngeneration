@@ -173,7 +173,7 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize=(12,6))
+    plt.figure(figsize=(11,5))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):

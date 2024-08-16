@@ -112,6 +112,7 @@ class Subproblem:
         self.model.addLConstr(0 == self.n[1])
         self.model.addLConstr(0 == self.sc[1])
         self.model.addLConstr(1 == self.p[1])
+        self.model.addLConstr(1 == self.p[28])
         self.model.addLConstr(0 == self.h[1])
         for t in self.days:
             self.model.addLConstr(

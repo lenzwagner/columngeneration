@@ -227,7 +227,7 @@ def plot_relative_undercover_dual(ls1, ls2, demand_dict, days, shifts, pt, filen
     def add_value_labels(bars, color='black'):
         for bar in bars:
             height = bar.get_height()
-            if height < 0.05:
+            if height < 0.1:
                 plt.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                          f'{height:.2%}',
                          ha='center', va='bottom', rotation=90, fontsize=8, color='black')

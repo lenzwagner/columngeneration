@@ -40,29 +40,29 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
             # Sort the group by epsilon
             group = group.sort_values('epsilon')
 
-            # Calculate mean, min, and max for HSA and MSA
+            # Calculate mean, min, and max for HSA and MLSA
             HSA_mean = group[y_col].groupby(group['epsilon']).mean()
             HSA_min = group[y_col].groupby(group['epsilon']).min()
             HSA_max = group[y_col].groupby(group['epsilon']).max()
-            MSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
-            MSA_min = group[y_col_n].groupby(group['epsilon']).min()
-            MSA_max = group[y_col_n].groupby(group['epsilon']).max()
+            MLSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
+            MLSA_min = group[y_col_n].groupby(group['epsilon']).min()
+            MLSA_max = group[y_col_n].groupby(group['epsilon']).max()
 
             # Plot mean points and connect them
             plt.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
                      label=f'HSA (χ={int(chi)})')
-            plt.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                     linestyle='--', label=f'MSA (χ={int(chi)})')
+            plt.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                     linestyle='--', label=f'MLSA (χ={int(chi)})')
 
             # Add error bars
             HSA_error = plt.errorbar(HSA_mean.index, HSA_mean.values,
                                      yerr=[HSA_mean.values - HSA_min.values, HSA_max.values - HSA_mean.values],
                                      fmt='none', capsize=5, color=colors[i % len(colors)])
-            MSA_error = plt.errorbar(MSA_mean.index, MSA_mean.values,
-                                     yerr=[MSA_mean.values - MSA_min.values, MSA_max.values - MSA_mean.values],
+            MLSA_error = plt.errorbar(MLSA_mean.index, MLSA_mean.values,
+                                     yerr=[MLSA_mean.values - MLSA_min.values, MLSA_max.values - MLSA_mean.values],
                                      fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-            # Set linestyle for MSA error bars
-            MSA_error[-1][0].set_linestyle('--')
+            # Set linestyle for MLSA error bars
+            MLSA_error[-1][0].set_linestyle('--')
 
         plt.ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}', fontsize=14)
         plt.xlabel(r'Epsilon $\varepsilon$' if x_axis == 'epsilon' else r'$\chi$', fontsize=14)
@@ -90,7 +90,7 @@ def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1
 
     # Legend
     handles, labels = plt.gca().get_legend_handles_labels()
-    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
     handles, labels = zip(*sorted_handles_labels)
 
     # Different legend placement options
@@ -143,13 +143,13 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
             # Sort the group by epsilon
             group = group.sort_values('epsilon')
 
-            # Calculate mean, min, and max for HSA and MSA
+            # Calculate mean, min, and max for HSA and MLSA
             HSA_mean = group[y_col].groupby(group['epsilon']).mean()
             HSA_min = group[y_col].groupby(group['epsilon']).min()
             HSA_max = group[y_col].groupby(group['epsilon']).max()
-            MSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
-            MSA_min = group[y_col_n].groupby(group['epsilon']).min()
-            MSA_max = group[y_col_n].groupby(group['epsilon']).max()
+            MLSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
+            MLSA_min = group[y_col_n].groupby(group['epsilon']).min()
+            MLSA_max = group[y_col_n].groupby(group['epsilon']).max()
 
             # Plot HSA on the subplot
             ax.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
@@ -158,14 +158,14 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
                                     yerr=[HSA_mean.values - HSA_min.values, HSA_max.values - HSA_mean.values],
                                     fmt='none', capsize=5, color=colors[i % len(colors)])
 
-            # Plot MSA on the subplot
-            ax.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                    linestyle='--', label=f'MSA (χ={int(chi)})', alpha=0.8)
-            MSA_error = ax.errorbar(MSA_mean.index, MSA_mean.values,
-                                    yerr=[MSA_mean.values - MSA_min.values, MSA_max.values - MSA_mean.values],
+            # Plot MLSA on the subplot
+            ax.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                    linestyle='--', label=f'MLSA (χ={int(chi)})', alpha=0.8)
+            MLSA_error = ax.errorbar(MLSA_mean.index, MLSA_mean.values,
+                                    yerr=[MLSA_mean.values - MLSA_min.values, MLSA_max.values - MLSA_mean.values],
                                     fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-            # Set linestyle for MSA error bars
-            MSA_error[-1][0].set_linestyle('--')
+            # Set linestyle for MLSA error bars
+            MLSA_error[-1][0].set_linestyle('--')
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -173,7 +173,7 @@ def plot_data_both(file, x_axis='epsilon', grid=True, legend_option_left=1, lege
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
-        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
         handles, labels = zip(*sorted_handles_labels)
 
         if ax == axs[0]:
@@ -247,19 +247,19 @@ def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left
             # Sort the group by epsilon
             group = group.sort_values('epsilon')
 
-            # Calculate mean, min, and max for HSA and MSA, grouped by epsilon and pattern
+            # Calculate mean, min, and max for HSA and MLSA, grouped by epsilon and pattern
             HSA_stats = group.groupby(['epsilon', 'pattern'])[y_col].agg(['mean', 'min', 'max'])
-            MSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
+            MLSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
 
             # Calculate overall mean for each epsilon
             HSA_mean = HSA_stats['mean'].groupby(level=0).mean()
-            MSA_mean = MSA_stats['mean'].groupby(level=0).mean()
+            MLSA_mean = MLSA_stats['mean'].groupby(level=0).mean()
 
             # Calculate error bars
             HSA_yerr = [HSA_mean - HSA_stats['min'].groupby(level=0).min(),
                         HSA_stats['max'].groupby(level=0).max() - HSA_mean]
-            MSA_yerr = [MSA_mean - MSA_stats['min'].groupby(level=0).min(),
-                        MSA_stats['max'].groupby(level=0).max() - MSA_mean]
+            MLSA_yerr = [MLSA_mean - MLSA_stats['min'].groupby(level=0).min(),
+                        MLSA_stats['max'].groupby(level=0).max() - MLSA_mean]
 
             # Plot HSA on the subplot
             ax.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
@@ -267,13 +267,13 @@ def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left
             HSA_error = ax.errorbar(HSA_mean.index, HSA_mean.values, yerr=HSA_yerr,
                                     fmt='none', capsize=5, color=colors[i % len(colors)])
 
-            # Plot MSA on the subplot
-            ax.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                    linestyle='--', label=f'MSA (χ={int(chi)})', alpha=0.8)
-            MSA_error = ax.errorbar(MSA_mean.index, MSA_mean.values, yerr=MSA_yerr,
+            # Plot MLSA on the subplot
+            ax.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                    linestyle='--', label=f'MLSA (χ={int(chi)})', alpha=0.8)
+            MLSA_error = ax.errorbar(MLSA_mean.index, MLSA_mean.values, yerr=MLSA_yerr,
                                     fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-            # Set linestyle for MSA error bars
-            MSA_error[-1][0].set_linestyle('--')
+            # Set linestyle for MLSA error bars
+            MLSA_error[-1][0].set_linestyle('--')
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -281,7 +281,7 @@ def plot_data_both_pattern(file, x_axis='epsilon', grid=True, legend_option_left
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
-        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
         handles, labels = zip(*sorted_handles_labels)
 
         if ax == axs[0]:
@@ -367,13 +367,13 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
             # Sort the group by epsilon
             group = group.sort_values('epsilon')
 
-            # Calculate mean, min, and max for HSA and MSA
+            # Calculate mean, min, and max for HSA and MLSA
             HSA_mean = group[y_col].groupby(group['epsilon']).mean()
             HSA_min = group[y_col].groupby(group['epsilon']).min()
             HSA_max = group[y_col].groupby(group['epsilon']).max()
-            MSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
-            MSA_min = group[y_col_n].groupby(group['epsilon']).min()
-            MSA_max = group[y_col_n].groupby(group['epsilon']).max()
+            MLSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
+            MLSA_min = group[y_col_n].groupby(group['epsilon']).min()
+            MLSA_max = group[y_col_n].groupby(group['epsilon']).max()
 
             # Plot HSA on the subplot
             ax.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
@@ -382,14 +382,14 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
                                     yerr=[HSA_mean.values - HSA_min.values, HSA_max.values - HSA_mean.values],
                                     fmt='none', capsize=5, color=colors[i % len(colors)])
 
-            # Plot MSA on the subplot
-            ax.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                    linestyle='--', label=f'MSA (χ={int(chi)})', alpha=0.8)
-            MSA_error = ax.errorbar(MSA_mean.index, MSA_mean.values,
-                                    yerr=[MSA_mean.values - MSA_min.values, MSA_max.values - MSA_mean.values],
+            # Plot MLSA on the subplot
+            ax.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                    linestyle='--', label=f'MLSA (χ={int(chi)})', alpha=0.8)
+            MLSA_error = ax.errorbar(MLSA_mean.index, MLSA_mean.values,
+                                    yerr=[MLSA_mean.values - MLSA_min.values, MLSA_max.values - MLSA_mean.values],
                                     fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-            # Set linestyle for MSA error bars
-            MSA_error[-1][0].set_linestyle('--')
+            # Set linestyle for MLSA error bars
+            MLSA_error[-1][0].set_linestyle('--')
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -400,7 +400,7 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
-        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
         handles, labels = zip(*sorted_handles_labels)
 
         if ax == axs[0][0]:
@@ -430,19 +430,19 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
             # Sort the group by epsilon
             group = group.sort_values('epsilon')
 
-            # Calculate mean, min, and max for HSA and MSA, grouped by epsilon and pattern
+            # Calculate mean, min, and max for HSA and MLSA, grouped by epsilon and pattern
             HSA_stats = group.groupby(['epsilon', 'pattern'])[y_col].agg(['mean', 'min', 'max'])
-            MSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
+            MLSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
 
             # Calculate overall mean for each epsilon
             HSA_mean = HSA_stats['mean'].groupby(level=0).mean()
-            MSA_mean = MSA_stats['mean'].groupby(level=0).mean()
+            MLSA_mean = MLSA_stats['mean'].groupby(level=0).mean()
 
             # Calculate error bars
             HSA_yerr = [HSA_mean - HSA_stats['min'].groupby(level=0).min(),
                         HSA_stats['max'].groupby(level=0).max() - HSA_mean]
-            MSA_yerr = [MSA_mean - MSA_stats['min'].groupby(level=0).min(),
-                        MSA_stats['max'].groupby(level=0).max() - MSA_mean]
+            MLSA_yerr = [MLSA_mean - MLSA_stats['min'].groupby(level=0).min(),
+                        MLSA_stats['max'].groupby(level=0).max() - MLSA_mean]
 
             # Plot HSA on the subplot
             ax.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
@@ -450,13 +450,13 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
             HSA_error = ax.errorbar(HSA_mean.index, HSA_mean.values, yerr=HSA_yerr,
                                     fmt='none', capsize=5, color=colors[i % len(colors)])
 
-            # Plot MSA on the subplot
-            ax.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                    linestyle='--', label=f'MSA (χ={int(chi)})', alpha=0.8)
-            MSA_error = ax.errorbar(MSA_mean.index, MSA_mean.values, yerr=MSA_yerr,
+            # Plot MLSA on the subplot
+            ax.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                    linestyle='--', label=f'MLSA (χ={int(chi)})', alpha=0.8)
+            MLSA_error = ax.errorbar(MLSA_mean.index, MLSA_mean.values, yerr=MLSA_yerr,
                                     fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-            # Set linestyle for MSA error bars
-            MSA_error[-1][0].set_linestyle('--')
+            # Set linestyle for MLSA error bars
+            MLSA_error[-1][0].set_linestyle('--')
 
         # Set y-axis label
         ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -467,7 +467,7 @@ def plot_combined(file1, file2, x_axis='epsilon', grid=True, legend_option_left=
 
         # Legend settings
         handles, labels = ax.get_legend_handles_labels()
-        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+        sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
         handles, labels = zip(*sorted_handles_labels)
 
         if ax == axs[1][0]:
@@ -524,30 +524,30 @@ def plot_combined_data(file1, file2, x_axis='epsilon', grid=False):
                 group = group.sort_values('epsilon')
 
                 if is_pattern:
-                    # Calculate mean, min, and max for HSA and MSA, grouped by epsilon and pattern
+                    # Calculate mean, min, and max for HSA and MLSA, grouped by epsilon and pattern
                     HSA_stats = group.groupby(['epsilon', 'pattern'])[y_col].agg(['mean', 'min', 'max'])
-                    MSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
+                    MLSA_stats = group.groupby(['epsilon', 'pattern'])[y_col_n].agg(['mean', 'min', 'max'])
 
                     # Calculate overall mean for each epsilon
                     HSA_mean = HSA_stats['mean'].groupby(level=0).mean()
-                    MSA_mean = MSA_stats['mean'].groupby(level=0).mean()
+                    MLSA_mean = MLSA_stats['mean'].groupby(level=0).mean()
 
                     # Calculate error bars
                     HSA_yerr = [HSA_mean - HSA_stats['min'].groupby(level=0).min(),
                                 HSA_stats['max'].groupby(level=0).max() - HSA_mean]
-                    MSA_yerr = [MSA_mean - MSA_stats['min'].groupby(level=0).min(),
-                                MSA_stats['max'].groupby(level=0).max() - MSA_mean]
+                    MLSA_yerr = [MLSA_mean - MLSA_stats['min'].groupby(level=0).min(),
+                                MLSA_stats['max'].groupby(level=0).max() - MLSA_mean]
                 else:
-                    # Calculate mean, min, and max for HSA and MSA
+                    # Calculate mean, min, and max for HSA and MLSA
                     HSA_mean = group[y_col].groupby(group['epsilon']).mean()
                     HSA_min = group[y_col].groupby(group['epsilon']).min()
                     HSA_max = group[y_col].groupby(group['epsilon']).max()
-                    MSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
-                    MSA_min = group[y_col_n].groupby(group['epsilon']).min()
-                    MSA_max = group[y_col_n].groupby(group['epsilon']).max()
+                    MLSA_mean = group[y_col_n].groupby(group['epsilon']).mean()
+                    MLSA_min = group[y_col_n].groupby(group['epsilon']).min()
+                    MLSA_max = group[y_col_n].groupby(group['epsilon']).max()
 
                     HSA_yerr = [HSA_mean - HSA_min, HSA_max - HSA_mean]
-                    MSA_yerr = [MSA_mean - MSA_min, MSA_max - MSA_mean]
+                    MLSA_yerr = [MLSA_mean - MLSA_min, MLSA_max - MLSA_mean]
 
                 # Plot HSA on the subplot
                 ax.plot(HSA_mean.index, HSA_mean.values, color=colors[i % len(colors)], marker='o',
@@ -555,13 +555,13 @@ def plot_combined_data(file1, file2, x_axis='epsilon', grid=False):
                 HSA_error = ax.errorbar(HSA_mean.index, HSA_mean.values, yerr=HSA_yerr,
                                         fmt='none', capsize=5, color=colors[i % len(colors)])
 
-                # Plot MSA on the subplot
-                ax.plot(MSA_mean.index, MSA_mean.values, color=colors[i % len(colors)], marker='s',
-                        linestyle='--', label=f'MSA (χ={int(chi)})', alpha=0.8)
-                MSA_error = ax.errorbar(MSA_mean.index, MSA_mean.values, yerr=MSA_yerr,
+                # Plot MLSA on the subplot
+                ax.plot(MLSA_mean.index, MLSA_mean.values, color=colors[i % len(colors)], marker='s',
+                        linestyle='--', label=f'MLSA (χ={int(chi)})', alpha=0.8)
+                MLSA_error = ax.errorbar(MLSA_mean.index, MLSA_mean.values, yerr=MLSA_yerr,
                                         fmt='none', capsize=5, color=colors[i % len(colors)], linestyle='--')
-                # Set linestyle for MSA error bars
-                MSA_error[-1][0].set_linestyle('--')
+                # Set linestyle for MLSA error bars
+                MLSA_error[-1][0].set_linestyle('--')
 
             # Set y-axis label
             ax.set_ylabel(f'{"Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes"}',
@@ -590,11 +590,11 @@ def plot_combined_data(file1, file2, x_axis='epsilon', grid=False):
 
     # Create a single legend for all subplots
     handles, labels = axs[0, 0].get_legend_handles_labels()
-    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MSA' in x[1]))
+    sorted_handles_labels = sorted(zip(handles, labels), key=lambda x: (int(x[1].split('χ=')[1][:-1]), 'MLSA' in x[1]))
     handles, labels = zip(*sorted_handles_labels)
 
     # Simplify labels to reduce legend width
-    simplified_labels = [label.replace('HSA', 'HSA').replace('MSA', 'MSA') for label in labels]
+    simplified_labels = [label.replace('HSA', 'HSA').replace('MLSA', 'MLSA') for label in labels]
 
     fig.legend(handles, simplified_labels, loc='lower center', bbox_to_anchor=(0.5, -0.01),  # Move the legend up
                ncol=len(handles), fontsize=10, handletextpad=0.5, columnspacing=1)

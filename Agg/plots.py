@@ -10,6 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import gurobi_logtools as glt
+import matplotlib.colors as mcolors
+
 
 def violinplots(list_cg, list_compact, name):
     file = str(name)
@@ -499,8 +501,14 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     grid = list(range(1, days + 1))
 
     # Define color palettes
-    palette1 = plt.cm.magma(np.linspace(0.15, 0.5, 1))
-    palette2 = plt.cm.magma(np.linspace(0.65, 0.85, 1))
+
+    hexcode1 = '#251255'
+    rgb_color1 = mcolors.to_rgb(hexcode1)
+    palette1 = [rgb_color1]
+
+    hexcode2 = '#feb77e'
+    rgb_color2 = mcolors.to_rgb(hexcode2)
+    palette2 = [rgb_color2]
 
     # Create a separate plot for overall average performance
     fig, ax = plt.subplots(figsize=(11, 5))
@@ -518,7 +526,7 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     # Plot average and std for list 2 (NPP)
     overall_avg2 = np.mean(avg_performance2, axis=0)
     overall_std2 = np.std(avg_performance2, axis=0)
-    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Machine-Scheduling Approach (MSA)')
+    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Machine-Like Scheduling Approach (MLSA)')
 
     overall_lower_bound2 = np.maximum(overall_avg2 - overall_std2, 0)
     overall_upper_bound2 = np.minimum(overall_avg2 + overall_std2, 1)
@@ -527,138 +535,110 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     # Configure plot details
     ax.set_xlim(grid[0] - .5, grid[-1] + .5)
-    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - eps, 1 + eps)
+    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - eps, 1.02)
     ax.set_xlabel('Day')
-    ax.set_ylabel(r'Average Performance $\bar{p}_{id}$')
+    ax.set_ylabel(r'Average Daily Performance $\bar{p}_{id}$')
     ax.set_xticks(range(1, days + 1))
     ax.legend()
 
     print(f"Avg: {overall_avg1[-1], overall_avg2[-1]}")
     plt.tight_layout()
-    overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}{name}_Overall_Average_Comparison__{eps}_{chi}.svg"
+    overall_avg_file = f".{os.sep}images{os.sep}perfplots{os.sep}perfpl_{eps}_{chi}.svg"
     plt.savefig(overall_avg_file, dpi=300, bbox_inches='tight')
     plt.show()
     plt.close(fig)
 
     print("Overall average comparison plot generated successfully.")
 
+def visualize_schedule_dual(dic, days, I, num_workers=None):
+    if num_workers is None or num_workers > I:
+        num_workers = I
 
-def visualize_schedule(dic, days, undercoverage, I, T, K):
     result = {}
     index = 0
-    for i in range(1, I + 1):
-        for t in range(1, T + 1):
-            for k in range(1, K + 1):
-                if index < len(dic):
-                    result[(i, t, k)] = dic[index]
-                    index += 1
-                else:
-                    break
-
-    print(f"Res: {result}")
-
-    s = pd.Series(result)
-
-    data = (s.loc[lambda s: s == 1]
-           .reset_index(-1)['level_2'].unstack(fill_value=0)
-           .reindex(index=s.index.get_level_values(0).unique(),
-                    columns=s.index.get_level_values(1).unique(),
-                    fill_value=0
-                    )
-           )
-
-    data.index = data.index.astype(int)
-    data.columns = data.columns.astype(str)
-
-    title_str = f'Physician Schedules | Total Undercoverage: {undercoverage}'
-    fig = px.imshow(data[[str(i) for i in range(1, days + 1)]],
-                    color_continuous_scale=[ '#E57373' , '#4B8B9F', '#DAA520' ,'#76B041'])
-
-    fig.update(data=[{'hovertemplate': "Day: %{x}<br>"
-                                       "Physician: %{y}<br>"}])
-
-    colors = dict(thickness=35,
-                    tickvals=[0, 1, 2, 3],
-                    ticktext=['Off', 'Morning', 'Noon', 'Evening'],
-                    title = "Shift")
-
-    fig.update(layout_coloraxis_showscale=True, layout_coloraxis_colorbar=colors)
-
-
-    x_ticks = np.arange(1, days + 1)
-    day_labels = ['Day ' + str(i) for i in x_ticks]
-    fig.update_xaxes(tickvals=x_ticks, ticktext=day_labels)
-
-    y_ticks = np.arange(1, data.shape[0] + 1)
-    physician_labels = ['Physician ' + str(i) for i in y_ticks]
-    fig.update_yaxes(tickvals=y_ticks, ticktext=physician_labels)
-
-    fig.update_layout(
-        title={
-            'text': title_str,
-            'y': 0.98,
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': {'size': 24}
-        }
-    )
-
-    fig.show()
-    return fig
-
-def visualize_schedule2(dic, days, undercoverage, I, T):
-    result = {}
-    index = 0
-    for i in range(1, I + 1):
-        for t in range(1, T + 1):
+    for i in range(I, 0, -1):  # Reverse the order of workers
+        for t in range(1, days + 1):
             if index < len(dic):
                 result[(i, t)] = dic[index]
                 index += 1
             else:
                 break
 
-    print(f"Res: {result}")
-
     s = pd.Series(result)
-
     data = s.unstack(fill_value=0)
-    data.index = data.index.astype(int)
-    data.columns = data.columns.astype(str)
+    data = data.iloc[:num_workers]
 
-    title_str = f'Worker Schedules | Total Undercoverage: {undercoverage}'
-    fig = px.imshow(data[[str(i) for i in range(1, days + 1)]],
-                    color_continuous_scale=['white', 'red'])
+    fig = go.Figure()
 
-    fig.update(data=[{'hovertemplate': "Day: %{x}<br>"
-                                       "Worker: %{y}<br>"
-                                       "Shift Change: %{z}<br>"}])
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            value = data.iloc[i, j]
 
-    colors = dict(thickness=35,
-                  tickvals=[0, 1],
-                  ticktext=['No', 'Yes'],
-                  title="Shift Change")
+            if value == 0:
+                color = 'white'
+            elif value == 1:
+                color = '#251255'
+            elif value == 2:
+                color = '#feb77e'
+            elif value == 3:
+                color_top = '#251255'
+                color_bottom = '#feb77e'
 
-    fig.update(layout_coloraxis_showscale=True, layout_coloraxis_colorbar=colors)
+                fig.add_shape(
+                    type="rect",
+                    x0=j, y0=i, x1=j + 1, y1=i + 0.5,
+                    fillcolor=color_top,
+                    line=dict(width=0.1, color='black'),
+                )
+                fig.add_shape(
+                    type="rect",
+                    x0=j, y0=i + 0.5, x1=j + 1, y1=i + 1,
+                    fillcolor=color_bottom,
+                    line=dict(width=0.1, color='black'),
+                )
+                continue
+            else:
+                color = 'gray'
 
-    x_ticks = np.arange(1, days + 1)
-    day_labels = ['Day ' + str(i) for i in x_ticks]
-    fig.update_xaxes(tickvals=x_ticks, ticktext=day_labels)
+            fig.add_shape(
+                type="rect",
+                x0=j, y0=i, x1=j + 1, y1=i + 1,
+                fillcolor=color,
+                line=dict(width=0.1, color='black'),
+            )
 
-    y_ticks = np.arange(1, data.shape[0] + 1)
-    physician_labels = ['Worker ' + str(i) for i in y_ticks]
-    fig.update_yaxes(tickvals=y_ticks, ticktext=physician_labels)
+    fig.update_shapes(dict(xref='x', yref='y'))
+
+    width = max(600, days * 30)
+    height = max(400, num_workers * 30)
 
     fig.update_layout(
-        title={
-            'text': title_str,
-            'y': 0.98,
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': {'size': 24}
-        }
+        xaxis=dict(
+            tickmode='array',
+            tickvals=[i + 0.5 for i in range(days)],
+            ticktext=[str(i + 1) for i in range(days)],
+            range=[0, days],
+            title=dict(text="Day", standoff=15),
+            title_font=dict(size=14),
+            tickangle=-45,
+        ),
+        yaxis=dict(
+            tickmode='array',
+            tickvals=[i + 0.5 for i in range(num_workers)],
+            ticktext=[str(num_workers - i) for i in range(num_workers)],  # Reverse worker numbering
+            range=[0, num_workers],
+            title=dict(text="Worker", standoff=1),
+            title_font=dict(size=14),
+        ),
+        height=height,
+        width=width,
+        plot_bgcolor='white',
+        autosize=False,
+        margin=dict(l=10, r=10, t=10, b=10),
     )
+
+    fig.update_xaxes(showgrid=False, scaleanchor="y", scaleratio=1)
+    fig.update_yaxes(showgrid=False)
 
     fig.show()
     return fig

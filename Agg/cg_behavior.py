@@ -172,23 +172,23 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
 
     status = master.model.Status
     if status in (gu.GRB.INF_OR_UNBD, gu.GRB.INFEASIBLE, gu.GRB.UNBOUNDED):
-        print("The model cannot be solved because it is infeasible or unbounded")
+        #print("The model cannot be solved because it is infeasible or unbounded")
         gu.sys.exit(1)
 
     if status != gu.GRB.OPTIMAL:
-        print(f"Optimization was stopped with status {status}")
+        #print(f"Optimization was stopped with status {status}")
         gu.sys.exit(1)
 
     nSolutions = master.model.SolCount
-    print(f"Number of solutions found: {nSolutions}")
+    #print(f"Number of solutions found: {nSolutions}")
 
     # Print objective values of solutions
     for e in range(nSolutions):
         master.model.setParam(gu.GRB.Param.SolutionNumber, e)
-        print(f"{master.model.PoolObjVal:g} ", end="")
+        #print(f"{master.model.PoolObjVal:g} ", end="")
         if e % 15 == 14:
             print("")
-    print("")
+    #print("")
 
     objValHistRMP.append(master.model.objval)
 
@@ -205,6 +205,8 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     cons_pool_norm = []
 
     sol = master.printLambdas()
+
+    ls_p_d = plotPerformanceList(P_schedules, sol)
 
     ls_sc = plotPerformanceList(Cons_schedules, sol)
     ls_p = plotPerformanceList(Perf_schedules, sol)
@@ -223,10 +225,10 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     cons_pool_norm.append(consistency_norm_ab)
 
 
-    print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
-    print(f"Under-List: {undercoverage_pool}")
-    print(f"Perf-List: {perf_pool}")
-    print(f"Cons-List: {cons_pool}")
+    #print(f"Total feasible solutions processed: {len(undercoverage_pool)}")
+    #print(f"Under-List: {undercoverage_pool}")
+    #print(f"Perf-List: {perf_pool}")
+    #print(f"Cons-List: {cons_pool}")
 
     undercoverage = min(undercoverage_pool)
     understaffing = min(understaffing_pool)
@@ -253,10 +255,11 @@ def column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_
     std_variation_coefficient_r = (round(np.std(variation_coefficients_r)* 100, 4))
     results_r = [mean_variation_coefficient_r, min_variation_coefficient_r, max_variation_coefficient_r, std_variation_coefficient_r]
 
+    undercoverage_behavior = master.getUndercoverage()
     # Gini
     #gini_sc = master.gini_coefficient(ls_sc, len(master.nurses))
     #gini_r = master.gini_coefficient(ls_r, len(master.nurses))
 
     autocorrel = master.autoccorrel(ls_sc, len(master.nurses), 2)
 
-    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, autocorrel, round(final_obj, 5), round(final_lb, 5), itr, lagranigan_bound
+    return round(undercoverage, 5), round(understaffing, 5), round(perfloss, 5), round(consistency, 5), round(consistency_norm, 5), round(undercoverage_norm, 5), round(understaffing_norm, 5), round(perfloss_norm, 5), results_sc, results_r, autocorrel, round(final_obj, 5), round(final_lb, 5), itr, lagranigan_bound, ls_sc, ls_p_d, undercoverage_behavior

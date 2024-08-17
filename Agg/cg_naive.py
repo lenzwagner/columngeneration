@@ -56,7 +56,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     # Retrieve dual values
     duals_i0 = master.getDuals_i()
     duals_ts0 = master.getDuals_ts()
-    print(f"{duals_i0, duals_ts0}")
+    #print(f"{duals_i0, duals_ts0}")
 
     # Start time count
     t0 = time.time()
@@ -166,23 +166,23 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
 
     status = master.model.Status
     if status in (gu.GRB.INF_OR_UNBD, gu.GRB.INFEASIBLE, gu.GRB.UNBOUNDED):
-        print("The model cannot be solved because it is infeasible or unbounded")
+        #print("The model cannot be solved because it is infeasible or unbounded")
         gu.sys.exit(1)
 
     if status != gu.GRB.OPTIMAL:
-        print(f"Optimization was stopped with status {status}")
+        #print(f"Optimization was stopped with status {status}")
         gu.sys.exit(1)
 
     nSolutions = master.model.SolCount
-    print(f"Number of solutions found: {nSolutions}")
+    #print(f"Number of solutions found: {nSolutions}")
 
     # Print objective values of solutions
     for e in range(nSolutions):
         master.model.setParam(gu.GRB.Param.SolutionNumber, e)
-        print(f"{master.model.PoolObjVal:g} ", end="")
+        #print(f"{master.model.PoolObjVal:g} ", end="")
         if e % 15 == 14:
             print("")
-    print("")
+    #print("")
 
     objValHistRMP.append(master.model.objval)
 
@@ -217,7 +217,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     perf_pool_norm.append(perfloss_norm_ab)
     cons_pool_norm.append(consistency_norm_ab)
 
-    print(f"Solcount: {master.model.SolCount}")
+    #print(f"Solcount: {master.model.SolCount}")
     for k in range(master.model.SolCount):
         master.model.setParam(gu.GRB.Param.SolutionNumber, k)
         vals = master.model.getAttr("Xn", master.lmbda)
@@ -225,13 +225,13 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
         solution = {key: round(value) for key, value in vals.items()}
         sum_lambda = sum(solution.values())
         if abs(sum_lambda - len(I)) > 1e-6:
-            print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
+            #print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
             continue
 
-        print(f"Processing feasible solution {k}")
+        #print(f"Processing feasible solution {k}")
 
         ls_sc = plotPerformanceList(Cons_schedules, solution)
-        print(f"LsSc {ls_sc}")
+        #print(f"LsSc {ls_sc}")
         ls_p = plotPerformanceList(Perf_schedules, solution)
         ls_r = process_recovery(ls_sc, chi, len(T))
         ls_x = plotPerformanceList(X_schedules, solution)
@@ -257,7 +257,7 @@ def column_generation_naive(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_
     perfloss_norm = sum(perf_pool_norm) / len(perf_pool_norm)
     consistency_norm = sum(cons_pool_norm) / len(cons_pool_norm)
 
-    print(undercoverage_norm)
+    #print(undercoverage_norm)
 
     # Coefficients
     sums, mean_value, min_value, max_value, indices_list = master.average_nr_of(ls_sc, len(master.nurses))

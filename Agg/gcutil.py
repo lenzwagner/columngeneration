@@ -437,3 +437,28 @@ def process_recovery(input_list, chi, length):
         result.extend(new_sublist)
 
     return result
+
+
+def combine_lists(ls1, ls2, days, worker):
+    new_list = []
+    limit = days * worker
+
+    for a, b in zip(ls1, ls2):
+        if len(new_list) >= limit:
+            break
+
+        a_val = bool(a)
+        b_val = bool(b)
+
+        if not a_val and not b_val:
+            new_list.append(0)
+        elif a_val and not b_val:
+            new_list.append(1)
+        elif not a_val and b_val:
+            new_list.append(2)
+        elif a_val and b_val:
+            new_list.append(3)
+
+    return new_list
+
+

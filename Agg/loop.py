@@ -4,14 +4,15 @@ from cg_behavior import *
 from subproblem import *
 from demand import *
 from plots import *
+from aggundercover import *
 from datetime import datetime
 import os
 import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.1]
-chi_ls = [7]
+eps_ls = [0.06]
+chi_ls = [5]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -30,10 +31,11 @@ seed1 = 123 - math.floor(len(I)*len(T))
 print(seed1)
 random.seed(seed1)
 demand_dict = demand_dict_fifty(len(T), prob, len(I), 2, 0.25)
+print('Demand dict', demand_dict)
 max_itr = 200
 output_len = 98
 mue = 1e-4
-threshold = 5e-5
+threshold = 6e-5
 
 data = pd.DataFrame({
     'I': I + [np.nan] * (max(len(I), len(T), len(K)) - len(I)),
@@ -253,6 +255,8 @@ ls_sc1 = plotPerformanceList(Cons_schedules, sol)
 ls_p1 = plotPerformanceList(Perf_schedules, sol)
 ls_x1 = plotPerformanceList(X_schedules, sol)
 
+undercoverage_naive = master.getUndercoverage()
+
 # Loop
 for epsilon in eps_ls:
     for chi in chi_ls:
@@ -264,15 +268,28 @@ for epsilon in eps_ls:
 
         ## Column Generation
         # Bevaior
-        undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, autocorell, final_obj, final_lb, itr, lagrangeB = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
+        undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, results_sc, results_r, autocorell, final_obj, final_lb, itr, lagrangeB, ls_sc_behav, ls_p_behavior, undercoverage_behavior = column_generation_behavior(data, demand_dict, eps, Min_WD_i, Max_WD_i, time_cg_init, max_itr, output_len, chi,
                                     threshold, time_cg, I, T, K, prob)
 
         # Naive
         ls_r1 = process_recovery(ls_sc1, chi, len(T))
-        undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab, perf_ls = master.calc_naive(
+        undercoverage_ab, understaffing_ab, perfloss_ab, consistency_ab, consistency_norm_ab, undercoverage_norm_ab, understaffing_norm_ab, perfloss_norm_ab, perf_ls_ab, undercover_naive_ab = master.calc_naive(
             ls_p1, ls_sc1, ls_r1, eps, prob)
+        cumulative_total = [undercover_naive_ab[j] + undercoverage_naive[j] for j in range(len(undercover_naive_ab))]
 
-        performancePlot(perf_ls, len(T), )
+        # Plots
+        comb_text = str(eps) + '_' + str(chi)
+        file = 'perf_Plot_' + comb_text
+        file3 = '_comb_' + comb_text
+
+        path = f'./images/schedules/worker_schedules' + comb_text + '.svg'
+        performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 5, eps, chi)
+        fig = visualize_schedule_dual(combine_lists(ls_sc_behav, ls_sc1, 20, len(T)), len(T), len(I), 20)
+        pio.write_image(fig, path, height=500, width=700, engine='kaleido')
+        plot_relative_undercover_dual(create_dict_from_list(undercoverage_behavior, len(T), len(K)),
+                                      create_dict_from_list(cumulative_total, len(T), len(K)), demand_dict, len(T),
+                                      len(K), 499, file3)
+
 
         undercoverage_pool.append(undercoverage_ab)
         understaffing_pool.append(understaffing_ab)
@@ -283,7 +300,7 @@ for epsilon in eps_ls:
         perf_pool_norm.append(perfloss_norm_ab)
         cons_pool_norm.append(consistency_norm_ab)
 
-        print(f"Solcount: {master.model.SolCount}")
+        #print(f"Solcount: {master.model.SolCount}")
         for k in range(master.model.SolCount):
             master.model.setParam(gu.GRB.Param.SolutionNumber, k)
             vals = master.model.getAttr("Xn", master.lmbda)
@@ -291,18 +308,17 @@ for epsilon in eps_ls:
             solution = {key: round(value) for key, value in vals.items()}
             sum_lambda = sum(solution.values())
             if abs(sum_lambda - len(I)) > 1e-6:
-                print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
+                #print(f"Skipping infeasible solution {k}: sum of lambda = {sum_lambda}")
                 continue
 
-            print(f"Processing feasible solution {k}")
+            #print(f"Processing feasible solution {k}")
 
             ls_sc = plotPerformanceList(Cons_schedules, solution)
-            print(f"LsSc {ls_sc}")
             ls_p = plotPerformanceList(Perf_schedules, solution)
             ls_r = process_recovery(ls_sc, chi, len(T))
             ls_x = plotPerformanceList(X_schedules, solution)
 
-            undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a = master.calc_naive(
+            undercoverage_a, understaffing_a, perfloss_a, consistency_a, consistency_norm_a, undercoverage_norm_a, understaffing_norm_a, perfloss_norm_a, perf_ls_a, undercover_naive_a = master.calc_naive(
                 ls_p, ls_sc, ls_r, eps, prob)
 
             undercoverage_pool.append(undercoverage_a)
@@ -322,6 +338,7 @@ for epsilon in eps_ls:
         understaffing_norm_n = sum(understaffing_pool_norm) / len(understaffing_pool_norm)
         perfloss_norm_n = sum(perf_pool_norm) / len(perf_pool_norm)
         consistency_norm_n = sum(cons_pool_norm) / len(cons_pool_norm)
+
 
         # Data frame
         result = pd.DataFrame([{
@@ -363,12 +380,22 @@ for epsilon in eps_ls:
 
         results2 = pd.concat([results2, result2], ignore_index=True)
 
-        print(f"Results: {result2}")
+        print("")
+        print("")
+        print("")
+        print(master.model.objval)
+        print("")
+        print("")
+        print("")
 
 #results.to_csv(file_name_csv, index=False)
 #results.to_excel(file_name_xlsx, index=False)
 #results2.to_csv(file_name_csv2, index=False)
 #results2.to_excel(file_name_xlsx2, index=False)
 
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', None)
 
-print(results2)
+print(f'Comp: {results}')
+print(f'Beha: {results2}')

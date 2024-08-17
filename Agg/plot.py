@@ -37,10 +37,10 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
 
     if option == 1:
         data_HSA = data.sort_values(x_axis)
-        data_MSA = data.sort_values(x_axis)
+        data_MLSA = data.sort_values(x_axis)
 
         hsa_line, = plt.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
-        msa_line, = plt.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='--', alpha=0.8)
+        MLSA_line, = plt.plot(data_MLSA[x_axis], data_MLSA[y_col_n], color=palette[1], label='MLSA', linestyle='--', alpha=0.8)
 
         sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o')
         sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s')
@@ -62,20 +62,20 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
             val_data = data[data[other_axis] == val].sort_values(x_axis)
             if other_axis == 'chi':
                 HSA_label = f'HSA ({chi_symbol}={int(val)})'
-                MSA_label = f'MSA ({chi_symbol}={int(val)})'
+                MLSA_label = f'MLSA ({chi_symbol}={int(val)})'
             else:
                 HSA_label = f'HSA ({epsilon_symbol}={val:.2f})'
-                MSA_label = f'MSA ({epsilon_symbol}={val:.2f})'
+                MLSA_label = f'MLSA ({epsilon_symbol}={val:.2f})'
 
             color = palette[(i + 2) % len(palette)]
 
             sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=palette[0], marker='o', label=HSA_label)
-            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label=MSA_label)
+            sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label=MLSA_label)
 
             hsa_line, = plt.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=1)
-            msa_line, = plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.8)
+            MLSA_line, = plt.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.8)
 
-            lines.extend([hsa_line, msa_line])
+            lines.extend([hsa_line, MLSA_line])
 
         plt.ylabel("Total Undercoverage" if metric == "undercover" else "Ø Number of Shift Changes", fontsize=13)
         plt.xlabel(f"Epsilon {epsilon_symbol}" if x_axis == 'epsilon' else chi_symbol, fontsize=13)
@@ -104,7 +104,7 @@ def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     new_handles, new_labels = zip(*sorted_labels)
 
     if option == 1:
-        new_handles = [hsa_line, msa_line]
+        new_handles = [hsa_line, MLSA_line]
     else:
         new_handles = lines
 
@@ -152,10 +152,10 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
     def plot_single(ax, option, data, x_axis, y_col, y_col_n, metric):
         if option == 1:
             data_HSA = data.sort_values(x_axis)
-            data_MSA = data.sort_values(x_axis)
+            data_MLSA = data.sort_values(x_axis)
 
             ax.plot(data_HSA[x_axis], data_HSA[y_col], color=palette[0], label='HSA', linestyle='-')
-            ax.plot(data_MSA[x_axis], data_MSA[y_col_n], color=palette[1], label='MSA', linestyle='-', alpha=0.8)
+            ax.plot(data_MLSA[x_axis], data_MLSA[y_col_n], color=palette[1], label='MLSA', linestyle='-', alpha=0.8)
 
             sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', ax=ax, legend=False)
             sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', ax=ax, legend=False)
@@ -170,7 +170,7 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
 
         elif option == 2:
             sns.scatterplot(data=data, x=x_axis, y=y_col, color=palette[0], marker='o', label='Trend-HSA', ax=ax, legend=False)
-            sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label='Trend-MSA', ax=ax, legend=False)
+            sns.scatterplot(data=data, x=x_axis, y=y_col_n, color=palette[1], marker='s', label='Trend-MLSA', ax=ax, legend=False)
 
             sns.regplot(data=data, x=x_axis, y=y_col, scatter=False, color=palette[0], ax=ax, ci=None)
             sns.regplot(data=data, x=x_axis, y=y_col_n, scatter=False, color=palette[1], ax=ax, ci=None)
@@ -189,15 +189,15 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, x_axis1='ep
                 val_data = data[data[other_axis] == val].sort_values(x_axis)
                 if other_axis == 'chi':
                     HSA_label = f'HSA ({chi_symbol}={int(val)})'
-                    MSA_label = f'MSA ({chi_symbol}={int(val)})'
+                    MLSA_label = f'MLSA ({chi_symbol}={int(val)})'
                 else:
                     HSA_label = f'HSA ({epsilon_symbol}={val:.2f})'
-                    MSA_label = f'MSA ({epsilon_symbol}={val:.2f})'
+                    MLSA_label = f'MLSA ({epsilon_symbol}={val:.2f})'
 
                 color = palette[(j + 2) % len(palette)]
 
                 sns.scatterplot(data=val_data, x=x_axis, y=y_col, color=color, marker='o', label=HSA_label, ax=ax, legend=False)
-                sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=MSA_label, ax=ax, legend=False)
+                sns.scatterplot(data=val_data, x=x_axis, y=y_col_n, color=color, marker='s', label=MLSA_label, ax=ax, legend=False)
 
                 ax.plot(val_data[x_axis], val_data[y_col], c=color, linestyle='-', alpha=0.7)
                 ax.plot(val_data[x_axis], val_data[y_col_n], c=color, linestyle='--', alpha=0.7)

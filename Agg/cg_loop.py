@@ -10,16 +10,16 @@ import numpy as np
 I_values = [4]
 prob_values = [1.0, 1.1, 1.2]
 patterns = [2]
-epsilon = [0.1]
+epsilon = [0.06]
 chi = [5]
-T = list(range(1, 15))
+T = list(range(1, 29))
 K = [1, 2, 3]
 time_Limit = 3600
 max_itr = 20
 output_len = 98
 mue = 1e-4
 threshold = 5e-7
-eps = 0.1
+eps = 0.05
 
 prob_mapping = {1.0: 'Low', 1.1: 'Medium', 1.2: 'High'}
 pattern_mapping = {2: 'Noon'}

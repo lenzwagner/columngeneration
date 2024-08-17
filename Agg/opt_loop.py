@@ -1,6 +1,6 @@
 from masterproblem import *
 import time
-from setup import Min_WD_i, Max_WD_i
+from setup import *
 from gcutil import *
 from subproblem import *
 from compactsolver import Problem

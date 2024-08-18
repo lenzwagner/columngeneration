@@ -461,4 +461,8 @@ def combine_lists(ls1, ls2, days, worker):
 
     return new_list
 
-
+def process_list_shuffle(input_list, T):
+    sublists = [input_list[i:i + T] for i in range(0, len(input_list), T)]
+    random.shuffle(sublists)  # Shuffle the sublists randomly
+    flat_list = [item for sublist in sublists for item in sublist]
+    return flat_list

@@ -171,9 +171,9 @@ class MasterProblem:
         understaffing = round(sum(comparison_result), 5)
         perfloss = round(undercoverage - understaffing, 5)
 
-        print(f"Undercoverage before: {undercoverage}")
-        print(f"Understaffing before: {understaffing}")
-        print(f"PerformanceLo before: {perfloss}")
+        ##print(f"Undercoverage before: {undercoverage}")
+        #print(f"Understaffing before: {understaffing}")
+        #print(f"PerformanceLo before: {perfloss}")
 
 
         # Noramlized Values
@@ -182,11 +182,11 @@ class MasterProblem:
         perfloss_norm = perfloss / (len(self.nurses)*scale)
 
         # Ausgabe
-        print(
-            "\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
-                undercoverage,
-                understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
-                consistency_norm))
+        #print(
+            #"\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
+               # undercoverage,
+               # understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
+                #consistency_norm))
 
         return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm
 
@@ -273,13 +273,13 @@ class MasterProblem:
         undercoverage_norm = undercoverage / (len(self.nurses) * scale)
         understaffing_norm = understaffing / (len(self.nurses) * scale)
         perfloss_norm = perfloss / (len(self.nurses) * scale)
-        print(f"Perf_Ls: {perf_ls}")
+        #print(f"Perf_Ls: {perf_ls}")
 
-        print(
-            "\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
-                undercoverage,
-                understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
-                consistency_norm))
+        #print(
+            #"\nUndercoverage: {:.4f}\nUnderstaffing: {:.4f}\nPerformance Loss: {:.4f}\nConsistency: {:.4f}\nNorm_Undercoverage: {:.4f}\nNorm_Understaffing: {:.4f}\nNorm_Performance Loss: {:.4f}\nNorm_Consistency: {:.4f}\n".format(
+                #undercoverage,
+                #understaffing, perfloss, consistency, undercoverage_norm, understaffing_norm, perfloss_norm,
+                #consistency_norm))
 
         return undercoverage, understaffing, perfloss, consistency, consistency_norm, undercoverage_norm, understaffing_norm, perfloss_norm, perf_ls, cumulative_total
 

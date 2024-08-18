@@ -588,13 +588,13 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
                     type="rect",
                     x0=j, y0=i, x1=j + 1, y1=i + 0.5,
                     fillcolor=color_top,
-                    line=dict(width=0.1, color='black'),
+                    line=dict(width=0.05, color='black'),
                 )
                 fig.add_shape(
                     type="rect",
                     x0=j, y0=i + 0.5, x1=j + 1, y1=i + 1,
                     fillcolor=color_bottom,
-                    line=dict(width=0.1, color='black'),
+                    line=dict(width=0.05, color='black'),
                 )
                 continue
             else:

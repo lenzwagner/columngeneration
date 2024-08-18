@@ -11,8 +11,8 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [100]
-prob_values = [1.0]
+I_values = [50, 100, 150]
+prob_values = [0.9, 1.0, 1.1]
 pattern = 2
 T = list(range(1, 29))
 K = [1, 2, 3]
@@ -55,7 +55,7 @@ for I_len in I_values:
         threshold = 6e-5
 
         # Demand Dict
-        demand_dict = demand_dict_fifty(len(T), 1, len(I), 2, 0.25)
+        demand_dict = demand_dict_fifty(len(T), prob, len(I), 2, 0.25)
         print('Demand dict', demand_dict)
 
         data = pd.DataFrame({

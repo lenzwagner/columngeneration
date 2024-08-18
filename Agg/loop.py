@@ -11,8 +11,8 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0]
-chi_ls = [5]
+eps_ls = [0.1]
+chi_ls = [7]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -283,8 +283,8 @@ for epsilon in eps_ls:
         file3 = '_comb_' + comb_text
 
         path = f'./images/schedules/worker_schedules' + comb_text + '.svg'
-        #performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 5, eps, chi)
-        fig = visualize_schedule_dual(process_list_shuffle(combine_lists(ls_sc_behav, ls_sc1, 20, len(T)), len(T)), len(T), len(I), 20)
+        performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 5, eps, chi)
+        fig = visualize_schedule_dual(combine_lists(ls_sc_behav, ls_sc1, 20, len(T)), len(T), len(I), 20)
         pio.write_image(fig, path, height=500, width=700, engine='kaleido')
         plot_relative_undercover_dual(create_dict_from_list(undercoverage_behavior, len(T), len(K)),
                                       create_dict_from_list(cumulative_total, len(T), len(K)), demand_dict, len(T),

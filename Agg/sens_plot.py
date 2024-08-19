@@ -11,12 +11,25 @@ plt.rcParams.update({
     "font.serif": "Computer Modern Roman",
     "font.sans-serif": "Computer Modern Sans",
     "font.monospace": "Computer Modern Typewriter",
-    "axes.labelsize": 10,  # adjust as necessary
-    "font.size": 10,        # adjust as necessary
-    "legend.fontsize": 8,   # adjust as necessary
-    "xtick.labelsize": 8,   # adjust as necessary
-    "ytick.labelsize": 8,   # adjust as necessary
+    "axes.labelsize": 12,  # adjust as necessary
+    "font.size": 12,        # adjust as necessary
+    "legend.fontsize": 10,   # adjust as necessary
+    "xtick.labelsize": 10,   # adjust as necessary
+    "ytick.labelsize": 10,   # adjust as necessary
 })
+
+pt = 1./72.27 # Hundreds of years of history... 72.27 points to an inch.
+
+jour_sizes = {"PRD": {"onecol": 468.*pt, "twocol": 510.*pt},
+              "CQG": {"onecol": 374.*pt}, # CQG is only one column
+              # Add more journals below. Can add more properties to each journal
+             }
+
+my_width = jour_sizes["PRD"]["onecol"]
+# Our figure's aspect ratio
+golden = (1 + 5 ** 0.5) / 2
+
+fig = plt.figure(figsize = (my_width, my_width/golden))
 
 def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1):
     data = pd.read_csv(file)

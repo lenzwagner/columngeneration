@@ -19,6 +19,19 @@ plt.rcParams.update({
     "ytick.labelsize": 8,   # adjust as necessary
 })
 
+pt = 1./72.27 # Hundreds of years of history... 72.27 points to an inch.
+
+jour_sizes = {"PRD": {"onecol": 468.*pt, "twocol": 510.*pt},
+              "CQG": {"onecol": 374.*pt}, # CQG is only one column
+              # Add more journals below. Can add more properties to each journal
+             }
+
+my_width = jour_sizes["PRD"]["onecol"]
+# Our figure's aspect ratio
+golden = (1 + 5 ** 0.5) / 2
+
+fig = plt.figure(figsize = (my_width, my_width/golden))
+
 
 def plot_data(option, file, name, metric, pt, x_axis='epsilon', grid=True):
     file1 = str(name)

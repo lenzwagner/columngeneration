@@ -16,6 +16,18 @@ plt.rcParams.update({
     "ytick.labelsize": 8,   # adjust as necessary
 })
 
+pt = 1./72.27 # Hundreds of years of history... 72.27 points to an inch.
+
+jour_sizes = {"PRD": {"onecol": 468.*pt, "twocol": 510.*pt},
+              "CQG": {"onecol": 374.*pt}, # CQG is only one column
+              # Add more journals below. Can add more properties to each journal
+             }
+
+my_width = jour_sizes["PRD"]["onecol"]
+# Our figure's aspect ratio
+golden = (1 + 5 ** 0.5) / 2
+
+
 
 def demand_dict_fifty(num_days, prob, demand, middle_shift, fluctuation=0.25):
     base_total_demand = int(prob * demand)
@@ -187,7 +199,7 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize=(11,5))
+    plt.figure(figsize = (my_width, my_width/golden))
     bars = plt.bar(range(len(demands_list)), demands_list)
 
     for i, bar in enumerate(bars):
@@ -198,8 +210,8 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
                labels=[f"{i + 1}" for i in range(days)], rotation=0)
 
     for bar in bars:
-        yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 2, yval, int(yval), ha='center', va='bottom', fontsize=9)
+        yval = bar.get_height() +0.5
+        plt.text(bar.get_x() + bar.get_width() / 1, yval, int(yval),rotation=90, ha='center', va='bottom', fontsize=8)
 
     plt.xlabel('Day', fontsize=11)
     plt.ylabel('Demand', fontsize=11)

@@ -12,11 +12,11 @@ plt.rcParams.update({
     "font.serif": "Computer Modern Roman",
     "font.sans-serif": "Computer Modern Sans",
     "font.monospace": "Computer Modern Typewriter",
-    "axes.labelsize": 10,  # adjust as necessary
-    "font.size": 10,        # adjust as necessary
-    "legend.fontsize": 8,   # adjust as necessary
-    "xtick.labelsize": 8,   # adjust as necessary
-    "ytick.labelsize": 8,   # adjust as necessary
+    "axes.labelsize": 12,  # adjust as necessary
+    "font.size": 12,        # adjust as necessary
+    "legend.fontsize": 10,   # adjust as necessary
+    "xtick.labelsize": 10,   # adjust as necessary
+    "ytick.labelsize": 10,   # adjust as necessary
 })
 
 pt = 1./72.27 # Hundreds of years of history... 72.27 points to an inch.

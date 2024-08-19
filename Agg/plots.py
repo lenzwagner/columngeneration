@@ -12,6 +12,18 @@ import plotly.graph_objects as go
 import gurobi_logtools as glt
 import matplotlib.colors as mcolors
 
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "lmodern",
+    "font.serif": "Computer Modern Roman",
+    "font.sans-serif": "Computer Modern Sans",
+    "font.monospace": "Computer Modern Typewriter",
+    "axes.labelsize": 10,  # adjust as necessary
+    "font.size": 10,        # adjust as necessary
+    "legend.fontsize": 8,   # adjust as necessary
+    "xtick.labelsize": 8,   # adjust as necessary
+    "ytick.labelsize": 8,   # adjust as necessary
+})
 
 def violinplots(list_cg, list_compact, name):
     file = str(name)
@@ -550,8 +562,8 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     print("Overall average comparison plot generated successfully.")
 
+import plotly.graph_objs as go
 import pandas as pd
-import plotly.graph_objects as go
 
 def visualize_schedule_dual(dic, days, I, num_workers=None):
     if num_workers is None or num_workers > I:
@@ -559,7 +571,7 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
 
     result = {}
     index = 0
-    for i in range(I, 0, -1):  # Reverse the order of workers
+    for i in range(I, 0, -1):
         for t in range(1, days + 1):
             if index < len(dic):
                 result[(i, t)] = dic[index]
@@ -579,59 +591,41 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
 
             if value == 0:
                 color = 'white'
-                fig.add_shape(
-                    type="rect",
-                    x0=j, y0=i, x1=j + 1, y1=i + 1,
-                    fillcolor=color,
-                    line=dict(width=0.1, color='black'),
-                )
             elif value == 1:
                 color = '#251255'
-                fig.add_shape(
-                    type="rect",
-                    x0=j, y0=i, x1=j + 1, y1=i + 1,
-                    fillcolor=color,
-                    line=dict(width=0.1, color='black'),
-                )
             elif value == 2:
                 color = '#feb77e'
-                fig.add_shape(
-                    type="rect",
-                    x0=j, y0=i, x1=j + 1, y1=i + 1,
-                    fillcolor=color,
-                    line=dict(width=0.1, color='black'),
-                )
             elif value == 3:
-                color_top = '#251255'  # Violet
-                color_bottom = '#feb77e'  # Orange
-
-                # Diagonal split from top left to bottom right
+                # Diagonal split
                 fig.add_shape(
                     type="path",
                     path=f"M {j},{i} L {j+1},{i} L {j},{i+1} Z",
-                    fillcolor=color_top,
+                    fillcolor='#251255',
                     line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
                     path=f"M {j+1},{i} L {j+1},{i+1} L {j},{i+1} Z",
-                    fillcolor=color_bottom,
+                    fillcolor='#feb77e',
                     line=dict(width=0.1, color='black'),
                 )
+                continue
             else:
                 color = 'gray'
-                fig.add_shape(
-                    type="rect",
-                    x0=j, y0=i, x1=j + 1, y1=i + 1,
-                    fillcolor=color,
-                    line=dict(width=0.1, color='black'),
-                )
+
+            fig.add_shape(
+                type="rect",
+                x0=j, y0=i, x1=j + 1, y1=i + 1,
+                fillcolor=color,
+                line=dict(width=0.1, color='black'),
+            )
 
     fig.update_shapes(dict(xref='x', yref='y'))
 
     width = max(600, days * 30)
     height = max(400, num_workers * 30)
 
+    # Update layout with LaTeX-style fonts and sizing
     fig.update_layout(
         xaxis=dict(
             tickmode='array',
@@ -639,22 +633,25 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             ticktext=[str(i + 1) for i in range(days)],
             range=[0, days],
             title=dict(text="Day", standoff=15),
-            title_font=dict(size=14),
+            title_font=dict(family="Computer Modern Roman", size=10),
+            tickfont=dict(family="Computer Modern Roman", size=8),
             tickangle=-45,
         ),
         yaxis=dict(
             tickmode='array',
             tickvals=[i + 0.5 for i in range(num_workers)],
-            ticktext=[str(num_workers - i) for i in range(num_workers)],  # Reverse worker numbering
+            ticktext=[str(num_workers - i) for i in range(num_workers)],
             range=[0, num_workers],
             title=dict(text="Worker", standoff=1),
-            title_font=dict(size=14),
+            title_font=dict(family="Computer Modern Roman", size=10),
+            tickfont=dict(family="Computer Modern Roman", size=8),
         ),
         height=height,
         width=width,
         plot_bgcolor='white',
         autosize=False,
         margin=dict(l=10, r=10, t=10, b=10),
+        font=dict(family="Computer Modern Roman", size=10),
     )
 
     fig.update_xaxes(showgrid=False, scaleanchor="y", scaleratio=1)

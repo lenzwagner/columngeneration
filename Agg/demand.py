@@ -3,6 +3,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "lmodern",
+    "font.serif": "Computer Modern Roman",
+    "font.sans-serif": "Computer Modern Sans",
+    "font.monospace": "Computer Modern Typewriter",
+    "axes.labelsize": 10,  # adjust as necessary
+    "font.size": 10,        # adjust as necessary
+    "legend.fontsize": 8,   # adjust as necessary
+    "xtick.labelsize": 8,   # adjust as necessary
+    "ytick.labelsize": 8,   # adjust as necessary
+})
+
+
 def demand_dict_fifty(num_days, prob, demand, middle_shift, fluctuation=0.25):
     base_total_demand = int(prob * demand)
     demand_dict = {}

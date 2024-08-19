@@ -550,6 +550,9 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     print("Overall average comparison plot generated successfully.")
 
+import pandas as pd
+import plotly.graph_objects as go
+
 def visualize_schedule_dual(dic, days, I, num_workers=None):
     if num_workers is None or num_workers > I:
         num_workers = I
@@ -576,36 +579,53 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
 
             if value == 0:
                 color = 'white'
-            elif value == 1:
-                color = '#251255'
-            elif value == 2:
-                color = '#feb77e'
-            elif value == 3:
-                color_top = '#251255'
-                color_bottom = '#feb77e'
-
                 fig.add_shape(
                     type="rect",
-                    x0=j, y0=i, x1=j + 1, y1=i + 0.5,
+                    x0=j, y0=i, x1=j + 1, y1=i + 1,
+                    fillcolor=color,
+                    line=dict(width=0.1, color='black'),
+                )
+            elif value == 1:
+                color = '#251255'
+                fig.add_shape(
+                    type="rect",
+                    x0=j, y0=i, x1=j + 1, y1=i + 1,
+                    fillcolor=color,
+                    line=dict(width=0.1, color='black'),
+                )
+            elif value == 2:
+                color = '#feb77e'
+                fig.add_shape(
+                    type="rect",
+                    x0=j, y0=i, x1=j + 1, y1=i + 1,
+                    fillcolor=color,
+                    line=dict(width=0.1, color='black'),
+                )
+            elif value == 3:
+                color_top = '#251255'  # Violet
+                color_bottom = '#feb77e'  # Orange
+
+                # Diagonal split from top left to bottom right
+                fig.add_shape(
+                    type="path",
+                    path=f"M {j},{i} L {j+1},{i} L {j},{i+1} Z",
                     fillcolor=color_top,
                     line=dict(width=0.05, color='black'),
                 )
                 fig.add_shape(
-                    type="rect",
-                    x0=j, y0=i + 0.5, x1=j + 1, y1=i + 1,
+                    type="path",
+                    path=f"M {j+1},{i} L {j+1},{i+1} L {j},{i+1} Z",
                     fillcolor=color_bottom,
                     line=dict(width=0.05, color='black'),
                 )
-                continue
             else:
                 color = 'gray'
-
-            fig.add_shape(
-                type="rect",
-                x0=j, y0=i, x1=j + 1, y1=i + 1,
-                fillcolor=color,
-                line=dict(width=0.1, color='black'),
-            )
+                fig.add_shape(
+                    type="rect",
+                    x0=j, y0=i, x1=j + 1, y1=i + 1,
+                    fillcolor=color,
+                    line=dict(width=0.1, color='black'),
+                )
 
     fig.update_shapes(dict(xref='x', yref='y'))
 

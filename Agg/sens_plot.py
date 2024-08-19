@@ -4,6 +4,20 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
+
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "lmodern",
+    "font.serif": "Computer Modern Roman",
+    "font.sans-serif": "Computer Modern Sans",
+    "font.monospace": "Computer Modern Typewriter",
+    "axes.labelsize": 10,  # adjust as necessary
+    "font.size": 10,        # adjust as necessary
+    "legend.fontsize": 8,   # adjust as necessary
+    "xtick.labelsize": 8,   # adjust as necessary
+    "ytick.labelsize": 8,   # adjust as necessary
+})
+
 def plot_data(option, file, metric, x_axis='epsilon', grid=True, legend_option=1):
     data = pd.read_csv(file)
 

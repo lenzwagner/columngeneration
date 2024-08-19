@@ -610,13 +610,13 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
                     type="path",
                     path=f"M {j},{i} L {j+1},{i} L {j},{i+1} Z",
                     fillcolor=color_top,
-                    line=dict(width=0.05, color='black'),
+                    line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
                     path=f"M {j+1},{i} L {j+1},{i+1} L {j},{i+1} Z",
                     fillcolor=color_bottom,
-                    line=dict(width=0.05, color='black'),
+                    line=dict(width=0.1, color='black'),
                 )
             else:
                 color = 'gray'

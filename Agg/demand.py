@@ -180,49 +180,53 @@ def plot_demand_bar(demands, days, shifts):
     plt.show()
 
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 def plot_demand_bar_by_day(demands, days, shifts, pt):
     """
     Plots the demand pattern over shifts using a bar plot for a given number of days and shifts.
-
     Parameters:
     - demands: dict, demand values with keys as (day, shift) tuples.
     - days: int, number of days.
     - shifts: int, number of shifts per day.
+    - pt: int, width of the plot in points.
     """
     demands_list = []
     colors = plt.cm.magma(np.linspace(0, 0.8, shifts))
-
     for day in range(1, days + 1):
         for shift in range(1, shifts + 1):
             demands_list.append(demands[(day, shift)])
-
     pt_in = pt / 72
     width_plt = round(pt_in)
     height_plt = round((width_plt / 16) * 9)
-    plt.figure(figsize = (my_width, my_width/golden))
-    bars = plt.bar(range(len(demands_list)), demands_list)
+    plt.figure(figsize=(width_plt, height_plt))
 
+    bars = plt.bar(range(len(demands_list)), demands_list)
     for i, bar in enumerate(bars):
         shift_index = i % shifts
         bar.set_color(colors[shift_index])
+        yval = bar.get_height()
+        xval = bar.get_x() + bar.get_width() / 2
+
+        if yval < 10:
+            plt.text(xval, yval + 1.7, int(yval), rotation=90, ha='center', va='bottom',
+                     fontsize=4.5, color='black')
+        else:
+            plt.text(xval, yval / 2, int(yval), rotation=90, ha='center', va='center',
+                     fontsize=4.5, color='white')
 
     plt.xticks(ticks=[(i * shifts + (shifts - 1) / 2) for i in range(days)],
                labels=[f"{i + 1}" for i in range(days)], rotation=0)
-
-    for bar in bars:
-        yval = bar.get_height() +0.5
-        plt.text(bar.get_x() + bar.get_width() / 1, yval, int(yval),rotation=90, ha='center', va='bottom', fontsize=8)
-
     plt.xlabel('Day', fontsize=11)
     plt.ylabel('Demand', fontsize=11)
-    #plt.title('Demand Pattern', fontsize=20)
     plt.grid(axis='y')
     plt.tight_layout()
     plt.savefig('images/demand.svg', bbox_inches='tight')
-
     plt.show()
 
 def demand_dict_fifty_min(num_days, prob, demand, middle_shift, fluctuation=0.25, seed=None):

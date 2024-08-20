@@ -1,5 +1,18 @@
 from demand import *
 
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "lmodern",
+    "font.serif": "Computer Modern Roman",
+    "font.sans-serif": "Computer Modern Sans",
+    "font.monospace": "Computer Modern Typewriter",
+    "axes.labelsize": 11,  # adjust as necessary
+    "font.size": 11,        # adjust as necessary
+    "legend.fontsize": 9,   # adjust as necessary
+    "xtick.labelsize": 9,   # adjust as necessary
+    "ytick.labelsize": 9,   # adjust as necessary
+})
+
 def create_dict_from_list(lst, days, shifts):
     if len(lst) != days * shifts:
         raise ValueError("Error")

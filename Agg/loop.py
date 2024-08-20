@@ -11,8 +11,8 @@ import pandas as pd
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.1]
-chi_ls = [7]
+eps_ls = [0.06]
+chi_ls = [5]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -278,9 +278,10 @@ for epsilon in eps_ls:
         cumulative_total = [undercover_naive_ab[j] + undercoverage_naive[j] for j in range(len(undercover_naive_ab))]
 
         # Plots
+        random.seed(0)
         comb_text = str(eps) + '_' + str(chi)
         file = 'perf_Plot_' + comb_text
-        file3 = '_comb_' + comb_text
+        file3 = 'comb__' + comb_text
 
         path = f'./images/schedules/worker_schedules' + comb_text + '.svg'
         performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 5, eps, chi)

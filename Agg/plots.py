@@ -18,11 +18,11 @@ plt.rcParams.update({
     "font.serif": "Computer Modern Roman",
     "font.sans-serif": "Computer Modern Sans",
     "font.monospace": "Computer Modern Typewriter",
-    "axes.labelsize": 12,  # adjust as necessary
-    "font.size": 12,        # adjust as necessary
-    "legend.fontsize": 10,   # adjust as necessary
-    "xtick.labelsize": 10,   # adjust as necessary
-    "ytick.labelsize": 10,   # adjust as necessary
+    "axes.labelsize": 11,  # adjust as necessary
+    "font.size": 11,        # adjust as necessary
+    "legend.fontsize": 9,   # adjust as necessary
+    "xtick.labelsize": 9,   # adjust as necessary
+    "ytick.labelsize": 9,   # adjust as necessary
 })
 
 pt = 1./72.27 # Hundreds of years of history... 72.27 points to an inch.
@@ -643,9 +643,9 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             tickvals=[i + 0.5 for i in range(days)],
             ticktext=[str(i + 1) for i in range(days)],
             range=[0, days],
-            title=dict(text="Day", standoff=15),
-            title_font=dict(family="Computer Modern Roman", size=12),
-            tickfont=dict(family="Computer Modern Roman", size=10),
+            title=dict(text="Day", standoff=14),
+            title_font=dict(family="Computer Modern Roman", size=11),
+            tickfont=dict(family="Computer Modern Roman", size=9),
             tickangle=-45,
         ),
         yaxis=dict(
@@ -653,16 +653,16 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             tickvals=[i + 0.5 for i in range(num_workers)],
             ticktext=[str(num_workers - i) for i in range(num_workers)],
             range=[0, num_workers],
-            title=dict(text="Worker", standoff=1),
-            title_font=dict(family="Computer Modern Roman", size=12),
-            tickfont=dict(family="Computer Modern Roman", size=10),
+            title=dict(text="Worker", standoff=14),
+            title_font=dict(family="Computer Modern Roman", size=11),
+            tickfont=dict(family="Computer Modern Roman", size=9),
         ),
         height=height,
         width=width,
         plot_bgcolor='white',
         autosize=False,
         margin=dict(l=10, r=10, t=10, b=10),
-        font=dict(family="Computer Modern Roman", size=12),
+        font=dict(family="Computer Modern Roman", size=11),
     )
 
     fig.update_xaxes(showgrid=False, scaleanchor="y", scaleratio=1)

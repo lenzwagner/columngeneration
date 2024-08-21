@@ -607,16 +607,16 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             elif value == 2:
                 color = '#feb77e'
             elif value == 3:
-                # Diagonal split
+                # Diagonale Teilung
                 fig.add_shape(
                     type="path",
-                    path=f"M {j},{i} L {j+1},{i} L {j},{i+1} Z",
+                    path=f"M {i},{j} L {i+1},{j} L {i},{j+1} Z",
                     fillcolor='#251255',
                     line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
-                    path=f"M {j+1},{i} L {j+1},{i+1} L {j},{i+1} Z",
+                    path=f"M {i+1},{j} L {i+1},{j+1} L {i},{j+1} Z",
                     fillcolor='#feb77e',
                     line=dict(width=0.1, color='black'),
                 )
@@ -626,36 +626,35 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
 
             fig.add_shape(
                 type="rect",
-                x0=j, y0=i, x1=j + 1, y1=i + 1,
+                x0=i, y0=j, x1=i + 1, y1=j + 1,
                 fillcolor=color,
                 line=dict(width=0.1, color='black'),
             )
 
     fig.update_shapes(dict(xref='x', yref='y'))
 
-    width = max(600, days * 30)
-    height = max(400, num_workers * 30)
+    width = max(300, num_workers * 30)
+    height = max(400, days * 32)
 
-    # Update layout with LaTeX-style fonts and sizing
+    # Layout-Anpassungen
     fig.update_layout(
         xaxis=dict(
             tickmode='array',
-            tickvals=[i + 0.5 for i in range(days)],
-            ticktext=[str(i + 1) for i in range(days)],
-            range=[0, days],
-            title=dict(text="Day", standoff=14),
-            title_font=dict(family="Computer Modern Roman", size=11),
-            tickfont=dict(family="Computer Modern Roman", size=9),
-            tickangle=-45,
+            tickvals=[1, 25, 50, 75, 100],
+            ticktext=[str(i) for i in [1, 25, 50, 75, 100]],
+            range=[1, num_workers],
+            title=dict(text="Worker", standoff=15),
+            title_font=dict(family="Computer Modern Roman", size=10),
+            tickfont=dict(family="Computer Modern Roman", size=5),
         ),
         yaxis=dict(
             tickmode='array',
-            tickvals=[i + 0.5 for i in range(num_workers)],
-            ticktext=[str(num_workers - i) for i in range(num_workers)],
-            range=[0, num_workers],
-            title=dict(text="Worker", standoff=14),
-            title_font=dict(family="Computer Modern Roman", size=11),
-            tickfont=dict(family="Computer Modern Roman", size=9),
+            tickvals=[1, 7, 14, 21, 28],
+            ticktext=[str(i) for i in [1, 7, 14, 21, 28]],
+            range=[days, 1],
+            title=dict(text="Day", standoff=16),
+            title_font=dict(family="Computer Modern Roman", size=10),
+            tickfont=dict(family="Computer Modern Roman", size=4),
         ),
         height=height,
         width=width,

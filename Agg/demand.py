@@ -226,7 +226,7 @@ def plot_demand_bar_by_day(demands, days, shifts, pt):
     plt.ylabel('Demand', fontsize=11)
     plt.grid(axis='y')
     plt.tight_layout()
-    plt.savefig('images/demand.svg', bbox_inches='tight')
+    plt.savefig('images/demand.eps', bbox_inches='tight')
     plt.show()
 
 def demand_dict_fifty_min(num_days, prob, demand, middle_shift, fluctuation=0.25, seed=None):
@@ -269,3 +269,63 @@ def demand_dict_fifty_min(num_days, prob, demand, middle_shift, fluctuation=0.25
             raise ValueError("Invalid middle_shift value")
 
     return demand_dict
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def plot_demand_bar_by_day2(demands, days, shifts, pt):
+    """
+    Plots the demand pattern over shifts using a stacked bar plot for a given number of days and shifts.
+
+    Parameters:
+    - demands: dict, demand values with keys as (day, shift) tuples.
+    - days: int, number of days.
+    - shifts: int, number of shifts per day.
+    - pt: int, width of the plot in points.
+    """
+    demands_by_day = np.zeros((days, shifts))
+    for (day, shift), demand in demands.items():
+        demands_by_day[day - 1, shift - 1] = demand
+
+    colors = plt.cm.magma(np.linspace(0.15, 0.85, shifts))
+
+    pt_in = pt / 72
+    ratio_gl = 1. / 1.918
+    width_plt = round(pt_in)
+    height_plt = round((width_plt) * ratio_gl)
+    plt.figure(figsize=(width_plt, height_plt))
+
+    bar_bottom = np.zeros(days)
+    bars = []
+
+    for shift in range(shifts):
+        bars.append(plt.bar(range(1, days + 1), demands_by_day[:, shift], bottom=bar_bottom, color=colors[shift],
+                            label=f'Shift {shift + 1}'))
+        bar_bottom += demands_by_day[:, shift]
+
+    plt.xticks(ticks=range(1, days + 1), labels=[f"{i + 1}" for i in range(days)], rotation=0)
+    plt.xlabel('Day', fontsize=11)
+    plt.ylabel('Demand', fontsize=11)
+
+    # Add legend horizontally below the x-axis
+    plt.legend(title='Shifts', loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=shifts)
+
+    plt.grid(axis='y')
+
+    # Add demand values to each bar
+    for shift_idx, bars_shift in enumerate(bars):
+        for bar in bars_shift:
+            yval = bar.get_height()
+            xval = bar.get_x() + bar.get_width() / 2
+            bar_label = f'{int(yval)}'
+            if yval < 5:  # Adjust the threshold as needed
+                plt.text(xval, bar.get_y() + yval + 0.5, bar_label, ha='center', va='bottom', fontsize=6, color='black')
+            else:
+                plt.text(xval, bar.get_y() + yval / 2, bar_label, ha='center', va='center', fontsize=6, color='white')
+
+    plt.tight_layout()
+    plt.savefig('images/demand.eps', bbox_inches='tight')
+    plt.show()
+

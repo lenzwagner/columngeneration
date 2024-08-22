@@ -23,8 +23,8 @@ combined_list = [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 
 
 # **** Prerequisites ****
 # Create Dataframes
-eps_ls = [0.04]
-chi_ls = [1]
+eps_ls = [0.06]
+chi_ls = [3]
 T = list(range(1, 29))
 I = list(range(1, 101))
 K = [1, 2, 3]
@@ -60,7 +60,7 @@ data = pd.DataFrame({
 
 # Datanames
 current_time = datetime.now().strftime('%Y-%m-%d_%H')
-file = f'comb_0.04-1'
+file = f'comb_0.06-3'
 #file2 = f'comb_condens_0.06-1'
 file_name_csv2 = f'.{os.sep}results{os.sep}study{os.sep}comb{os.sep}new{os.sep}{file}.csv'
 file_name_xlsx2 = f'.{os.sep}results{os.sep}study{os.sep}comb{os.sep}new{os.sep}{file}.xlsx'
@@ -299,11 +299,12 @@ for epsilon in eps_ls:
         file3 = 'comb__' + comb_text
 
         path = f'./images/schedules/worker_schedules' + comb_text + '.svg'
-        fig = visualize_schedule_dual(combine_lists(ls_sc_behav, ls_sc1, len(T), len(I)), len(T), len(I), 100)
-        pio.write_image(fig, path, height=230, width=700, engine='kaleido')
+        print(f"Ls{combine_lists(ls_sc_behav, ls_sc1, len(T), len(I))}")
+        #fig = visualize_schedule_dual(combine_lists(ls_sc_behav, ls_sc1, len(T), len(I)), len(T), len(I), 100)
+        #pio.write_image(fig, path, height=230, width=700, engine='kaleido')
 
         print(f"Lists: {combine_lists(ls_sc_behav, ls_sc1, len(T), len(I))}")
-        performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 20, eps, chi)
+        performancePlotAvg(ls_p_behavior, perf_ls_ab, len(T), file, 10, eps, chi)
 
         plot_relative_undercover_dual(create_dict_from_list(undercoverage_behavior, len(T), len(K)),
                                       create_dict_from_list(cumulative_total, len(T), len(K)), demand_dict, len(T),

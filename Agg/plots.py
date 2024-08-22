@@ -527,14 +527,14 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     grid = list(range(1, days + 1))
 
     # Define color palettes
-
-    hexcode1 = '#251255'
-    rgb_color1 = mcolors.to_rgb(hexcode1)
-    palette1 = [rgb_color1]
-
-    hexcode2 = '#feb77e'
+    hexcode2 = '#251255'
     rgb_color2 = mcolors.to_rgb(hexcode2)
     palette2 = [rgb_color2]
+
+    hexcode1 = '#feb77e'
+    # Modify the yellow color to be more contrasting
+    rgb_color1 = mcolors.to_rgb(hexcode1)
+    palette1 = [rgb_color1]
 
     # Create a separate plot for overall average performance
     fig, ax = plt.subplots(figsize=(11, 5))
@@ -547,7 +547,8 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     overall_lower_bound1 = np.maximum(overall_avg1 - overall_std1, 0)
     overall_upper_bound1 = np.minimum(overall_avg1 + overall_std1, 1)
 
-    ax.fill_between(grid, overall_lower_bound1, overall_upper_bound1, alpha=0.2, color=palette1[0])
+    # Increase the alpha to make yellow more visible
+    ax.fill_between(grid, overall_lower_bound1, overall_upper_bound1, alpha=0.3, color=palette1[0], edgecolor='gold')
 
     # Plot average and std for list 2 (NPP)
     overall_avg2 = np.mean(avg_performance2, axis=0)
@@ -561,7 +562,7 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     # Configure plot details
     ax.set_xlim(grid[0] - .5, grid[-1] + .5)
-    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - eps, 1.02)
+    ax.set_ylim(min(min(overall_lower_bound1), min(overall_lower_bound2)) - 0.05, 1.02)
     ax.set_xlabel('Day')
     ax.set_ylabel(r'Average Daily Performance $\bar{p}_{id}$')
     ax.set_xticks(range(1, days + 1))
@@ -603,21 +604,21 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             if value == 0:
                 color = 'white'
             elif value == 1:
-                color = '#251255'
-            elif value == 2:
                 color = '#feb77e'
+            elif value == 2:
+                color = '#251255'
             elif value == 3:
                 # Diagonale Teilung
                 fig.add_shape(
                     type="path",
                     path=f"M {i},{j} L {i+1},{j} L {i},{j+1} Z",
-                    fillcolor='#251255',
+                    fillcolor='#feb77e',
                     line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
                     path=f"M {i+1},{j} L {i+1},{j+1} L {i},{j+1} Z",
-                    fillcolor='#feb77e',
+                    fillcolor='#251255',
                     line=dict(width=0.1, color='black'),
                 )
                 continue
@@ -634,7 +635,7 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
     fig.update_shapes(dict(xref='x', yref='y'))
 
     width = max(300, num_workers * 30)
-    height = max(400, days * 32)
+    height = max(400, days * 30)
 
     # Layout-Anpassungen
     fig.update_layout(
@@ -643,7 +644,7 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             tickvals=[1, 25, 50, 75, 100],
             ticktext=[str(i) for i in [1, 25, 50, 75, 100]],
             range=[1, num_workers],
-            title=dict(text="Worker", standoff=15),
+            title=dict(text="Worker", standoff=12),
             title_font=dict(family="Computer Modern Roman", size=10),
             tickfont=dict(family="Computer Modern Roman", size=5),
         ),
@@ -652,7 +653,7 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             tickvals=[1, 7, 14, 21, 28],
             ticktext=[str(i) for i in [1, 7, 14, 21, 28]],
             range=[days, 1],
-            title=dict(text="Day", standoff=16),
+            title=dict(text="Day", standoff=10),
             title_font=dict(family="Computer Modern Roman", size=10),
             tickfont=dict(family="Computer Modern Roman", size=4),
         ),

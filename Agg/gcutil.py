@@ -429,7 +429,7 @@ def process_recovery(input_list, chi, length):
         new_sublist = [0.0] * chi
 
         for i in range(chi, len(sublist)):
-            if any(sublist[max(0, i - chi):i]):
+            if any(sublist[max(0, i - chi):i+1]):
                 new_sublist.append(0.0)
             else:
                 new_sublist.append(1.0)

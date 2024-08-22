@@ -227,7 +227,7 @@ def plot_relative_undercover_dual(ls1, ls2, demand_dict, days, shifts, pt, filen
     x = np.arange(1, days + 1)
     width = 0.35
 
-    colors = plt.cm.magma([0.2, 0.8])  # Use magma colorscheme with two distinct colors
+    colors = plt.cm.magma([0.8, 0.2])  # Use magma colorscheme with two distinct colors
 
     bars1 = plt.bar(x - width/2, daily_relative_undercover1, width, color=colors[0], alpha=0.7, label='Human-Scheduling Approach (HSA)')
     bars2 = plt.bar(x + width/2, daily_relative_undercover2, width, color=colors[1], alpha=0.7, label='Machine-Like Scheduling Approach (MLSA)')

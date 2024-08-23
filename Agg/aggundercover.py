@@ -265,5 +265,5 @@ def plot_relative_undercover_dual(ls1, ls2, demand_dict, days, shifts, pt, filen
         base_filename += f'_{filename_suffix}'
 
     plt.savefig(f'images/undercover/{base_filename}.svg', bbox_inches='tight')
-    plt.savefig(f'images/undercover/{base_filename}.png', bbox_inches='tight')
+    #plt.savefig(f'images/undercover/{base_filename}.eps', bbox_inches='tight')
     plt.show()

@@ -310,7 +310,7 @@ def plot_demand_bar_by_day2(demands, days, shifts, pt):
     plt.ylabel('Demand', fontsize=11)
 
     # Add legend horizontally below the x-axis
-    plt.legend(title='Shifts', loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=shifts)
+    plt.legend(title='Shifts', loc='upper center', bbox_to_anchor=(0.5, -0.22), ncol=shifts)
 
     plt.grid(axis='y')
 

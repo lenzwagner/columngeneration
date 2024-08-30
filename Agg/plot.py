@@ -399,5 +399,5 @@ def plot_two_plots(option1, option2, file1, file2, metric1, metric2, name, x_axi
 
 
 # Example function call
-plot_two_plots(2, 2, 'data/data_all.csv', 'data/data_all.csv', 'undercover', 'cons', 'combined_plot', x_axis='epsilon',
+plot_two_plots(2, 2, 'data/data_al2l.csv', 'data/data_al2l.csv', 'undercover', 'cons', 'combined_plot', x_axis='epsilon',
                grid=False)

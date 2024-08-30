@@ -542,7 +542,7 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     # Plot average and std for list 1 (BAP)
     overall_avg1 = np.mean(avg_performance1, axis=0)
     overall_std1 = np.std(avg_performance1, axis=0)
-    ax.plot(grid, overall_avg1, lw=2, color=palette1[0], label='Human-Scheduling Approach (HSA)')
+    ax.plot(grid, overall_avg1, lw=2, color=palette1[0], label='Human-Scheduling Approach')
 
     overall_lower_bound1 = np.maximum(overall_avg1 - overall_std1, 0)
     overall_upper_bound1 = np.minimum(overall_avg1 + overall_std1, 1)
@@ -553,7 +553,7 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
     # Plot average and std for list 2 (NPP)
     overall_avg2 = np.mean(avg_performance2, axis=0)
     overall_std2 = np.std(avg_performance2, axis=0)
-    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Machine-Like Scheduling Approach (MLSA)')
+    ax.plot(grid, overall_avg2, lw=2, color=palette2[0], label='Machine-Like Scheduling Approach')
 
     overall_lower_bound2 = np.maximum(overall_avg2 - overall_std2, 0)
     overall_upper_bound2 = np.minimum(overall_avg2 + overall_std2, 1)
@@ -577,10 +577,10 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     print("Overall average comparison plot generated successfully.")
 
-def visualize_schedule_dual(dic, days, I, num_workers=None):
+
+def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend_y=-0.2):
     if num_workers is None or num_workers > I:
         num_workers = I
-
     result = {}
     index = 0
     for i in range(I, 0, -1):
@@ -590,17 +590,13 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
                 index += 1
             else:
                 break
-
     s = pd.Series(result)
     data = s.unstack(fill_value=0)
     data = data.iloc[:num_workers]
-
     fig = go.Figure()
-
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
             value = data.iloc[i, j]
-
             if value == 0:
                 color = 'white'
             elif value == 1:
@@ -608,36 +604,32 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             elif value == 2:
                 color = '#251255'
             elif value == 3:
-                # Diagonale Teilung
+                # Diagonal split
                 fig.add_shape(
                     type="path",
-                    path=f"M {i},{j} L {i+1},{j} L {i},{j+1} Z",
+                    path=f"M {i},{j} L {i + 1},{j} L {i},{j + 1} Z",
                     fillcolor='#feb77e',
                     line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
-                    path=f"M {i+1},{j} L {i+1},{j+1} L {i},{j+1} Z",
+                    path=f"M {i + 1},{j} L {i + 1},{j + 1} L {i},{j + 1} Z",
                     fillcolor='#251255',
                     line=dict(width=0.1, color='black'),
                 )
                 continue
             else:
                 color = 'gray'
-
             fig.add_shape(
                 type="rect",
                 x0=i, y0=j, x1=i + 1, y1=j + 1,
                 fillcolor=color,
                 line=dict(width=0.1, color='black'),
             )
-
     fig.update_shapes(dict(xref='x', yref='y'))
-
     width = max(300, num_workers * 30)
     height = max(400, days * 30)
-
-    # Layout-Anpassungen
+    # Layout adjustments
     fig.update_layout(
         xaxis=dict(
             tickmode='array',
@@ -657,16 +649,37 @@ def visualize_schedule_dual(dic, days, I, num_workers=None):
             title_font=dict(family="Computer Modern Roman", size=10),
             tickfont=dict(family="Computer Modern Roman", size=4),
         ),
-        height=height,
+        height=height + 50,  # Increased height to accommodate legend
         width=width,
         plot_bgcolor='white',
         autosize=False,
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin=dict(l=10, r=10, t=10, b=60),  # Increased bottom margin for legend
         font=dict(family="Computer Modern Roman", size=11),
+    )
+
+    # Add legend with rectangular markers
+    legend_items = [
+        go.Scatter(x=[None], y=[None], mode='markers',
+                   marker=dict(size=10, color='#feb77e', symbol='square'),
+                   name='Human Scheduling Approach', showlegend=True),
+        go.Scatter(x=[None], y=[None], mode='markers',
+                   marker=dict(size=10, color='#251255', symbol='square'),
+                   name='Machine-Like Scheduling Approach', showlegend=True)
+    ]
+    fig.add_traces(legend_items)
+
+    fig.update_layout(
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=legend_y,
+            xanchor="center",
+            x=legend_x,
+            font=dict(family="Computer Modern Roman", size=9)
+        )
     )
 
     fig.update_xaxes(showgrid=False, scaleanchor="y", scaleratio=1)
     fig.update_yaxes(showgrid=False)
-
     fig.show()
     return fig

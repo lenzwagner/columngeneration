@@ -475,4 +475,4 @@ def plot_combined_data(file1, file2, x_axis='epsilon', grid=False):
     plt.savefig('images/combined_sens.svg', bbox_inches='tight')
     plt.show()
 
-plot_combined_data('data/data_sens_all.csv', 'data/Relevant/sens_pat_all.csv', x_axis='epsilon', grid=False)
+plot_combined_data('data/data_sens_all2.csv', 'data/Relevant/sens_pat_all.csv', x_axis='epsilon', grid=False)

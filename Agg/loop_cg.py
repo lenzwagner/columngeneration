@@ -11,7 +11,7 @@ import os
 
 # **** Prerequisites ****
 # Create Dataframes
-I_values = [50, 100, 150]
+I_values = [150]
 prob_values = [0.9, 1.0, 1.1]
 pattern = 2
 T = list(range(1, 29))
@@ -29,7 +29,7 @@ time_cg = 7200
 time_cg_init = 60
 time_compact = 20
 eps = 0.06
-chi = 5
+chi = 3
 
 ## Dataframe
 current_time = datetime.now().strftime('%Y-%m-%d_%H')

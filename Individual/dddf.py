@@ -1,117 +1,69 @@
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
+import random
 
-# Data preparation
-epsilon = [0, 0.02, 0.04, 0.06, 0.08, 0.10]
-chi = [3, 4, 5, 6, 7]
+def plot_relative_undercover_dual(ls1, ls2, demand_dict, days, shifts):
+    list1, list2 = [], []
 
-# Undercoverage data
-data_BAP_undercoverage = np.array([
-    [8.960, 8.960, 8.960, 8.960, 8.960],
-    [9.002, 9.038, 9.064, 9.091, 9.126],
-    [9.043, 9.120, 9.168, 9.227, 9.290],
-    [9.084, 9.190, 9.273, 9.345, 9.433],
-    [9.120, 9.261, 9.356, 9.447, 9.541],
-    [9.157, 9.320, 9.423, 9.524, 9.631]
-])
+    for day in range(1, days + 1):
+        daily_sum1 = sum(ls1.get((day, shift), 0) for shift in range(1, shifts + 1))
+        daily_sum2 = sum(ls2.get((day, shift), 0) for shift in range(1, shifts + 1))
+        daily_demand_sum = sum(demand_dict.get((day, shift), 0) for shift in range(1, shifts + 1))
 
-data_NPP_undercoverage = np.array([
-    [8.960, 8.960, 8.960, 8.960, 8.960],
-    [9.562, 9.856, 9.928, 9.978, 10.005],
-    [10.165, 10.752, 10.897, 10.997, 11.050],
-    [10.767, 11.648, 11.865, 12.015, 12.095],
-    [11.369, 12.544, 12.834, 13.033, 13.140],
-    [11.971, 13.440, 13.802, 14.051, 14.185]
-])
+        if daily_demand_sum > 0:
+            relative1 = daily_sum1 / daily_demand_sum
+            relative2 = daily_sum2 / daily_demand_sum
+        else:
+            relative1 = relative2 = 0
 
-# Consistency data
-data_BAP_consistency = np.array([
-    [7.090, 7.202, 7.601, 7.482, 7.119],
-    [4.166, 3.980, 3.643, 3.613, 3.600],
-    [4.310, 3.860, 3.640, 3.576, 3.545],
-    [4.139, 3.891, 3.533, 3.447, 3.419],
-    [4.207, 3.721, 3.399, 3.357, 3.250],
-    [4.119, 3.657, 3.231, 3.090, 2.918]
-])
+        list1.append(relative1)
+        list2.append(relative2)
 
-data_NPP_consistency = np.full((6, 5), 7.326)
+    plt.figure(figsize=(12, 6))
 
-# 1. Heatmaps for Undercoverage
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    x = np.arange(1, days + 1)
+    width = 0.35
 
-sns.heatmap(data_BAP_undercoverage, annot=True, fmt='.3f', cmap='Blues', ax=ax1)
-ax1.set_title('BAP Undercoverage')
-ax1.set_xlabel('χ')
-ax1.set_ylabel('ε')
-ax1.set_xticklabels(chi)
-ax1.set_yticklabels(epsilon)
+    colors = plt.cm.magma([0.8, 0.2])
 
-sns.heatmap(data_NPP_undercoverage, annot=True, fmt='.3f', cmap='Reds', ax=ax2)
-ax2.set_title('NPP Undercoverage')
-ax2.set_xlabel('χ')
-ax2.set_ylabel('ε')
-ax2.set_xticklabels(chi)
-ax2.set_yticklabels(epsilon)
+    bars1 = plt.bar(x - width / 2, list1, width, color=colors[0], alpha=0.7, label='Option 1')
+    bars2 = plt.bar(x + width / 2, list2, width, color=colors[1], alpha=0.7, label='Option 2')
 
-plt.tight_layout()
-plt.savefig('heatmap_undercoverage.png')
-plt.close()
+    plt.xlabel('Days', fontsize=14.5, labelpad=15)
+    plt.ylabel('Relative Costs', fontsize=14.5, labelpad=15)
 
-# 2. Heatmaps for Consistency
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.xticks(x)
 
-sns.heatmap(data_BAP_consistency, annot=True, fmt='.3f', cmap='Greens', ax=ax1)
-ax1.set_title('BAP Consistency')
-ax1.set_xlabel('χ')
-ax1.set_ylabel('ε')
-ax1.set_xticklabels(chi)
-ax1.set_yticklabels(epsilon)
+    def add_value_labels(bars):
+        for bar in bars:
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width() / 2., height + 0.01, f'{height:.2%}',
+                     ha='center', va='bottom', rotation=90, fontsize=10, color='black',
+                     bbox=dict(facecolor='none', edgecolor='red', alpha= 0, pad=0.))
 
-sns.heatmap(data_NPP_consistency, annot=True, fmt='.3f', cmap='Oranges', ax=ax2)
-ax2.set_title('NPP Consistency')
-ax2.set_xlabel('χ')
-ax2.set_ylabel('ε')
-ax2.set_xticklabels(chi)
-ax2.set_yticklabels(epsilon)
+    add_value_labels(bars1)
+    add_value_labels(bars2)
 
-plt.tight_layout()
-plt.savefig('heatmap_consistency.png')
-plt.close()
+    # Find the maximum height of all bars
+    max_height = max(max(bar.get_height() for bar in bars1), max(bar.get_height() for bar in bars2))
 
-# 3. Line Charts for Undercoverage
-plt.figure(figsize=(12, 6))
+    # Add a margin above the highest bar for the labels and legend
+    legend_margin = 0.15 * max_height
+    plt.ylim(top=max_height + legend_margin)
 
-for i, c in enumerate(chi):
-    plt.plot(epsilon, data_BAP_undercoverage[:, i], label=f'BAP (χ={c})', marker='o')
-    plt.plot(epsilon, data_NPP_undercoverage[:, i], label=f'NPP (χ={c})', marker='s', linestyle='--')
+    # Erstelle die Legende mit dünnerem Rahmen
+    legend = plt.legend(loc='upper left', bbox_to_anchor=(0.02, 0.98), ncol=1, frameon=True, edgecolor='black', facecolor='white', framealpha=1, fontsize=14.5)  # Set font size to match axis labels
+    legend.get_frame().set_linewidth(0.5)
 
-plt.xlabel('ε')
-plt.ylabel('Undercoverage')
-plt.title('Undercoverage for BAP and NPP')
-plt.legend()
-plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
-plt.tight_layout()
-plt.savefig('line_chart_undercoverage.png')
-plt.close()
 
-# 4. Line Charts for Consistency
-plt.figure(figsize=(12, 6))
+def generate_random_data(days, shifts, min_value, max_value):
+    return {(day, shift): round(random.uniform(min_value, max_value), 2) for day in range(1, days + 1) for shift in range(1, shifts + 1)}
 
-for i, c in enumerate(chi):
-    plt.plot(epsilon, data_BAP_consistency[:, i], label=f'BAP (χ={c})', marker='o')
-    plt.plot(epsilon, data_NPP_consistency[:, i], label=f'NPP (χ={c})', marker='s', linestyle='--')
+demand_dict, u1, u2 = generate_random_data(28, 3, 0, 105), generate_random_data(28, 3, 0, 100), generate_random_data(28, 3, 0, 100)
 
-plt.xlabel('ε')
-plt.ylabel('Consistency')
-plt.title('Consistency for BAP and NPP')
-plt.legend()
-plt.grid(True)
+plot_relative_undercover_dual(u1, u2, demand_dict, 28, 3)
 
-plt.tight_layout()
-plt.savefig('line_chart_consistency.png')
-plt.close()
-
-print("All visualizations have been generated and saved as PNG files.")

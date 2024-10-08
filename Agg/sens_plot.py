@@ -467,8 +467,8 @@ def plot_combined_data(file1, file2, x_axis='epsilon', grid=False):
     # Simplify labels to reduce legend width
     simplified_labels = [label.replace('HSA', 'HSA').replace('MLSA', 'MLSA') for label in labels]
 
-    fig.legend(handles, simplified_labels, loc='lower center', bbox_to_anchor=(0.5, -0.01),
-               ncol=len(handles), fontsize=10, handletextpad=0.5, columnspacing=1)
+    fig.legend(handles, simplified_labels, loc='lower center', bbox_to_anchor=(0.5, -0.012),
+               ncol=len(handles), fontsize=11, handletextpad=0.5, columnspacing=1)
 
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.12)

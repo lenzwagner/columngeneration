@@ -577,10 +577,50 @@ def performancePlotAvg(ls1, ls2, days, name, anzahl_ls, eps, chi):
 
     print("Overall average comparison plot generated successfully.")
 
+    # Create a separate figure for the legend
+    figlegend = plt.figure(figsize=(6.6, 0.5))  # 660 Pixel breit bei 100 dpi, Höhe anpassbar
+    ax = figlegend.add_subplot(111)
 
-def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend_y=-0.2):
+    legend_elements = [
+        plt.Line2D([0], [0], color=palette1[0], lw=2, label='Human-Scheduling Approach'),
+        plt.Line2D([0], [0], color=palette2[0], lw=2, label='Machine-Like Scheduling Approach')
+    ]
+
+    # Erstellen Sie die Legende
+    leg = ax.legend(handles=legend_elements, loc='center', ncol=2, frameon=False,
+                    fontsize=11, handlelength=1.5, handleheight=1)
+
+    # Entfernen Sie die Achsen
+    ax.axis('off')
+
+    # Passen Sie die Figurengröße an den Inhalt an
+    bbox = leg.get_window_extent(figlegend.canvas.get_renderer()).transformed(figlegend.dpi_scale_trans.inverted())
+    figlegend.set_size_inches(6.6, bbox.height)
+
+    # Zentrieren Sie die Legende vertikal
+    fig_height = figlegend.get_size_inches()[1]
+    leg_height = bbox.height
+    y_offset = (fig_height - leg_height) / 2
+    leg.set_bbox_to_anchor((0.5, 0.5 + y_offset/fig_height), transform=ax.transAxes)
+
+    # Speichern Sie die Legende als separates Bild
+    legend_file = f".{os.sep}images{os.sep}perfplots{os.sep}perfpl_legend_{eps}_{chi}.svg"
+    plt.savefig(legend_file, dpi=100, bbox_inches='tight', pad_inches=0.1)
+
+    plt.close(fig)
+    plt.close(figlegend)
+
+    print("Overall average comparison plot and separate legend generated successfully.")
+
+
+
+
+
+
+def visualize_schedule_dual(dic, days, I, num_workers=None):
     if num_workers is None or num_workers > I:
         num_workers = I
+
     result = {}
     index = 0
     for i in range(I, 0, -1):
@@ -590,13 +630,17 @@ def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend
                 index += 1
             else:
                 break
+
     s = pd.Series(result)
     data = s.unstack(fill_value=0)
     data = data.iloc[:num_workers]
+
     fig = go.Figure()
+
     for i in range(data.shape[0]):
         for j in range(data.shape[1]):
             value = data.iloc[i, j]
+
             if value == 0:
                 color = 'white'
             elif value == 1:
@@ -604,32 +648,44 @@ def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend
             elif value == 2:
                 color = '#251255'
             elif value == 3:
-                # Diagonal split
+                # Diagonale Teilung
                 fig.add_shape(
                     type="path",
-                    path=f"M {i},{j} L {i + 1},{j} L {i},{j + 1} Z",
+                    path=f"M {i},{j} L {i+1},{j} L {i},{j+1} Z",
                     fillcolor='#feb77e',
                     line=dict(width=0.1, color='black'),
                 )
                 fig.add_shape(
                     type="path",
-                    path=f"M {i + 1},{j} L {i + 1},{j + 1} L {i},{j + 1} Z",
+                    path=f"M {i+1},{j} L {i+1},{j+1} L {i},{j+1} Z",
                     fillcolor='#251255',
                     line=dict(width=0.1, color='black'),
                 )
                 continue
             else:
                 color = 'gray'
+
             fig.add_shape(
                 type="rect",
                 x0=i, y0=j, x1=i + 1, y1=j + 1,
                 fillcolor=color,
                 line=dict(width=0.1, color='black'),
             )
+
     fig.update_shapes(dict(xref='x', yref='y'))
+
     width = max(300, num_workers * 30)
     height = max(400, days * 30)
-    # Layout adjustments
+
+    # Legende hinzufügen
+    legend_items = [
+        go.Scatter(x=[None], y=[None], mode='markers', marker=dict(size=10, color='#feb77e', symbol='square'), name='Model 1', showlegend=True),
+        go.Scatter(x=[None], y=[None], mode='markers', marker=dict(size=10, color='#251255', symbol='square'), name='Model 2', showlegend=True),
+        go.Scatter(x=[None], y=[None], mode='markers', marker=dict(size=10, color='#feb77e', symbol='square-dot'), name='Model 3', showlegend=True)
+    ]
+    fig.add_traces(legend_items)
+
+    # Layout-Anpassungen
     fig.update_layout(
         xaxis=dict(
             tickmode='array',
@@ -638,7 +694,7 @@ def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend
             range=[1, num_workers],
             title=dict(text="Worker", standoff=12),
             title_font=dict(family="Computer Modern Roman", size=10),
-            tickfont=dict(family="Computer Modern Roman", size=5),
+            tickfont=dict(family="Computer Modern Roman", size=6),
         ),
         yaxis=dict(
             tickmode='array',
@@ -647,39 +703,26 @@ def visualize_schedule_dual(dic, days, I, num_workers=None, legend_x=0.5, legend
             range=[days, 1],
             title=dict(text="Day", standoff=10),
             title_font=dict(family="Computer Modern Roman", size=10),
-            tickfont=dict(family="Computer Modern Roman", size=4),
+            tickfont=dict(family="Computer Modern Roman", size=6),
         ),
-        height=height + 50,  # Increased height to accommodate legend
+        height=height + 50,  # Höhe erhöht, um Platz für die Legende zu schaffen
         width=width,
         plot_bgcolor='white',
         autosize=False,
-        margin=dict(l=10, r=10, t=10, b=60),  # Increased bottom margin for legend
+        margin=dict(l=10, r=10, t=10, b=80),  # Unterer Rand erhöht für die Legende
         font=dict(family="Computer Modern Roman", size=11),
-    )
-
-    # Add legend with rectangular markers
-    legend_items = [
-        go.Scatter(x=[None], y=[None], mode='markers',
-                   marker=dict(size=10, color='#feb77e', symbol='square'),
-                   name='Human Scheduling Approach', showlegend=True),
-        go.Scatter(x=[None], y=[None], mode='markers',
-                   marker=dict(size=10, color='#251255', symbol='square'),
-                   name='Machine-Like Scheduling Approach', showlegend=True)
-    ]
-    fig.add_traces(legend_items)
-
-    fig.update_layout(
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=legend_y,
+            yanchor="top",
+            y=-0.15,
             xanchor="center",
-            x=legend_x,
-            font=dict(family="Computer Modern Roman", size=9)
+            x=0.5,
+            font=dict(family="Computer Modern Roman", size=10)
         )
     )
 
     fig.update_xaxes(showgrid=False, scaleanchor="y", scaleratio=1)
     fig.update_yaxes(showgrid=False)
+
     fig.show()
     return fig
